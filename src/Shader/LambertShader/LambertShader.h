@@ -29,7 +29,8 @@ class LambertShader: public Shader
   Point3Dd ambient;
   Point3Dd diffuse;
   Point3Dd getAmbientColor();
-  Point3Dd getDiffuseColor(Light ** itVisibleLights, Hit&);
+  Point3Dd getDiffuseColor(Light * itVisibleLights, Hit&);
+  //  Point3Dd getDiffuseColor(Light ** itVisibleLights, Hit&);
   Point3Dd getLambertColor(Hit&);
 };
 

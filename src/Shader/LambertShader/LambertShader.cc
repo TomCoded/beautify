@@ -52,28 +52,28 @@ Point3Dd LambertShader::getAmbientColor()
 		  );
 }
 
-Point3Dd LambertShader::getDiffuseColor(Light ** itVisibleLights, 
+Point3Dd LambertShader::getDiffuseColor(Light * itVisibleLights, 
 					Hit &hitPoint) 
 {
   double diffuseMult, temp, r, g, b;
   r=g=b=0;
   diffuseMult =
-    ((*itVisibleLights)->getRayTo(hitPoint.point).dir).dot(hitPoint.normal.dir);
+    ((itVisibleLights)->getRayTo(hitPoint.point).dir).dot(hitPoint.normal.dir);
   
   //red
-  temp=(*itVisibleLights)->diffuse.x*diffuse.x*diffuseMult;
+  temp=(itVisibleLights)->diffuse.x*diffuse.x*diffuseMult;
 #ifdef DIFFUSE //if there's a global diffuse modifier
   temp=temp*DIFFUSE;
 #endif
   if(temp>0) r+=temp;
   //green
-  temp=(*itVisibleLights)->diffuse.y*diffuse.y*diffuseMult;
+  temp=(itVisibleLights)->diffuse.y*diffuse.y*diffuseMult;
 #ifdef DIFFUSE
   temp=temp*DIFFUSE;
 #endif
   if(temp>0) g+=temp;
   //blue
-  temp=(*itVisibleLights)->diffuse.z*diffuse.z*diffuseMult;
+  temp=(itVisibleLights)->diffuse.z*diffuse.z*diffuseMult;
 #ifdef DIFFUSE
   temp=temp*DIFFUSE;
 #endif
@@ -105,7 +105,7 @@ Point3Dd LambertShader::getLambertColor(Hit &hitPoint)
   //for each Light, add the diffuse components
   while(itLights != Lights->end() )
     { 
-      theLight+=getDiffuseColor(itLights++,hitPoint);
+      theLight+=getDiffuseColor(*(itLights++),hitPoint);
     }
   return theLight;
 }
