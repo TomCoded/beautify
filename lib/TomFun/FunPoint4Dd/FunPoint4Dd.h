@@ -87,17 +87,17 @@ public:
   FunNode * data[size];
 
   // read Transform from stream
-  istream& FunPoint4Dd::in(istream& is);
+  std::istream& in(std::istream& is);
 
   // append transform to stream
-  ostream& out(ostream&) const;
+  std::ostream& out(std::ostream&) const;
 
 };
   
 // read transform from stream
-istream& operator>>(istream& is, FunPoint4Dd& t);
+istream& operator>>(std::istream& is, FunPoint4Dd& t);
 
 // append transform to stream
-ostream& operator<<(ostream& o, const FunPoint4Dd& t);
+ostream& operator<<(std::ostream& o, const FunPoint4Dd& t);
 
 #endif D4TRANSFORM_H

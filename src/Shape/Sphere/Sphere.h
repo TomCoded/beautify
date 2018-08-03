@@ -68,10 +68,10 @@ public:
   void SetRadius(double);
 
   // usually, but not always, appropriate
-  ostream & out(ostream& o) const;
+  std::ostream & out(std::ostream& o) const;
 
   // get Sphere from keyboard: ((x,y,z),(x,y,z))
-  istream & in(istream& is);
+  std::istream & in(std::istream& is);
 
 private:
   Point3Dd center;
@@ -81,10 +81,10 @@ private:
 // Non-member functions for the type
 
 // binary input operator: version 2
-istream& operator>>(istream & is, Sphere& s);
+istream& operator>>(std::istream & is, Sphere& s);
 
 // binary output operator: version 2
-ostream& operator<<(ostream & o, const Sphere& s);
+ostream& operator<<(std::ostream & o, const Sphere& s);
 
 #endif SPHERE_H
 

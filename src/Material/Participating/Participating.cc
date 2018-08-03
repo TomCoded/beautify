@@ -236,7 +236,7 @@ void Participating::copyExtinctCo(Point3Dd &outparam,
 }
 
 
-istream& Participating::in(istream &is)
+istream& Participating::in(std::istream &is)
 {
   char ch;
   is >> ch;
@@ -283,19 +283,19 @@ istream& Participating::in(istream &is)
   return is;
 }
 
-ostream& Participating::out(ostream &o)
+ostream& Participating::out(std::ostream &o)
 {
   o << '('
     << scatCo << ')';
   return o;
 }
 
-istream& operator>>(istream& is, Participating&p)
+istream& operator>>(std::istream& is, Participating&p)
 {
   return p.in(is);
 }
 
-ostream& operator<<(ostream& o, Participating &p)
+ostream& operator<<(std::ostream& o, Participating &p)
 {
   return p.out(o);
 }

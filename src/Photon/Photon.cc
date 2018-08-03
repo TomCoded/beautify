@@ -1,6 +1,6 @@
 #include "Photon.h"
 
-ostream& operator<<(ostream& o, Photon& p)
+ostream& operator<<(std::ostream& o, Photon& p)
 {
   o << p.x << ' '
     << p.y << ' '
@@ -19,7 +19,7 @@ ostream& operator<<(ostream& o, Photon& p)
   return o;
 }
 
-istream& operator>>(istream& is, Photon& p)
+istream& operator>>(std::istream& is, Photon& p)
 {
   char c;
   is >> p.x 

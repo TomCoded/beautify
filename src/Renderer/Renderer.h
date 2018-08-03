@@ -61,8 +61,8 @@ class Renderer
   void deAllocate(vector <Light *> *);
 
   //I/O functions
-  istream& in(istream&);
-  ostream& out(ostream&);
+  std::istream& in(std::istream&);
+  std::ostream& out(std::ostream&);
 
   //ambient light of the scene
   Point3Dd ambient;

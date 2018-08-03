@@ -209,7 +209,7 @@ Point3Df Point3Df::apply(const Transform3Df& t) const
 }
 
 // append point to end of stream
-ostream& Point3Df::out(ostream& o) const
+ostream& Point3Df::out(std::ostream& o) const
 {
   o << "(";
   for(int i=0;i<size-1;i++)
@@ -220,7 +220,7 @@ ostream& Point3Df::out(ostream& o) const
 }
 
 // read array from stream
-istream& Point3Df::in(istream& is)
+istream& Point3Df::in(std::istream& is)
 {
   char c;
 
@@ -248,13 +248,13 @@ istream& Point3Df::in(istream& is)
 }
 
 // read a point:  a binary operator
-istream& operator>>(istream& is, Point3Df& p)
+istream& operator>>(std::istream& is, Point3Df& p)
 {
   p.in(is);
 }
 
 // print a point: a binary operator
-ostream& operator<<(ostream& o, const Point3Df& p)
+ostream& operator<<(std::ostream& o, const Point3Df& p)
 {
   return p.out(o);
 }

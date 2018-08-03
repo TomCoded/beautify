@@ -126,7 +126,7 @@ void DirLight::addPhotonsToMap(int numPhotons,
 
 // append point to end of stream
 
-ostream& DirLight::out(ostream& os) const {
+ostream& DirLight::out(std::ostream& os) const {
   os << "(" << diffuse << "," << specular << ',' << tInfinite 
      << ',' << dx
      << ',' << dy
@@ -137,7 +137,7 @@ ostream& DirLight::out(ostream& os) const {
 
 // read array from stream
 
-istream& DirLight::in(istream& is) {
+istream& DirLight::in(std::istream& is) {
   char c;
   is >> c;
   if (c != '(') {
@@ -191,13 +191,13 @@ istream& DirLight::in(istream& is) {
 
 // friends
 // read a DirLight:  a binary operator
-istream& operator>>(istream& is, DirLight& l)
+istream& operator>>(std::istream& is, DirLight& l)
 {
   l.in(is);
 }
 
 // print a DirLight: a binary operator
-ostream& operator<<(ostream& o, const DirLight& l)
+ostream& operator<<(std::ostream& o, const DirLight& l)
 {
   return l.out(o);
 }

@@ -350,7 +350,7 @@ void PhotonMap::outputTree(int nRoot) {
   }
 }
 
-ostream& PhotonMap::out(ostream& o){
+ostream& PhotonMap::out(std::ostream& o){
   FILE_TYPE FileType = UNCOMPRESSED_V2;
   switch(FileType)
     {
@@ -367,7 +367,7 @@ ostream& PhotonMap::out(ostream& o){
   return o;
 }
 
-istream& PhotonMap::in(istream& is){
+istream& PhotonMap::in(std::istream& is){
   string beginString; 
   int readFileType;
   char c;

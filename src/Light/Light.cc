@@ -6,9 +6,9 @@
 //destructor
 Light::~Light() {}
 
-istream& Light::in(istream&) {}
+istream& Light::in(std::istream&) {}
 
-ostream& Light::out(ostream&) const {}
+ostream& Light::out(std::ostream&) const {}
 
 double Light::getPower() const
 {

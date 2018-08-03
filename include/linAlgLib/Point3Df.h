@@ -95,17 +95,17 @@ public:
   Point3Df apply(const Transform3Df& t) const;
 
   // read point from stream
-  istream& in(istream& is);
+  std::istream& in(std::istream& is);
   
 // append point to end of stream
-  ostream& out(ostream&) const;
+  std::ostream& out(std::ostream&) const;
 };
 
 // read a point:  a binary operator
-istream& operator>>(istream& is, Point3Df& p);
+istream& operator>>(std::istream& is, Point3Df& p);
 
 // print a point: a binary operator
-ostream& operator<<(ostream& o, const Point3Df& p);
+ostream& operator<<(std::ostream& o, const Point3Df& p);
 
 #endif POINT3DF_H
 

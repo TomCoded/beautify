@@ -49,16 +49,16 @@ public:
   ~PointLight();
 
   // append PointLight to end of stream
-  ostream& out(ostream& os) const;
+  std::ostream& out(std::ostream& os) const;
     
   // read PointLight from stream
-  istream& in(istream& is);
+  std::istream& in(std::istream& is);
 };
 // friends
 // read a PointLight:  a binary operator
-istream& operator>>(istream& is, PointLight& m);
+istream& operator>>(std::istream& is, PointLight& m);
 
 // print a PointLight: a binary operator
-ostream& operator<<(ostream& o, const PointLight& m);
+ostream& operator<<(std::ostream& o, const PointLight& m);
 
 #endif POINTLIGHT_H_

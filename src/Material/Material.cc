@@ -117,7 +117,7 @@ double Material::getSpecCo(int nLightingModel)
   return specCo;
 }
 
-istream& Material::in(istream &in)
+istream& Material::in(std::istream &in)
 {
   char ch;
   in >> ch >> ambient;
@@ -154,7 +154,7 @@ istream& Material::in(istream &in)
   return in;
 }
 
-ostream& Material::out(ostream &o)
+ostream& Material::out(std::ostream &o)
 {
   o << '(';
   o << ambient << ','
@@ -164,12 +164,12 @@ ostream& Material::out(ostream &o)
   return o;
 }
 
-istream& operator>>(istream& is, Material &m)
+istream& operator>>(std::istream& is, Material &m)
 {
   return m.in(is);
 }
 
-ostream& operator<<(ostream& o, Material &m)
+ostream& operator<<(std::ostream& o, Material &m)
 {
   return m.out(o);
 }

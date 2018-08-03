@@ -59,17 +59,17 @@ public:
 
   // append DirLight to end of stream
 
-  ostream& out(ostream& os) const;
+  std::ostream& out(std::ostream& os) const;
     
   // read DirLight from stream
 
-  istream& in(istream& is);
+  std::istream& in(std::istream& is);
 };
 // friends
 // read a DirLight:  a binary operator
-istream& operator>>(istream& is, DirLight& m);
+istream& operator>>(std::istream& is, DirLight& m);
 
 // print a DirLight: a binary operator
-ostream& operator<<(ostream& o, const DirLight& m);
+ostream& operator<<(std::ostream& o, const DirLight& m);
 
 #endif DIRLIGHT_H_

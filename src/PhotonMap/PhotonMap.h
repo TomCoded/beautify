@@ -60,7 +60,7 @@ class PhotonMap {
   void setNumNeighbors(const int numNeighbors);
 
   //We will always check photons closer to location
-  //than sqrt(minSearchSqr) when generating
+  //than std::sqrt(minSearchSqr) when generating
   //radiance estimates.
   void setMinSearch(const double minSearchSqr);
 
@@ -80,8 +80,8 @@ class PhotonMap {
   void gatherPhotons(int maxPhotons);
 #endif
 
-  ostream& out(ostream&);
-  istream& in(istream&);
+  std::ostream& out(std::ostream&);
+  std::istream& in(std::istream&);
 
  protected:
   vector<Photon> unsortedPhotons;

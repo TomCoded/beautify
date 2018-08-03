@@ -36,8 +36,8 @@ class FunOrientNodeGL : public NodeGL
 
   void ActionGL();
 
-  istream& in(istream&);
-  ostream& out(ostream&) const;
+  std::istream& in(std::istream&);
+  std::ostream& out(std::ostream&) const;
 
  protected:
   FunNode * xFun;
@@ -50,8 +50,8 @@ class FunOrientNodeGL : public NodeGL
   double t; //current t
 };
 
-istream& operator>>(istream &is, FunOrientNodeGL& p);
+istream& operator>>(std::istream &is, FunOrientNodeGL& p);
 
-ostream& operator<<(ostream &o, const FunOrientNodeGL& p);
+ostream& operator<<(std::ostream &o, const FunOrientNodeGL& p);
 
 #endif

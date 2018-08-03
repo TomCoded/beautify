@@ -222,7 +222,7 @@ void Camera::rotate(double angle, double du, double dv, double dn) {
 }
 
 // append camera to stream
-ostream& Camera::out(ostream& os) const {
+ostream& Camera::out(std::ostream& os) const {
   os << "(" << eye.dehomogenize() << "," << lookAt.dehomogenize() << ",";
   os << up.dehomogenize() << ",";
   os << viewAngle << "," << aspectRatio << "," << near << "," << far;
@@ -232,7 +232,7 @@ ostream& Camera::out(ostream& os) const {
 
 // read camera from stream
 // skips leading and internal whitespace
-istream& Camera::in(istream& is) {
+istream& Camera::in(std::istream& is) {
   char c;
   Point3Dd inputPt;
   is >> c;
@@ -287,7 +287,7 @@ istream& Camera::in(istream& is) {
 
 // read Function camera from stream
 // skips leading and internal whitespace
-istream& Camera::funIn(istream& is) {
+istream& Camera::funIn(std::istream& is) {
   char c;
   Point3Dd inputPt;
   SumFunNode parser;
@@ -360,12 +360,12 @@ istream& Camera::funIn(istream& is) {
 // Non-member functions for the type
 
 // read Camera from stream
-istream& operator>>(istream & is, Camera& c) {
+istream& operator>>(std::istream & is, Camera& c) {
   return c.in(is);
 }
 
 // write Camera to stream
-ostream& operator<<(ostream & os, const Camera& c) {
+ostream& operator<<(std::ostream & os, const Camera& c) {
   return c.out(os);
 }
 

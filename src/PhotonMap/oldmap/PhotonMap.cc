@@ -1285,7 +1285,7 @@ double PhotonMap::distance(Photon &p, Point3Dd &loc)
   return (SQR(dx)+SQR(dy)+SQR(dz));
 }
 
-ostream& PhotonMap::out(ostream& o)
+ostream& PhotonMap::out(std::ostream& o)
 {
   int FileType = UNCOMPRESSED;
   switch(FileType)
@@ -1322,7 +1322,7 @@ ostream& PhotonMap::out(ostream& o)
   return o;
 }
 
-istream& PhotonMap::in(istream& is)
+istream& PhotonMap::in(std::istream& is)
 {
   string beginString; int readFileType;
   char c;

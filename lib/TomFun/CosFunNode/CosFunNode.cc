@@ -40,7 +40,7 @@ double CosFunNode::eval(int day, Stock *s) {
   return cos(childNode->eval(day,s));
 }
 
-ostream & CosFunNode::out(ostream& o)
+ostream & CosFunNode::out(std::ostream& o)
 {
   o << "cos(";
   childNode->out(o);

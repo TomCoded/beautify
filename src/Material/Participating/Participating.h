@@ -26,8 +26,8 @@ class Participating : public Material
 
   Point3Dd phaseFunction(const Point3Dd &in, const Point3Dd &out) const;
 
-  istream& in(istream&);
-  ostream& out(ostream&);
+  std::istream& in(std::istream&);
+  std::ostream& out(std::ostream&);
 
   int nRoulette(Photon &p);
   virtual void DoBRDF(Photon &p);

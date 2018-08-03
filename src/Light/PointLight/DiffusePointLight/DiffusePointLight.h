@@ -24,13 +24,13 @@ class DiffusePointLight : public PointLight
 
   Point3Dd getPower();
 
-  istream& in(istream&);
-  ostream& out(ostream&);
+  std::istream& in(std::istream&);
+  std::ostream& out(std::ostream&);
 
  protected:
 };
 
-istream& operator>>(istream&, DiffusePointLight&);
-ostream& operator<<(ostream&, DiffusePointLight&);
+istream& operator>>(std::istream&, DiffusePointLight&);
+ostream& operator<<(std::ostream&, DiffusePointLight&);
 
 #endif

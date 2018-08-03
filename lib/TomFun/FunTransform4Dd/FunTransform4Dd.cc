@@ -402,7 +402,7 @@ POINT_TYPE_4D FunTransform4Dd::operator*(const POINT_TYPE_4D& v) const
 }
 
 // append transform to stream
-ostream& FunTransform4Dd::out(ostream& o) const
+ostream& FunTransform4Dd::out(std::ostream& o) const
 {
   o << "(";
   for(int r=0;r<rowSize;r++) {
@@ -418,7 +418,7 @@ ostream& FunTransform4Dd::out(ostream& o) const
 }
 
 // read Transform from stream
-istream& FunTransform4Dd::in(istream& is)
+istream& FunTransform4Dd::in(std::istream& is)
 {
   char c;
   POINT_TYPE_4D input;
@@ -447,13 +447,13 @@ istream& FunTransform4Dd::in(istream& is)
 }
 
 // read transform from stream
-istream& operator>>(istream& is, FunTransform4Dd& t)
+istream& operator>>(std::istream& is, FunTransform4Dd& t)
 {
   t.in(is);
 }
 
 // append transform to stream
-ostream& operator<<(ostream& o, const FunTransform4Dd& t)
+ostream& operator<<(std::ostream& o, const FunTransform4Dd& t)
 {
   return t.out(o);
 }

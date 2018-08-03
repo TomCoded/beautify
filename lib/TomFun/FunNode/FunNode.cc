@@ -75,27 +75,27 @@ FunNode * FunNode::operator /(const double scalar)
 			new NumFunNode(scalar));
 };
 
-FunNode * FunNode::in(istream& is)
+FunNode * FunNode::in(std::istream& is)
 {
   string s;
   is >> s;
   return parseString(s);
 };
 
-ostream& FunNode::out(ostream& o)
+ostream& FunNode::out(std::ostream& o)
 {
   o << "Function Node at " << this << endl;
   return o;
 };
 
 // read Function
-istream& operator>>(istream& is, FunNode& f)
+istream& operator>>(std::istream& is, FunNode& f)
 {
   f.in(is);
 }
 
 // write function
-ostream& operator<<(ostream& o,  FunNode& f)
+ostream& operator<<(std::ostream& o,  FunNode& f)
 {
   return f.out(o);
 }

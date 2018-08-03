@@ -8,7 +8,7 @@
 #define POINT4DF_H
 
 #include <iostream>
-using namespace std;
+
 
 ///////////////////
 // class Point4Df //
@@ -104,17 +104,17 @@ public:
   Point4Df apply(const Transform4Df& t) const;
 
   // read point from stream
-  istream& in(istream& is);
+  std::istream& in(std::istream& is);
   
 // append point to end of stream
-  ostream& out(ostream&) const;
+  std::ostream& out(std::ostream&) const;
 };
 
 // read a point:  a binary operator
-istream& operator>>(istream& is, Point4Df& p);
+istream& operator>>(std::istream& is, Point4Df& p);
 
 // print a point: a binary operator
-ostream& operator<<(ostream& o, const Point4Df& p);
+ostream& operator<<(std::ostream& o, const Point4Df& p);
 
 #endif POINT4DF_H
 

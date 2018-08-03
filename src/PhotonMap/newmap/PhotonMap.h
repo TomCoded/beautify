@@ -20,8 +20,8 @@ class PhotonMap {
 
   Point3Dd getLuminanceAt(Point3Dd &);
 
-  ostream& out(ostream&);
-  istream& in(istream&);
+  std::ostream& out(std::ostream&);
+  std::istream& in(std::istream&);
 
  protected:
   vector<Photon> unsortedPhotons;

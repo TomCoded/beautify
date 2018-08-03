@@ -227,7 +227,7 @@ Point4Dd Point4Dd::apply(const Transform4Dd& t) const
 }
 
 // append point to end of stream
-ostream& Point4Dd::out(ostream& o) const
+ostream& Point4Dd::out(std::ostream& o) const
 {
   o << "(";
   for(int i=0;i<size-1;i++)
@@ -238,7 +238,7 @@ ostream& Point4Dd::out(ostream& o) const
 }
 
 // read array from stream
-istream& Point4Dd::in(istream& is)
+istream& Point4Dd::in(std::istream& is)
 {
   char c;
 
@@ -265,13 +265,13 @@ istream& Point4Dd::in(istream& is)
 }
 
 // read a point:  a binary operator
-istream& operator>>(istream& is, Point4Dd& p)
+istream& operator>>(std::istream& is, Point4Dd& p)
 {
   p.in(is);
 }
 
 // print a point: a binary operator
-ostream& operator<<(ostream& o, const Point4Dd& p)
+ostream& operator<<(std::ostream& o, const Point4Dd& p)
 {
   return p.out(o);
 }

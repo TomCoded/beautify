@@ -60,8 +60,8 @@ class PhotonMap
 
   Point3Dd getLuminanceAt(Point3Dd &);
 
-  ostream& out(ostream&);
-  istream& in(istream&);
+  std::ostream& out(std::ostream&);
+  std::istream& in(std::istream&);
 
   int getSize();
 
@@ -118,6 +118,6 @@ class PhotonMap
   //unsorted, quicksorted in dimension x, or kd-Tree
 };
 
-istream& operator>>(istream&,PhotonMap &);
+istream& operator>>(std::istream&,PhotonMap &);
 
 #endif

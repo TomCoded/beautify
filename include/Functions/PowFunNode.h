@@ -15,7 +15,7 @@ class PowFunNode : public FunNode
 
   double eval(double t);
 
-  ostream& out(ostream&);
+  std::ostream& out(std::ostream&);
 
  protected:
   FunNode * leftNode;

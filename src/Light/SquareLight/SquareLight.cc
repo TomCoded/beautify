@@ -147,7 +147,7 @@ void SquareLight::addPhotonsToMap(int numPhotons,
 
 // append point to end of stream
 
-ostream& SquareLight::out(ostream& os) const {
+ostream& SquareLight::out(std::ostream& os) const {
   os << '(' 
      << position
      << ',' 
@@ -170,7 +170,7 @@ ostream& SquareLight::out(ostream& os) const {
 
 // read array from stream
 
-istream& SquareLight::in(istream& is) {
+istream& SquareLight::in(std::istream& is) {
   char c;
   is >> c;
   if (c != '(') {
@@ -232,13 +232,13 @@ istream& SquareLight::in(istream& is) {
 
 // friends
 // read a SquareLight:  a binary operator
-istream& operator>>(istream& is, SquareLight& l)
+istream& operator>>(std::istream& is, SquareLight& l)
 {
   l.in(is);
 }
 
 // print a SquareLight: a binary operator
-ostream& operator<<(ostream& o, const SquareLight& l)
+ostream& operator<<(std::ostream& o, const SquareLight& l)
 {
   return l.out(o);
 }

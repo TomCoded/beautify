@@ -5,7 +5,7 @@ include Funs.mak
 
 OBJS = $(FUNCCS:.cc=.o)
 
-INCLDIRS = -I.. -I.
+INCLDIRS = -I.. -I. -I/usr/local/include
 
 #CC = g++
 

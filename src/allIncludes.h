@@ -6,7 +6,8 @@
 #include <config.h>
 #include <parallel_pm.h>
 #include <iostream>
-#include <math.h>
+//#include <math.h>
+#include <cmath>
 #include <vector>
 #include <Defs.h>
 #include <Point3Dd.h>

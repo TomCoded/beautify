@@ -82,7 +82,7 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
 
 }
 
-istream& DiffusePointLight::in(istream& is)
+istream& DiffusePointLight::in(std::istream& is)
 {
   char c;
   is >> c >> location;
@@ -123,7 +123,7 @@ istream& DiffusePointLight::in(istream& is)
   return is;
 }
 
-ostream& DiffusePointLight::out(ostream& o)
+ostream& DiffusePointLight::out(std::ostream& o)
 {
   o << '(' 
     << location 
@@ -137,13 +137,13 @@ ostream& DiffusePointLight::out(ostream& o)
   return o;
 }
 
-istream& operator>>(istream &is, DiffusePointLight
+istream& operator>>(std::istream &is, DiffusePointLight
 &l)
 {
   return l.in(is);
 }
 
-ostream& operator<<(ostream &o, DiffusePointLight &l)
+ostream& operator<<(std::ostream &o, DiffusePointLight &l)
 {
   return l.out(o);
 }

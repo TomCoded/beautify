@@ -118,17 +118,17 @@ public:
   FunNode * data[rowSize][colSize];
 
   // read Transform from stream
-  istream& FunTransform4Dd::in(istream& is);
+  std::istream& in(std::istream& is);
 
   // append transform to stream
-  ostream& out(ostream&) const;
+  std::ostream& out(std::ostream&) const;
 
 };
   
 // read transform from stream
-istream& operator>>(istream& is, FunTransform4Dd& t);
+istream& operator>>(std::istream& is, FunTransform4Dd& t);
 
 // append transform to stream
-ostream& operator<<(ostream& o, const FunTransform4Dd& t);
+ostream& operator<<(std::ostream& o, const FunTransform4Dd& t);
 
 #endif D4TRANSFORM_H

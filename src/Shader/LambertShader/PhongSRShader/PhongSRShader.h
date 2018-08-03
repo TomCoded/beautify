@@ -28,8 +28,8 @@ class PhongSRShader: public LambertShader
 
   Point3Dd getColor(Hit&);
 
-  istream& PhongSRShader::in(istream&);
-  ostream& PhongSRShader::out(ostream&);
+  std::istream& PhongSRShader::in(std::istream&);
+  std::ostream& PhongSRShader::out(std::ostream&);
 
  protected:
   double reflection;

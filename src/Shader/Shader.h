@@ -21,8 +21,8 @@ class Shader
   virtual Point3Dd getColor(Hit&) = 0;
 
   //I/O functions
-  virtual istream& in(istream&) = 0;
-  virtual ostream& out(ostream&) = 0;
+  virtual std::istream& in(std::istream&) = 0;
+  virtual std::ostream& out(std::ostream&) = 0;
 
   double transparency;
 

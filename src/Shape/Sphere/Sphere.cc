@@ -78,10 +78,10 @@ double Sphere::closestIntersect(Ray& r) const
   double discrim = B*B - A*C;
   if(discrim >= 0) { // they intersect
     // start checking roots for sign
-    t = (-B - sqrt(discrim))/A;
+    t = (-B - std::sqrt(discrim))/A;
     // if smaller root is negative, check larger one
     if(t < 0) {
-      t = (-B + sqrt(discrim))/A;
+      t = (-B + std::sqrt(discrim))/A;
       if(t < 0) t = -1;
     }
   }
@@ -110,14 +110,14 @@ void Sphere::SetRadius(double rad)
 }
 
 // output function
-ostream& Sphere::out(ostream& o) const
+ostream& Sphere::out(std::ostream& o) const
 {
   o << "(" << center << "," << radius << ")";
 }
 
 // input function
 // get Sphere from keyboard: ((x,y,z),r)
-istream & Sphere::in(istream& is)
+istream & Sphere::in(std::istream& is)
 {
   char c;
 
@@ -144,13 +144,13 @@ istream & Sphere::in(istream& is)
 // Non-member functions for the type
 
 // binary input operator: version 2
-istream& operator>>(istream & is, Sphere& s)
+istream& operator>>(std::istream & is, Sphere& s)
 {
   return s.in(is);
 }
 
 // binary output operator: version 2
-ostream& operator<<(ostream & o, const Sphere& s)
+ostream& operator<<(std::ostream & o, const Sphere& s)
 {
   return s.out(o);
 }

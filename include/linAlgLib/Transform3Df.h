@@ -103,17 +103,17 @@ public:
   Point3Df operator*(const Point3Df&) const;
 
   // read transform from stream
-  istream& Transform3Df::in(istream& is);
+  std::istream& Transform3Df::in(std::istream& is);
 
   // append transform to stream
-  ostream& out(ostream&) const;
+  std::ostream& out(std::ostream&) const;
 
 };
   
 // read transform from stream
-istream& operator>>(istream& is, Transform3Df& t);
+istream& operator>>(std::istream& is, Transform3Df& t);
 
 // append transform to stream
-ostream& operator<<(ostream& o, const Transform3Df& t);
+ostream& operator<<(std::ostream& o, const Transform3Df& t);
 
 #endif TRANSFORM3DF_H

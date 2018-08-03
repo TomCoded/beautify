@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include "Point4Df/Point4Df.h"
 #include "Transform4Df/Transform4Df.h"
-using namespace std;
+
 
 // Constructors
 // Default: create identity transform
@@ -299,7 +299,7 @@ Point4Df Transform4Df::operator*(const Point4Df& v) const
 }
 
 // append transform to stream
-ostream& Transform4Df::out(ostream& o) const
+ostream& Transform4Df::out(std::ostream& o) const
 {
   o << "(";
   for(int r=0;r<rowSize-1;r++) {
@@ -321,7 +321,7 @@ ostream& Transform4Df::out(ostream& o) const
 }
 
 // read Transform from stream
-istream& Transform4Df::in(istream& is)
+istream& Transform4Df::in(std::istream& is)
 {
   char c;
   Point4Df input;
@@ -354,13 +354,13 @@ istream& Transform4Df::in(istream& is)
 }
 
 // read transform from stream
-istream& operator>>(istream& is, Transform4Df& t)
+istream& operator>>(std::istream& is, Transform4Df& t)
 {
   t.in(is);
 }
 
 // append transform to stream
-ostream& operator<<(ostream& o, const Transform4Df& t)
+ostream& operator<<(std::ostream& o, const Transform4Df& t)
 {
   return t.out(o);
 }

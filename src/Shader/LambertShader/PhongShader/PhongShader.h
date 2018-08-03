@@ -26,8 +26,8 @@ class PhongShader: public LambertShader
 
   Point3Dd getColor(Hit&);
 
-  istream& PhongShader::in(istream&);
-  ostream& PhongShader::out(ostream&);
+  std::istream& PhongShader::in(std::istream&);
+  std::ostream& PhongShader::out(std::ostream&);
 
  protected:
   double specularCoefficient;

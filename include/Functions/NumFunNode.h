@@ -16,7 +16,7 @@ class NumFunNode : public FunNode
 
   double eval(double t);
 
-  ostream& out(ostream&);
+  std::ostream& out(std::ostream&);
 
  protected:
   double myVal;

@@ -33,8 +33,8 @@ class PhotonMap {
 
   void outputTree(int nRoot);
 
-  ostream& out(ostream&);
-  istream& in(istream&);
+  std::ostream& out(std::ostream&);
+  std::istream& in(std::istream&);
 
  protected:
   vector<Photon> unsortedPhotons;

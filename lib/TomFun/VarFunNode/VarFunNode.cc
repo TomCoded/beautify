@@ -20,7 +20,7 @@ double VarFunNode::eval(int day, Stock*s)
   UNIMPLEMENTED("VarFunNode::eval()");
 }
 
-ostream& VarFunNode::out(ostream &o)
+ostream& VarFunNode::out(std::ostream &o)
 {
   o << 't';
   return o;

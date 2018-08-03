@@ -46,7 +46,7 @@ double SumFunNode::eval(int date, Stock*stock) {
   return (leftNode->eval(date,stock)+rightNode->eval(date,stock));
 }
 
-ostream& SumFunNode::out(ostream& o)
+ostream& SumFunNode::out(std::ostream& o)
 {
   leftNode->out(o);
   o << '+';

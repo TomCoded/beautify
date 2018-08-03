@@ -8,7 +8,7 @@
 #include <string>
 class Stock;
 
-using namespace std;
+
 
 class FunNode
 {
@@ -37,13 +37,13 @@ class FunNode
   virtual double eval(double t)=0;
   virtual double eval(int date, Stock *stock)=0;
   
-  FunNode * in(istream& is);
-  virtual ostream& out(ostream&);
+  FunNode * in(std::istream& is);
+  virtual std::ostream& out(std::ostream&);
 
  protected:
 };
 
-istream& operator>>(istream& is, FunNode&);
-ostream& operator<<(ostream& o, FunNode&);
+istream& operator>>(std::istream& is, FunNode&);
+ostream& operator<<(std::ostream& o, FunNode&);
 
 #endif

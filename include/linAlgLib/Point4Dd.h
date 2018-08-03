@@ -103,17 +103,17 @@ public:
   Point4Dd apply(const Transform4Dd& t) const;
 
   // read point from stream
-  istream& in(istream& is);
+  std::istream& in(std::istream& is);
   
 // append point to end of stream
-  ostream& out(ostream&) const;
+  std::ostream& out(std::ostream&) const;
 };
 
 // read a point:  a binary operator
-istream& operator>>(istream& is, Point4Dd& p);
+istream& operator>>(std::istream& is, Point4Dd& p);
 
 // print a point: a binary operator
-ostream& operator<<(ostream& o, const Point4Dd& p);
+ostream& operator<<(std::ostream& o, const Point4Dd& p);
 
 #endif POINT4DD_H
 

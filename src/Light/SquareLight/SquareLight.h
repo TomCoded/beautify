@@ -58,17 +58,17 @@ public:
 
   // append SquareLight to end of stream
 
-  ostream& out(ostream& os) const;
+  std::ostream& out(std::ostream& os) const;
     
   // read SquareLight from stream
 
-  istream& in(istream& is);
+  std::istream& in(std::istream& is);
 };
 // friends
 // read a SquareLight:  a binary operator
-istream& operator>>(istream& is, SquareLight& m);
+istream& operator>>(std::istream& is, SquareLight& m);
 
 // print a SquareLight: a binary operator
-ostream& operator<<(ostream& o, const SquareLight& m);
+ostream& operator<<(std::ostream& o, const SquareLight& m);
 
 #endif

@@ -44,8 +44,8 @@ class Light {
   //returns a light that has been reduced by transparency
   virtual Light * transparent(double transparency) = 0;
 
-  virtual istream& in(istream&) = 0;
-  virtual ostream& out(ostream&) const = 0;
+  virtual std::istream& in(std::istream&) = 0;
+  virtual std::ostream& out(std::ostream&) const = 0;
   
   Point3Dd ambient;
   Point3Dd diffuse;

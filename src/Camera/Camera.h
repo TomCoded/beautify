@@ -75,11 +75,11 @@ public:
   void rotate(double angle, const Point4Dd& dir);
 
   // append camera to stream
-  ostream& out(ostream& os) const;
+  std::ostream& out(std::ostream& os) const;
 
   // read camera from stream
   // skips leading and internal whitespace
-  istream& in(istream& is);
+  std::istream& in(std::istream& is);
 
   // Compute camera coordinate frame from eye, lookAt and up
   void setCameraCoordSys();
@@ -93,7 +93,7 @@ public:
   /* Modifications by Tom */
 
   //reads temporal dependent camera from stream
-  istream& funIn(istream &is);
+  std::istream& funIn(std::istream &is);
 
   //returns true iff p (World Coords) is within near/far planes
   bool InViewVol(const Point4Dd& p) const;
@@ -122,10 +122,10 @@ public:
 // Non-member functions for the type
 
 // read Camera from stream
-istream& operator>>(istream & is, Camera& c);
+istream& operator>>(std::istream & is, Camera& c);
 
 // write Camera to stream
-ostream& operator<<(ostream & os, const Camera& c);
+ostream& operator<<(std::ostream & os, const Camera& c);
 
 #endif CAMERA_H
 

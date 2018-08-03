@@ -21,14 +21,14 @@ class FunParser
 
   FunNode * parseString(string szFunction);
 
-  istream& in(istream&);
-  ostream& out(ostream&) const;
+  std::istream& in(std::istream&);
+  std::ostream& out(std::ostream&) const;
 
  protected:
 };
 
-istream& operator>>(istream &is, FunParser& f);
+istream& operator>>(std::istream &is, FunParser& f);
 
-ostream& operator<<(istream &o, const FunParser& f);
+ostream& operator<<(std::istream &o, const FunParser& f);
 
 #endif

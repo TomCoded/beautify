@@ -184,7 +184,7 @@ FunPoint4Dd FunPoint4Dd::operator*(const double x) const
 }
 
 // append transform to stream
-ostream& FunPoint4Dd::out(ostream& o) const
+ostream& FunPoint4Dd::out(std::ostream& o) const
 {
   o << "(";
   for(int c=0;c<size;c++) 
@@ -197,7 +197,7 @@ ostream& FunPoint4Dd::out(ostream& o) const
 }
 
 // read Transform from stream
-istream& FunPoint4Dd::in(istream& is)
+istream& FunPoint4Dd::in(std::istream& is)
 {
   char c;
   POINT_TYPE_4D input;
@@ -212,13 +212,13 @@ istream& FunPoint4Dd::in(istream& is)
 }
 
 // read transform from stream
-istream& operator>>(istream& is, FunPoint4Dd& t)
+istream& operator>>(std::istream& is, FunPoint4Dd& t)
 {
   t.in(is);
 }
 
 // append transform to stream
-ostream& operator<<(ostream& o, const FunPoint4Dd& t)
+ostream& operator<<(std::ostream& o, const FunPoint4Dd& t)
 {
   return t.out(o);
 }

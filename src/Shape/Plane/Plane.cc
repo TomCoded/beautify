@@ -118,13 +118,13 @@ Ray Plane::getNormal(Ray& r) const
 }
 
 // usually, but not always, appropriate
-ostream & Plane::out(ostream& o) const
+ostream & Plane::out(std::ostream& o) const
 {
   o << "(" << point << "," << normal << ")";
 }
 
 // get Plane from keyboard: ((x,y,z),(x,y,z))
-istream & Plane::in(istream& is)
+istream & Plane::in(std::istream& is)
 {
   char c;
   
@@ -149,10 +149,10 @@ istream & Plane::in(istream& is)
 // Non-member functions for the type
 
 // binary input operator: version 2
-istream& operator>>(istream & is, Plane& p);
+istream& operator>>(std::istream & is, Plane& p);
 
 // binary output operator: version 2
-ostream& operator<<(ostream & o, const Plane& p);
+ostream& operator<<(std::ostream & o, const Plane& p);
 
 
 

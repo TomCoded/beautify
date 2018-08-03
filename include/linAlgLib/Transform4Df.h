@@ -105,17 +105,17 @@ public:
   Point4Df operator*(const Point4Df&) const;
 
   // read Transform from stream
-  istream& Transform4Df::in(istream& is);
+  std::istream& Transform4Df::in(std::istream& is);
 
   // append transform to stream
-  ostream& out(ostream&) const;
+  std::ostream& out(std::ostream&) const;
 
 };
   
 // read transform from stream
-istream& operator>>(istream& is, Transform4Df& t);
+istream& operator>>(std::istream& is, Transform4Df& t);
 
 // append transform to stream
-ostream& operator<<(ostream& o, const Transform4Df& t);
+ostream& operator<<(std::ostream& o, const Transform4Df& t);
 
 #endif TRANSFORM4DF_H

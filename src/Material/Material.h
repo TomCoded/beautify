@@ -28,8 +28,8 @@ class Material
 		      );
   double getSpecCo(int nLightingModel);
 
-  istream& in(istream &);
-  ostream& out(ostream &);
+  std::istream& in(std::istream &);
+  std::ostream& out(std::ostream &);
 
  protected:
   Point3Dd ambient;
@@ -42,7 +42,7 @@ class Material
 						   //three doubles
 };
 
-istream& operator>>(istream&, Material&);
-ostream& operator<<(ostream&, Material&);
+istream& operator>>(std::istream&, Material&);
+ostream& operator<<(std::ostream&, Material&);
 
 #endif

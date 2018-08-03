@@ -4,4 +4,4 @@ MAKE=gmake
 CC=g++
 OPTFLAGS=-O3 -fomit-frame-pointer -finline-functions
 LDFLAGS=
-CCFLAGS=-O3 -fomit-frame-pointer -finline-functions 
+CCFLAGS=-O3 -fomit-frame-pointer -finline-functions  -Wno-endif-labels

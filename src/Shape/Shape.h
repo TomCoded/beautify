@@ -47,9 +47,9 @@ public:
   //closest intersection of r with shape.
   virtual Ray getNormal(Ray& r) const = 0;
 
-  virtual istream& in(istream&) = 0;
+  virtual std::istream& in(std::istream&) = 0;
 
-  virtual ostream& out(ostream&) const = 0;
+  virtual std::ostream& out(std::ostream&) const = 0;
 
   //implicit function of the surface
   //at a given point

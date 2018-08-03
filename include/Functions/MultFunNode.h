@@ -14,7 +14,7 @@ class MultFunNode : public FunNode
   MultFunNode * clone();
   ~MultFunNode();
 
-  ostream& out(ostream&);
+  std::ostream& out(std::ostream&);
 
   double eval(double t);
  protected:

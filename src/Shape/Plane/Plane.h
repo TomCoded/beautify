@@ -56,10 +56,10 @@ public:
   Ray getNormal(Ray& r) const;
 
   // usually, but not always, appropriate
-  ostream & out(ostream& o) const;
+  std::ostream & out(std::ostream& o) const;
 
   // get Plane from keyboard: ((x,y,z),(x,y,z))
-  istream & in(istream& is);
+  std::istream & in(std::istream& is);
 
 private:
   Point3Dd point;
@@ -71,10 +71,10 @@ private:
 // Non-member functions for the type
 
 // binary input operator: version 2
-istream& operator>>(istream & is, Plane& p);
+istream& operator>>(std::istream & is, Plane& p);
 
 // binary output operator: version 2
-ostream& operator<<(ostream & o, const Plane& p);
+ostream& operator<<(std::ostream & o, const Plane& p);
 
 #endif PLANE_H
 

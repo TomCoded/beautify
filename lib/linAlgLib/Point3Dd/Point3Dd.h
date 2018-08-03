@@ -8,7 +8,7 @@
 #define POINT3DD_H
 
 #include <iostream>
-using namespace std;
+
 
 ///////////////////
 // class Point3Dd //
@@ -96,17 +96,17 @@ public:
   Point3Dd apply(const Transform3Dd& t) const;
 
   // read point from stream
-  istream& in(istream& is);
+  std::istream& in(std::istream& is);
   
 // append point to end of stream
-  ostream& out(ostream&) const;
+  std::ostream& out(std::ostream&) const;
 };
 
 // read a point:  a binary operator
-istream& operator>>(istream& is, Point3Dd& p);
+istream& operator>>(std::istream& is, Point3Dd& p);
 
 // print a point: a binary operator
-ostream& operator<<(ostream& o, const Point3Dd& p);
+ostream& operator<<(std::ostream& o, const Point3Dd& p);
 
 #endif POINT3DD_H
 

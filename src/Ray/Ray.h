@@ -48,10 +48,10 @@ public:
   ~Ray();
 
   // usually, but not always, appropriate
-  ostream & out(ostream& os) const;
+  std::ostream & out(std::ostream& os) const;
 
   // get Ray from keyboard: ((x,y,z),(x,y,z))
-  istream & in(istream& is);
+  std::istream & in(std::istream& is);
 
   // Ray features
 
@@ -76,10 +76,10 @@ public:
 // Non-member functions for the type
 
 // binary input operator
-istream& operator>>(istream& is, Ray& theRay);
+istream& operator>>(std::istream& is, Ray& theRay);
 
 // binary output operator
-ostream& operator<<(ostream& os, const Ray& theRay);
+ostream& operator<<(std::ostream& os, const Ray& theRay);
 
 #endif RAY_H
 

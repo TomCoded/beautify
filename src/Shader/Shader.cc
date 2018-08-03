@@ -11,6 +11,6 @@ Shader::~Shader() {}
 
 //I/O functions
 
-istream& Shader::in(istream&) {}
+istream& Shader::in(std::istream&) {}
 
-ostream& Shader::out(ostream&) {}
+ostream& Shader::out(std::ostream&) {}

@@ -18,8 +18,8 @@ class FunTransformNodeGL : public NodeGL
 
   ~FunTransformNodeGL();
 
-  ostream& FunTransformNodeGL::out(ostream& o) const;
-  istream& FunTransformNodeGL::in(istream& is);
+  std::ostream& out(std::ostream& o) const;
+  std::istream& in(std::istream& is);
 
   void ActionGL();
 
@@ -32,9 +32,9 @@ class FunTransformNodeGL : public NodeGL
   double t;
 };
 
-istream& operator>>(istream &is, FunTransformNodeGL& m);
+istream& operator>>(std::istream &is, FunTransformNodeGL& m);
 
-ostream& operator<<(ostream &o, const FunTransformNodeGL& m);
+ostream& operator<<(std::ostream &o, const FunTransformNodeGL& m);
 
 #endif
 

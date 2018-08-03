@@ -301,12 +301,12 @@ Point3Dd Renderer::getColor(
 }
 
 //I/O functions
-istream& Renderer::in(istream& in)
+istream& Renderer::in(std::istream& in)
 {
   UNIMPLEMENTED("Renderer.in");
 }
 
-ostream& Renderer::out(ostream& out)
+ostream& Renderer::out(std::ostream& out)
 {
   UNIMPLEMENTED("Renderer.out")
 }

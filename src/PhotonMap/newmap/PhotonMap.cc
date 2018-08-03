@@ -262,7 +262,7 @@ void PhotonMap::fillDimSpreads(int rootNode,
 }
 
 /* input/output interface */
-ostream& PhotonMap::out(ostream&){
+ostream& PhotonMap::out(std::ostream&){
   int FileType = UNCOMPRESSED_V2;
   switch(FileType)
     {
@@ -279,7 +279,7 @@ ostream& PhotonMap::out(ostream&){
   return o;
 }
 
-istream& in(istream&){
+istream& in(std::istream&){
   string beginString; int readFileType;
   char c;
   is >> beginString;
