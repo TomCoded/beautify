@@ -4,6 +4,8 @@
 
 // (C) Anonymous1 2002
 
+// Modifications by Tom White for Moving Cameras
+
 #ifndef CAMERA_H
 #define CAMERA_H
 
@@ -11,6 +13,9 @@
 #include "Point4Dd.h"
 #include "Transform4Dd.h"
 #include "Ray/Ray.h"
+
+#include "FunTransform4Dd.h"
+#include "FunPoint4Dd.h"
 
 class Camera {
 public:
@@ -84,6 +89,34 @@ public:
 
   // Reset camera to original values
   void resetCameraCoordSys();
+
+  /* Modifications by Tom */
+
+  //reads temporal dependent camera from stream
+  istream& funIn(istream &is);
+
+  //returns true iff p (World Coords) is within near/far planes
+  bool InViewVol(const Point4Dd& p) const;
+  
+  //Temporally dependent state info
+
+  FunPoint4Dd * funEye, * funUp, * funLookAt;
+  FunNode * funViewAngle,
+    * funAspectRatio,
+    * funNear,
+    * funFar;
+  
+  
+  // Camera to World Coordinates Transform
+  FunTransform4Dd * cameraToWorldFun, 
+    * worldToCameraFun;
+  
+  //updates the state of the camera to reflect its position,
+  //etc... at time t
+  void setTime(double t);
+
+  /* End Modifications */
+
 };
 
 // Non-member functions for the type

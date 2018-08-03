@@ -32,7 +32,10 @@ public:
   PointLight& operator=(const PointLight& other);
 
   // get ray from dirlight to point
-  Ray getRayTo(Point3Dd&);
+  Ray getRayTo(const Point3Dd&) const;
+
+  // gets distance to a given point from the light.
+  double getDistance(const Point3Dd& point) const;
 
   PointLight * transparent(double transparency);
 
@@ -40,6 +43,7 @@ public:
 		       PhotonMap *,
 		       Renderer *
 			 ) {}
+
 
   // Destructor
   ~PointLight();

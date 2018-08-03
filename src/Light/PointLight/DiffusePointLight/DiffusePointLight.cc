@@ -30,6 +30,9 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
   float yPow = power.y / numPhotons;
   float zPow = power.z / numPhotons;
   Photon p;
+
+  int priorPhotons=map->getSize();
+  
   for(int nEmitted=0;
       nEmitted < numPhotons;
       nEmitted++)
@@ -63,8 +66,13 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
 	{
 	  //	  cout << "Photon has power.\n";
 	  map->addPhoton(p);
+	  //	  cout << "Added Photon " << p << endl;
 	}
     }
+  
+  cout << "Light " << (int)this << " adds " <<
+    map->getSize() - priorPhotons << " photons to map\n";
+
 }
 
 istream& DiffusePointLight::in(istream& is)

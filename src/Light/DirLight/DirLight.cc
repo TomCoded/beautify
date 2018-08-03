@@ -73,7 +73,7 @@ DirLight& DirLight::operator=(const DirLight& other) {
 DirLight::~DirLight() {}
 
 //get Ray To light source from a given point
-Ray DirLight::getRayTo(Point3Dd& dest)
+Ray DirLight::getRayTo(const Point3Dd& dest) const
 {
   return Ray(dest, direction);
 }

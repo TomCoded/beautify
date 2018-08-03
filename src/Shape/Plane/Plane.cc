@@ -109,9 +109,12 @@ double Plane::implicit(Point3Dd &loc) const {
 //get normal in local coordinate system
 Ray Plane::getNormal(Ray& r) const
 {
+  //The normal is negative if we hit the plane from the back.
   double tVal = closestIntersect(r);
-  //  cout << "Normal to Plane in LCS is " << normal << endl;
-  return Ray(r.GetPointAt(tVal), Point4Dd(normal,1.0));
+  if(Point4Dd(normal,1.0).dot(r.dir) <= 0)
+    return Ray(r.GetPointAt(tVal), Point4Dd(normal,0));
+  else
+    return Ray(r.GetPointAt(tVal), Point4Dd(normal*-1,0));
 }
 
 // usually, but not always, appropriate

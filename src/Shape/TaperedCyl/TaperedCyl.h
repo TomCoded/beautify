@@ -22,9 +22,6 @@
 class TaperedCyl : public Shape {
 
 public:
-  // Note that methods are no longer virtual since I do not plan extending
-  // this class
-
   // essentials
 
   // default constructor
@@ -49,6 +46,7 @@ public:
   ~TaperedCyl();
 
   double implicit(Point3Dd &loc) const
+    //FIXME
   { return -1; }
 
   // TaperedCyl features:  Type specific operations

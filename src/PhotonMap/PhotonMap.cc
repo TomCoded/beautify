@@ -24,15 +24,29 @@ PhotonMap::~PhotonMap(){
 /* end constructors and descructors */
 /* build/query interface */
 
+/* False if not enough photons for neighbor estimate,
+   Or if not in kd-tree format 
+*/
+bool PhotonMap::isSearchable() const {
+  if( (getSize() < numNeighbors)
+      ||
+      (storage != KD_TREE)
+      )
+    return false;
+  return true;
+}
+
 void PhotonMap::addPhoton(Photon &p){
-  //  cout << "PhotonMap at size " << getSize() << endl;
+  //if the photon has negligible power, return
+  if((p.r+p.g+p.b) < P_THRESH) 
+    return;
   p.offset = getSize();
   p.flag = NOT_SET;
   unsortedPhotons.push_back(p);
 }
 
 
-int PhotonMap::getSize() {
+int PhotonMap::getSize() const {
   return unsortedPhotons.size();
 }
 
@@ -47,6 +61,10 @@ void PhotonMap::setMinSearch(double minSearchSqr) {
 void PhotonMap::buildTree() {
   kdSize = unsortedPhotons.size()+1;
   kdTree = (Photon **) malloc(kdSize * 2 * sizeof(Photon *));
+
+  //save ourself from embarassment later
+  kdTree[0] = 0;
+
   for(int n=1; n<kdSize; n++) {
     kdTree[n]=&unsortedPhotons[n-1];
   }
@@ -176,6 +194,8 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
 
   delete close;
 
+  //  if(rval.x || rval.y || rval.z)
+  //    cout << "Flux is " << rval << endl;
   return rval;
 }
 
@@ -706,8 +726,31 @@ ostream& PhotonMap::out(ostream& o){
       o << "BEGIN_PHOTONMAP ";
       o << FileType;
       o << ' ';
-      o << " END_PHOTONMAP";
+      o << storage
+	<< ' '
+	<< kdSize
+	<< ' '
+	<< minSearchSqr
+	<< ' '
+	<< numNeighbors
+	<< ' '
+	<< maxDist
+	<< ' '
+	<< maxDistSqr
+	<< ' '
+	<< maxDistDefault
+	<< " \n";
+
+      for(int i=1; i<kdSize; i++) {
+	if(kdTree[i]) 
+	  o << *kdTree[i] << '\n';
+	else
+	  o << '\n';
+      }
+      o << endl;
+      o << "END_PHOTONMAP";
       break;
+
     default:
       cerr << "unknown file type\n";
       break;

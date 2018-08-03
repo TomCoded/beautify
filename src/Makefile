@@ -28,7 +28,6 @@ $(TARGET): $(OFILES)
 	$(CC) $(CCFLAGS) -o $(TARGET) $(OFILES) $(INCLDIRS) $(LIBDIRS) $(LDFLAGS)
 
 profiled: $(OFILES)
-	$(CC) $(CCFLAGS:-g=-pg) -o $(TARGET) $(OFILES) $(INCLDIRS) $(LIBDIRS) $(LIBS)
 
 kdtest: $(OFILES:Scene/SceneTest.o=PhotonMap/kdTest.o)
 	$(CC) $(CCFLAGS) -o kdTest $(OFILES:Scene/SceneTest.o=PhotonMap/kdTest.o) $(INCLDIRS) $(LIBDIRS) $(LIBS)

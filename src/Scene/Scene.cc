@@ -15,6 +15,9 @@
 #include <Light/PointLight/DiffusePointLight/DiffusePointLight.h>
 #include <Light/SquareLight/SquareLight.h>
 
+//in SceneTest.cc
+void saveMap(PhotonMap * pmap, string fileName);
+
 #ifdef PARALLEL
 int g_nFrame;
 #endif
@@ -24,6 +27,8 @@ using namespace Magick;
 #ifdef DIFFUSE
 #undef DIFFUSE
 #endif
+
+#define MAX_PHOTONS_THROWN 5000000
 
 #define AMBIENT 1
 #define DIFFUSE 2
@@ -70,6 +75,8 @@ double lastTime;
 double curTime;
 
 extern bool g_parallel;
+
+char outbuffer[80];
 
 ////////////////////
 // class Scene //
@@ -172,6 +179,24 @@ void reshape(GLsizei scr_w, GLsizei scr_h)
     }
 }
 
+//Updates all transformations in the scene to 
+//be generated based on the current time
+void Scene::setTime(double t) {
+  vector<Surface *>::iterator itSurf;
+  vector<Camera *>::iterator itCam;
+
+  curTime=t;
+
+  for(itSurf=surfaces->begin();
+      itSurf!=surfaces->end();
+      itSurf++)
+    (*itSurf)->setTime(t);
+  for(itCam=cameras->begin();
+      itCam!=cameras->end();
+      itCam++)
+    (*itCam)->setTime(t);
+}
+
 // batch video file generator 
 void Scene::generateFiles(const char * filename, 
 			  int startFrame,
@@ -188,24 +213,19 @@ void Scene::generateFiles(const char * filename,
   strcpy(szFile,filename);
   int nBaseLen = strlen(filename);
   char * nTail = &szFile[nBaseLen];
-  vector<Surface *>::iterator itSurf;
 
-  curTime=startFrame*dfdt;
-  for(itSurf=surfaces->begin();
-      itSurf!=surfaces->end();
-      itSurf++)
-    (*itSurf)->setTime(curTime);
-  
+  setTime(startFrame*dfdt);
+
 #ifdef PARALLEL
   int rank, nodes;
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
   MPI_Comm_size(MPI_COMM_WORLD,&nodes);
   if(!rank) {
     cout << endl;
-    cout << "frame  proc  procs pMap Size  pMap dist  render pMap create kdTree\n";
-    cout << "-----  ----  ----- ---------  ---------  ------ ----------- ------\n";
+    cout << "frame  proc  procs pMap Size  pMap dist render   pMap create kdTree\n";
+    cout << "-----  ----  ----- ---------  --------- ------- ----------- ------\n";
   }
-  photons /= nodes;
+  //  photons /= nodes;
 #endif
   paintingFromLogical=false;
 
@@ -222,20 +242,23 @@ void Scene::generateFiles(const char * filename,
       cout << "Creating photon map for frame " << nFrame << endl << flush;
 #endif
 
-      g_map = g_Scene->myRenderer->map(photons);
+
+      while( (g_map = g_Scene->myRenderer->map(photons) )->getSize() < 10) {
+	//give it a blank image
+	if (!rank)	cerr << "Photon Map of " << g_map->getSize() 
+			     << " photons Too Small to Render frame" << nFrame 
+			     << "; ";
+	map_too_small=true;
+	  break;
+	  //	      MPI_Abort(MPI_COMM_WORLD,1);
+      }
 
 #ifdef PARALLEL
       double frame_start = MPI_Wtime();
       if (g_parallel) {
 	double start = MPI_Wtime();
-	map_too_small = false;
-	if(g_map->getSize() < 10) {
-	  //give it a blank image
-	  map_too_small = true;
-	  cerr << "Photon Map Too Small to Render frame" << nFrame 
-	       << "; producing blank\n";
-	  //	      MPI_Abort(MPI_COMM_WORLD,1);
-	} else {
+
+	if(!map_too_small) {
 	  MPI_Barrier(MPI_COMM_WORLD);
 	  if (rank) {
 	    // slave processes
@@ -268,9 +291,8 @@ void Scene::generateFiles(const char * filename,
 	  }
 	  double stop = MPI_Wtime();
 
-
 	  if(!rank) {
-	    printf("%5d  %4d  %5d %9d  %9f  %6f  ",
+	    sprintf(outbuffer,"%5d  %4d  %5d %9d  %9f %6f  ",
 		   g_nFrame, rank, nodes, g_map->getSize(),
 		   0.0, 0.0, 
 		   stop-start);
@@ -278,16 +300,19 @@ void Scene::generateFiles(const char * filename,
 	    start = MPI_Wtime();
 	    g_map->buildTree();
 	    stop = MPI_Wtime();
-	    printf("%6f",stop-start);
+	    sprintf(outbuffer + strlen(outbuffer),"%6f",stop-start);
+	    printf("%s\n",outbuffer);
 	    //	    cout << "Took " << stop - start << " seconds to build kdTree.\n";
 	    g_map->setMinSearch(minDist);
 	    if(neighbors)
 	      g_map->setNumNeighbors(neighbors);
 	    else
-	      g_map->setNumNeighbors(g_map->getSize()/10);
+	      g_map->setNumNeighbors(g_map->getSize()/15);
 	  }
 	}
 	start = MPI_Wtime();
+
+
 	draw();
 	double stop = MPI_Wtime();
 	//	if(!rank)
@@ -299,11 +324,7 @@ void Scene::generateFiles(const char * filename,
 	strncpy(nTail,szTail,strlen(szTail)+1);
 	  writeImage(szFile);
       }
-      curTime+=dfdt;
-      for(itSurf=surfaces->begin();
-	  itSurf!=surfaces->end();
-	  itSurf++)
-	(*itSurf)->setTime(curTime);
+      setTime(curTime+dfdt);
       //why was this here?
       //	logicalRender=false;
 
@@ -315,16 +336,16 @@ void Scene::generateFiles(const char * filename,
 	  frame_stop - frame_start << " seconds.\n";
 #else
       cout << "Rendering frame " << nFrame << endl;
+      //FIXME: Use a better algorithm for numneighbors
       g_map->setNumNeighbors(g_map->getSize()/10);
+
       myRenderer->showMap(g_map);
+
       sprintf(szTail,"%d.jpg\x00",nFrame);
       strncpy(nTail,szTail,strlen(szTail)+1);
       writeImage(szFile);
-      curTime+=dfdt;
-      for(itSurf=surfaces->begin();
-	  itSurf!=surfaces->end();
-	  itSurf++)
-	(*itSurf)->setTime(curTime);
+
+      setTime(curTime+dfdt);
 
       logicalRender=false;
 #endif
@@ -335,7 +356,6 @@ void Scene::generateFiles(const char * filename,
 #ifdef PARALLEL
   MPI_Barrier(MPI_COMM_WORLD);
 #endif
-  cout << "Done generating file...\n";
 }
 
 // default constructor
@@ -499,15 +519,12 @@ void Scene::ReadFile(string fileName) {
 
   char c; //scratch
 
-  //  cout << "Enter file name: ";
-  //  cin >> fileName;
-
   // create an input filestream
   ifstream inFile(fileName.c_str());
 
   // check for success of stream constructor
   if(!inFile) { // could not open file
-    cout << "Could not open file: exiting...";
+    cout << "Could not open file: " << fileName << " exiting...";
     exit(1);
   }
 
@@ -555,6 +572,11 @@ void Scene::ReadFile(string fileName) {
     else if(keyword == "camera") {
       Camera * cam = new Camera();
       cam->in(inFile);
+      addCamera(cam);
+    }
+    else if(keyword == "funcam") {
+      Camera * cam = new Camera();
+      cam->funIn(inFile);
       addCamera(cam);
     }
 #if 0
@@ -1118,7 +1140,8 @@ void Scene::drawParallel() {
     g_map->distributeTree();
 
     stop = MPI_Wtime();
-    printf("\n%5d  %4d  %5d %9d  %9f ",
+    //    printf("%s",outbuffer);
+    sprintf(outbuffer,"%5d  %4d  %5d %9d  %9f ",
 	   g_nFrame, rank, nodes, g_map->getSize(),
 	   stop - start
 	   );
@@ -1208,7 +1231,7 @@ void Scene::drawParallel() {
 	  } else {
 	    //child sent data; dump it into buffer
 	    progressMeter++;
-	    if(!(progressMeter % (height/10)))
+	    if(!(progressMeter % (height/20)))
 	      cout << "|" << flush;
 	    MPI_Recv(&logicalImage[tag*3*getWindowWidth()],
 		     localLogicalSize*3, MPI_DOUBLE,
@@ -1232,7 +1255,7 @@ void Scene::drawParallel() {
 	      //now copy stuff over to logicalImage from local
 	      //	      int done = task*3*width+localLogicalSize*3;
 	      progressMeter++;
-	      if(!(progressMeter % (height/10)))
+	      if(!(progressMeter % (height/20)))
 		cout << "|" << flush;
 
 	      for(int i=0; i<localLogicalSize*3; i++) {
@@ -1273,9 +1296,12 @@ void Scene::drawParallel() {
       flag=0;
     }
     stop = MPI_Wtime();
-    printf("%6f\n",stop-start);
-  } else {
+    sprintf(outbuffer + strlen(outbuffer), "%6f\n",stop-start);
+  } 
+#if 0
+  else {
     cerr << "Photon Map too small.  Exiting.\n";
+    cerr << "Size is " << g_map->getSize() << endl;
     MPI_Abort(MPI_COMM_WORLD,1);
     int i, j;
     cout << localLogicalStart << ',' << localLogicalSize << endl;
@@ -1287,7 +1313,11 @@ void Scene::drawParallel() {
       putPixel(i,j,0.0,0.0,0.0);
     }
   }
+#endif
+  if(!rank) 
+    cout << endl;
   MPI_Barrier(MPI_COMM_WORLD);
+  printf("%s",outbuffer);
   //now gather information again.  Everything has same amount of data,
   //use gather.
   start = MPI_Wtime();

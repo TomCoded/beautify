@@ -13,6 +13,10 @@
 
 void display();
 
+#ifdef PARALLEL
+MPI_Datatype MPI_PHOTON;
+#endif
+
 extern Scene * g_Scene;
 extern PhotonMap * g_map;
 bool g_parallel;
@@ -112,6 +116,7 @@ int main(int argc, char ** argv) {
   int rank;
   if (g_parallel) {
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+    //    cout << "Initializing rank..\n";
     if(!rank) glutInit(&argc,argv);
   }
 #else

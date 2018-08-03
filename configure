@@ -151,7 +151,7 @@ int main(int argc, char ** argv) {
 }
 EOF
 #echo "$cc $CFLAGS -o $TMPO $TMPC -llinAlg "
-$cc $CFLAGS -o $TMPO $TMPC -llinAlg 2>/dev/null || { 
+$cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg 2>/dev/null || { 
   echo "nope."; 
   anonymous1="yes";
 }
@@ -169,7 +169,7 @@ int main(int argc, char ** argv) {
     return 0;
 }
 EOF
-$cc $CFLAGS -o $TMPO $TMPC -llinAlg -lTomFun  || { 
+$cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg -lTomFun  || { 
   echo "nope."; 
   targets="tom $targets";
   tom="yes"

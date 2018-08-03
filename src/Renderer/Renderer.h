@@ -73,7 +73,7 @@ class Renderer
 		    );
 
   //Traces the course of a photon and returns its final location
-  Photon& tracePhoton(Photon &p);
+  Photon& tracePhoton(Photon &p, int recurse=0);
 
   //resets the incident direction of a photon after collision.
   //keeping this in a seperate function let's us preserve ability
@@ -103,6 +103,7 @@ class Renderer
 		       );
 
   //protected:
+  static const int maxdepth=10;
   int recursionDepth;
   Scene * myScene;
   //public:

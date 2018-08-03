@@ -8,12 +8,20 @@
 #include "Camera.h"
 #include "Point3Dd.h"
 #include "../TransformMaker/TransformMaker.h"
+#include "FunNode.h"
+#include "SumFunNode.h"
+#include "MultFunNode.h"
+#include "NumFunNode.h"
 
 //  Create a Camera and set all entries to default values
 Camera::Camera() : eye(0.0, 0.0, 2.0, 1.0), origEye(0.0, 0.0, 2.0, 1.0), 
 		   lookAt(0.0, 0.0, 0.0, 1.0), up(0.0, 1.0, 0.0, 0.0),
 		   viewAngle(asin(1)),aspectRatio(1.0),
-		   near(-1.0), far(-100.0) {
+		   near(-1.0), far(-100.0),
+		   funViewAngle(0), funAspectRatio(0),
+		   funNear(0), funFar(0), funEye(0),
+		   funUp(0), funLookAt(0)
+{
   wld2Camgl = new double[16];
   setCameraCoordSys();  
 }
@@ -26,7 +34,10 @@ Camera::Camera(const Point4Dd& camEye, const Point4Dd& camLookAt,
 	       double camNear, double camFar) :
   eye(camEye), origEye(camEye), lookAt(camLookAt), up(camUp),
   viewAngle(camViewAngle),aspectRatio(camAspectRatio),
-  near(-camNear), far(-camFar) {
+  near(-camNear), far(-camFar),
+  funViewAngle(0), funAspectRatio(0),
+  funNear(0), funFar(0), funEye(0), funUp(0), funLookAt(0)
+{
   wld2Camgl = new double[16];
   setCameraCoordSys();  
 }
@@ -57,6 +68,22 @@ Camera& Camera::operator=(const Camera& other) {
     right = other.right;
     bottom = other.bottom;
     top = other.top;
+
+    if(other.funViewAngle) {
+      funViewAngle = other.funViewAngle->clone();
+      funAspectRatio = other.funAspectRatio->clone();
+      funNear = other.funNear->clone();
+      funFar = other.funFar->clone();
+      funEye = new FunPoint4Dd(*other.funEye);
+      funUp = new FunPoint4Dd(*other.funUp);
+      funLookAt = new FunPoint4Dd(*other.funLookAt);
+    } else {
+      funViewAngle = funAspectRatio
+	= funNear = funFar = 0;
+      funEye = funUp = funLookAt
+	= 0;
+    }
+
     for(int i=0;i<16;i++)
       wld2Camgl[i]=other.wld2Camgl[i];
   }
@@ -65,6 +92,26 @@ Camera& Camera::operator=(const Camera& other) {
 
 Camera::~Camera() {
   delete [] wld2Camgl;
+  delete funEye, funUp, funLookAt;
+  delete funViewAngle,
+    funAspectRatio,
+    funNear,
+    funFar;
+}
+
+//update camera for current world time
+void Camera::setTime(double t) {
+  if(funViewAngle) {
+    //if the camera moves
+    eye    = funEye    ->eval(t);
+    up     = funUp     ->eval(t);
+    lookAt = funLookAt ->eval(t);
+    viewAngle   = funViewAngle    ->eval(t);
+    aspectRatio = funAspectRatio  ->eval(t);
+    near        = funNear         ->eval(t);
+    far         = funFar          ->eval(t);
+    setCameraCoordSys();
+  }
 }
 
 // Camera manipulation methods
@@ -84,6 +131,35 @@ Ray Camera::getRay(int r, int c) {
   dir.x+=(left+(c+.5)*(right-left)/cols);
   dir.y+=(bottom+(r+.5)*(top-bottom)/rows);
   return Ray(Point4Dd(0,0,0,1),dir).applyToSelf(cameraToWorld);
+}
+
+//returns true iff InViewVol is inside the view volume of the camera
+//InViewVol is in world coordinates
+bool Camera::InViewVol(const Point4Dd& p) const {
+  //localp is the direction to the point in local coords
+  //from the eye, at our local origin.
+  Point4Dd localp = worldToCamera*p;
+  
+  //reject out of hand if behind eye
+  if(localp.z > 0)
+    return false;
+
+  //distance to point
+  double distToPoint = localp.norm();
+
+  //cosine of angle between n-axis and ray through point
+  double cosTheta = 
+    n.dot(localp) / (n.norm() * distToPoint );
+
+  //closer than near plane
+  if(distToPoint <= near / cosTheta)
+    return false;
+  
+  //farther away than far plane
+  if(distToPoint >= far / cosTheta)
+    return false;
+  
+  return true;
 }
 
 // Compute camera transform from eye, u, v, and n
@@ -204,6 +280,78 @@ istream& Camera::in(istream& is) {
     exit(1);
   }
   setCameraCoordSys();
+  origEye=eye;
+  return is;
+}
+
+// read Function camera from stream
+// skips leading and internal whitespace
+istream& Camera::funIn(istream& is) {
+  char c;
+  Point3Dd inputPt;
+  SumFunNode parser;
+
+  if(!funViewAngle) {
+    //allocate space for functions
+    funEye = new FunPoint4Dd();
+    funUp = new FunPoint4Dd();
+    funLookAt = new FunPoint4Dd();
+  }
+
+  is >> c;
+  if (c != '(') {
+    cout << "Bad format for Camera: no leading Paren" << endl;
+    exit(1);
+  }
+  is >> *funEye >> c;
+
+  if (c != ',') {
+    cout << "Bad format for Camera: no comma" << endl;
+    exit(1);
+  }
+  is >> *funLookAt >> c;
+  if (c != ',') {
+    cout << "Bad format for Camera" << endl;
+    exit(1);
+  }
+  is >> *funUp >> c;
+  up = Point4Dd(inputPt,1);
+
+  if (c != ',') {
+    cout << "Bad format for Camera" << endl;
+    exit(1);
+  }
+  funViewAngle = parser.in(is);
+  is >> c;
+
+  if (c != ',') {
+    cout << "Bad format for Camera" << endl;
+    exit(1);
+  }
+  funAspectRatio = parser.in(is);
+  is >> c;
+
+  if (c != ',') {
+    cout << "Bad format for Camera" << endl;
+    exit(1);
+  }
+  funNear = new MultFunNode(new NumFunNode(-1.0),
+			    parser.in(is));
+  is >> c;
+  
+  if (c != ',') {
+    cout << "Bad format for Camera" << endl;
+    exit(1);
+  }
+  funFar = new MultFunNode(new NumFunNode(-1.0),
+			   parser.in(is));
+  is >> c;
+
+  if (c != ')') {
+    cout << "Bad format for Camera: no close paren" << endl;
+    exit(1);
+  }
+  setTime(0);
   origEye=eye;
   return is;
 }

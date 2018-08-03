@@ -6,6 +6,8 @@
 #define LIGHT_H_
 #define COMPILINGLIGHT
 
+#define LIGHT_INF_DISTANCE 10000000
+
 #include <allIncludes.h>
 #include <Photon/Photon.h>
 #include <PhotonMap/PhotonMap.h>
@@ -26,13 +28,16 @@ class Light {
 			       )=0;
 
   //Return power of the light in each color channel
-  Point3Dd getPower();
+  Point3Dd getPower() const;
+
+  //Return distance to the light from another point
+  virtual double getDistance(const Point3Dd& point) const;
   
   //Sets power of the light in each color channel
-  Point3Dd setPower(Point3Dd&);
+  virtual Point3Dd setPower(Point3Dd&);
 
   //returns the ray from the light to the point
-  virtual Ray getRayTo(Point3Dd&) = 0;
+  virtual Ray getRayTo(const Point3Dd&) const = 0;
 
   //returns a light that has been reduced by transparency
   virtual Light * transparent(double transparency) = 0;
@@ -44,8 +49,6 @@ class Light {
   Point3Dd diffuse;
   Point3Dd specular;
   double specularCo;
-
-  Photon getPhoton();
 
  protected:
   //features we want visible to inherited classes, but not public

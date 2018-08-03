@@ -27,7 +27,7 @@ Renderer::Renderer(Renderer& other)
   pMap = other.pMap;
   seed=other.seed;
   pVolMap=other.pVolMap;
-}
+} 
 
 Renderer::Renderer(Scene * myScene):
   ambient(0.5,0.5,0.5), currentCamera(0), pMap(0),
@@ -73,8 +73,10 @@ PhotonMap * Renderer::getVolMap()
 PhotonMap * Renderer::map(int nPhotons)
 {
 
+
 #ifdef PARALLEL
   int rank;
+  static int light_pow_set=0;
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 #endif
 
@@ -109,7 +111,6 @@ PhotonMap * Renderer::map(int nPhotons)
       itLights++)
     { //for each light in the scene
       //calculate the number of photons needed
-      //don't need totalPower anymore
       srand48(seed);
 
 #ifdef DEBUG_BUILD
@@ -123,13 +124,28 @@ PhotonMap * Renderer::map(int nPhotons)
       nPhotonsForThisLight=nPhotons*(dAvgPower/dAvgTotalPower);
 #ifdef PARALLEL
       if(g_parallel) {
+
 	int nodes;
 	MPI_Comm_size(MPI_COMM_WORLD, &nodes);
-	Point3Dd pow = (*itLights)->getPower();
-	pow.x /= nodes;
-	pow.y /= nodes;
-	pow.z /= nodes;
-	(*itLights)->setPower(pow);
+
+	if(!light_pow_set) {
+	  
+	  //We want each light to emit photons of power
+	  // (lightpower / numTotalPhotons)
+	  // so each process, since it only emits
+	  // (numTotalPhotons / nodes) photons,
+	  // Should actually use
+	  // (lightpower / nodes) / numTotalPhotons
+	  Point3Dd pow = (*itLights)->getPower();
+	  pow.x /= nodes;
+	  pow.y /= nodes;
+	  pow.z /= nodes;
+	  (*itLights)->setPower(pow);
+	  
+
+	}
+	
+	nPhotonsForThisLight /= nodes;
       }
 #endif
 
@@ -137,18 +153,9 @@ PhotonMap * Renderer::map(int nPhotons)
 				   pMap,
 				   this
 				   );
-#ifdef PARALLEL
-      if(g_parallel) {
-	int nodes;
-	MPI_Comm_size(MPI_COMM_WORLD, &nodes);
-	Point3Dd pow = (*itLights)->getPower();
-	pow.x *= nodes;
-	pow.y *= nodes;
-	pow.z *= nodes;
-	(*itLights)->setPower(pow);
-      }
-#endif
     }
+  
+  light_pow_set=1;
 
   return pMap;
 }
@@ -174,8 +181,12 @@ Point3Dd Renderer::getColor(
   Surface * closestSurface = 0;
   Surface * farthestSurface = 0;
   double tClose = 100000000; double tLast = tClose; double tFar=0;
+
+  cout << "Renderer::getColor()" << endl;
+
   if(recursionDepth>1) return Point3Dd(0,0,0);
   else recursionDepth++;
+
   for(itSurf = surfaces->begin(); itSurf != surfaces->end(); itSurf++)
     { //iterate through itSurf, to find the closest intersected
       //      surface.
@@ -228,7 +239,9 @@ Point3Dd Renderer::getColor(
 	Ray normal = //get normal in local coordinate system
 	  closestSurface->surShape->getNormal(localSampleRay);
 	//only use transLocalToWorldNormal for directional changes, when
-	  
+
+	cout << "huh1\n";
+
 	//and if they are necessary.
 	//normal source has to be translated differently
 	Point4Dd tempPoint(normal.src);
@@ -242,6 +255,8 @@ Point3Dd Renderer::getColor(
 	//the surface uses a reflective shader that needs to
 	//know the other surfaces to test the ray
 	//against
+	cout << "huh2\n";
+
 	itIntSurf=intersectedSurfaces.begin();
 	otherSurfaces = vector<Surface *>();
 	for(++itIntSurf;
@@ -255,6 +270,12 @@ Point3Dd Renderer::getColor(
 		Ray(*sampleRay),
 		tClose
 		);
+
+	//FIXME: Multiple Shaders not supported at this time
+	//this code is deprecated
+	cerr << "Assertion failed in Renderer.cc:267" << endl;
+	exit(1);
+	
 	color=
 	  (closestSurface->surShader->getColor(hit));
       } else {
@@ -398,6 +419,10 @@ vector<Light *> * Renderer::getVisibleLights(Point3Dd point)
   return lightsToReturn;
 }
 
+//Photon & Renderer::tracePhoton(Photon &p) {
+//  return tracePhoton(p,0);
+//}
+
 /*
   Photon& tracePhoton &p;
   Takes a photon (By reference)
@@ -409,12 +434,18 @@ vector<Light *> * Renderer::getVisibleLights(Point3Dd point)
  */
 //for when photons should not be added to the global photon map
 #define NULL_PHOTON p.r = p.g = p.b = 0
-Photon& Renderer::tracePhoton(Photon &p)
+Photon& Renderer::tracePhoton(Photon &p, int recurse=0)
 {
 #ifdef DEBUG_BUILD
   static int total=0; static int intersected=0;
   total++;
 #endif
+  //If we're beyond maxdepth, back out
+  if(recurse > maxdepth) {
+    NULL_PHOTON;
+    return p;
+  }
+
   //First scan through all surfaces for the closest one.
   double tClose, tCurrent;
   tClose = 1000000;
@@ -479,6 +510,16 @@ Photon& Renderer::tracePhoton(Photon &p)
 						    p.dy,
 						    p.dz
 						    );
+#ifdef DEBUG_BUILD
+      cout << "Normal from surface " << closestSurface << 
+	" is " << nPoint 
+	   << " for photon at "
+	   << p.x << ',' << p.y << ',' << p.z 
+	   << " w/ incident dir " 
+	   << p.dx << ',' << p.dy << ',' << p.dz
+	   << endl;
+#endif
+
       //nDoRoulette runs Russian roulette on the photon.
       //If it is reflected, it adjusts the power of the photon in 
       //each color band to account for the probability
@@ -488,30 +529,37 @@ Photon& Renderer::tracePhoton(Photon &p)
 	  switch(closestSurface->nDoRoulette(p))
 	    {
 	    case DIFFUSE_REFLECTION:
-	      Photon p2 = p;
-	      if((p2.r > 0.0)
-		 ||(p2.g>0.0)
-		 ||(p2.b>0.0)
+	      
+	      if((p.r > 0.0)
+		 ||(p.g>0.0)
+		 ||(p.b>0.0)
 		 )
 		{
-		  p2.x=iPoint.x;
-		  p2.y=iPoint.y;
-		  p2.z=iPoint.z;
-		  //just using lambertian model for now.
-		  //		  cout << "pre -BRDF p2 is " << p2 << endl;
-		  //		  closestSurface->DoBRDF(p2);
-		  //		  cout << "post-BRDF p2 is " << p2 << endl;
-		  p=p2;
-		  pMap->addPhoton(p2);
+		    
+		    Photon p2 = p;
+		    
+		    p2.x=iPoint.x;
+		    p2.y=iPoint.y;
+		    p2.z=iPoint.z;
+		    //just using lambertian model for now.
+		    //		  cout << "pre -BRDF p2 is " << p2 << endl;
+		    //		  closestSurface->DoBRDF(p2);
+		    //		  cout << "post-BRDF p2 is " << p2 << endl;
+		    p=p2;
+		    pMap->addPhoton(p2);
+
+		  
+		  resetIncidentDir(p,nPoint);
+
+		  
+		  return tracePhoton(p,++recurse);
 		}
-	      resetIncidentDir(p,nPoint);
-	      //want to adjust each color channel to take into account
-	      //the probability of the photon surviving.
+
 	      //first, de-allocate sample ray.
 	      delete sampleRay;
-	      return tracePhoton(p);
 	      break;
-	    case SPECULAR_REFLECTION:
+
+	case SPECULAR_REFLECTION:
 	      NULL_PHOTON;
 	      delete sampleRay;
 	      return p;
@@ -692,7 +740,7 @@ void Renderer::showMap(PhotonMap * map, int start, int pixels)
   int width = myScene->getWindowWidth();
   int height = myScene->getWindowHeight();
   int totalRays = width * height;
-  int lastRay=0;
+  int lastRay=0; int mapSearchable = map->isSearchable();
   currentCamera=myScene->getCamera();
   if(!currentCamera) 
     {
@@ -710,7 +758,9 @@ void Renderer::showMap(PhotonMap * map, int start, int pixels)
 	i = place / width;
 	j = place % width;
 	Ray sampleRay = currentCamera->getRay(i,j);
- 	Point3Dd color=mapGetColor(&sampleRay,map);
+	Point3Dd color(0,0,0);
+	if(mapSearchable)
+	  color=mapGetColor(&sampleRay,map);
 	color+=getSpecularColor(&sampleRay);
 	myScene->putPixel(j,
 			  i,
@@ -741,7 +791,12 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
       //determine the t-Value of the closest intersect
       tCurrent = (*itSurfaces)->closestIntersect
 	(*sampleRay);
-      if((tCurrent!=-1)&&(tCurrent < tClose))
+      
+      if(
+	 (tCurrent!=-1)
+	 &&(tCurrent < tClose)
+	 &&(currentCamera->InViewVol(sampleRay->GetPointAt(tCurrent)))
+	 )
 	{
 	  tClose=tCurrent;
 	  closestSurface = *itSurfaces;
@@ -774,6 +829,7 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
 	{ //for each light in the scene
 	  //get the ray back to the light
 	  //iterate through surfaces to see if it's blocked.
+	  double distToLight = (*itLights)->getDistance(hitPoint);
 	  Ray LightRay = (*itLights)->getRayTo(hitPoint);
 	  LightRay.dir.normalize();
 	  Ray toLight = Ray(hp4.x,
@@ -783,20 +839,26 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
 			    -LightRay.dir.y,
 			    -LightRay.dir.z
 			    );
+	  //FIXME: Is this used?
 	  double tDist;
 	  shadowed=false;
 	  for(itSurfaces=myScene->getSurfaces()->begin();
 	      itSurfaces!=myScene->getSurfaces()->end();
 	      itSurfaces++)
 	    {
-	      if((*itSurfaces)->closestIntersect(toLight)!=-1)
+	      if((tDist = (*itSurfaces)->closestIntersect(toLight))!=-1)
 		{
-		  if((*itSurfaces)!=closestSurface)
+		  //If the distance from the light to the current
+		  //surface is less than the distance from the light
+		  //to the surface we're seeing if is shadowed, the
+		  //surface is shadowed relative to that light.
+		  if( (toLight.GetPointAt(tDist)-toLight.src).norm() < distToLight )
 		    {
 		      shadowed=true;
 		    }
 		}
 	    }
+
 	  if(!shadowed)
 	    {
 	      Point3Dd lightDir(LightRay.dir.x,
@@ -814,18 +876,19 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
 		{
 		  Ray h(hp4,((LightRay.dir*-1)+(sampleRay->dir*-1)));
 		  Point3Dd hd(h.dir.x,h.dir.y,h.dir.z);
-		  /*
+
+#ifdef DEBUG_BUILD
 		  cout << "Light  = " << LightRay.dir*-1 << endl;
 		  cout << "v      = " << sampleRay->dir*-1 << endl;
 		  cout << "normal = " << normal << endl;
 		  cout << "halfway= " << hd << endl;
 		  cout << "hd.nrml= " << hd.dot(normal);
-		  cout << "cosf   = " << endl;
+		  cout << "cosf   = " ;
+		  cout << cosf << endl;
 		  cout << "---------\n";
-		  if(cosf > 0.3) cout << "cosf = " << cosf << endl;
-		  */
-		  //		  hd.dot(normal)/(hd.norm()*normal.norm()) << endl;
+#endif
 		  cosf=hd.dot(normal)/(hd.norm()*normal.norm());
+
 		}
 	      if(cosf>0)
 		{
@@ -864,9 +927,13 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
   return specPower;
 }
 
-//note: deletes the ray that it is passed
 Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
 {
+  //If the photon map is too small, there is no illumination from it
+  if(map->getSize() < MIN_MAP_SIZE) {
+    return Point3Dd(0.0,0.0,0.0);
+  }
+
   //First scan through all surfaces for the closest one.
 
 #ifdef DEBUG_BUILD
@@ -886,7 +953,11 @@ Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
       //determine the t-Value of the closest intersect
       tCurrent = (*itSurfaces)->closestIntersect
 	(*sampleRay);
-      if((tCurrent!=-1)&&(tCurrent < tClose))
+      if(
+	 (tCurrent!=-1)
+	 &&(tCurrent < tClose)
+	 &&(currentCamera->InViewVol(sampleRay->GetPointAt(tCurrent)))
+	 )
 	{
 	  tClose=tCurrent;
 	  closestSurface = *itSurfaces;

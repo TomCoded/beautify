@@ -15,6 +15,14 @@
 
 #define PI 3.1415926535897932384626433832795
 
+//If a photon map is smaller than this size,
+//we consider it to have no valuable lighting info
+#define MIN_MAP_SIZE 10
+
+//If a Photon has negligible power (Less than P_THRESH when summed
+//over all color channels) We will not add it.
+#define P_THRESH 1e-40
+
 enum PHOTONMAP_STORAGE_TYPE { UNSORTED, KD_TREE };
 enum KD_DIM { X, Y, Z, CHILD, NULL_PHOTON, NOT_SET };
 enum FILE_TYPE { UNCOMPRESSED=0, UNCOMPRESSED_V2 };
@@ -36,7 +44,12 @@ class PhotonMap {
 
   Point3Dd getLuminanceAt(Point3Dd &);
 
-  int getSize();
+  //returns number of photons in the map
+  int getSize() const;
+  
+  //returns true if the map can be searched for
+  //flux or luminance estimates.
+  bool isSearchable() const;
 
   //set number of neighbors to use for radiance estimates.
   void setNumNeighbors(int numNeighbors);

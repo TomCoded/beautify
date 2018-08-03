@@ -139,7 +139,7 @@ int main(int argc, char ** argv) {
 }
 EOF
 #echo "$cc $CFLAGS -o $TMPO $TMPC -llinAlg "
-$cc $CFLAGS -o $TMPO $TMPC -llinAlg || { echo "nope."; exit;}
+$cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg || { echo "nope."; exit;}
 #$cc $CFLAGS -o $TMPO $TMPC -llinAlg 2> /dev/null || { echo "nope."; exit;}
 echo "yes"
 

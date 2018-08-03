@@ -8,7 +8,8 @@ PowFunNode/PowFunNode.cc \
 SinFunNode/SinFunNode.cc \
 SumFunNode/SumFunNode.cc \
 VarFunNode/VarFunNode.cc \
-FunTransform4Dd/FunTransform4Dd.cc 
+FunTransform4Dd/FunTransform4Dd.cc \
+FunPoint4Dd/FunPoint4Dd.cc
 
 FUNNODEGLS = \
 FunOrientNodeGL/FunOrientNodeGL.cc \

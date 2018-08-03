@@ -55,6 +55,8 @@ case $targetos in
 SunOS)
 ;;
 FreeBSD)
+CFLAGS="$CFLAGS -I/usr/X11R6/include -I/usr/local/include";
+LDFLAGS="$LDFLAGS -L/usr/X11R6/lib -L/usr/local/lib";
 ;;
 MINGW32*)
 ;;
@@ -89,9 +91,9 @@ for opt do
     ;;
     --make=*) make=`echo $opt | cut -d '=' -f 2`
     ;;
-    --extra-cflags=*) CFLAGS="${opt#--extra-cflags=}"
+    --extra-cflags=*) CFLAGS="$CFLAGS ${opt#--extra-cflags=}"
     ;;
-    --extra-ldflags=*) LDFLAGS=${opt#--extra-ldflags=}
+    --extra-ldflags=*) LDFLAGS="$LDFLAGS ${opt#--extra-ldflags=}"
     ;;
     --extra-libs=*) extralibs=${opt#--extra-libs=}
     ;;
@@ -116,9 +118,9 @@ done
 #if not, optimize if debug not set.  Otherwise don't debug.
 if test -z "$CFLAGS"; then
 if test "$debug" = "no"; then
-    CFLAGS="-O3"
+    CFLAGS="$CFLAGS -O3"
 else
-    CFLAGS="-g"
+    CFLAGS="$CFLAGS -g"
 fi
 CFLAGS="$CFLAGS -I$source_path/include/Functions -I$source_path/include/linAlgLib"
 fi
@@ -139,7 +141,7 @@ cc="${cross_prefix}${cc}"
 # check availability of some libraries
 
 #is Anonymous1's linear algebra library working?
-echo -n "Checking for Anonymous1's Linear Algebra Library..."
+#echo -n "Checking for Anonymous1's Linear Algebra Library..."
 cat > $TMPC <<EOF
 #include <Point3Df.h>
 #include <Point3Dd.h>
@@ -154,7 +156,7 @@ int main(int argc, char ** argv) {
 }
 EOF
 #echo "$cc $CFLAGS -o $TMPO $TMPC -llinAlg "
-$cc $CFLAGS -o $TMPO $TMPC -llinAlg 2>/dev/null || { 
+$cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg 2>/dev/null || { 
   echo "nope."; 
   exit;
 }
@@ -171,7 +173,7 @@ int main(int argc, char ** argv) {
     return 0;
 }
 EOF
-$cc $CFLAGS -o $TMPO $TMPC -llinAlg -lTomFun 2>/dev/null || { 
+$cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg -lTomFun 2>/dev/null || { 
   echo "nope."; 
   exit;
 }
@@ -187,7 +189,8 @@ int main(int argc, char ** argv) {
     return 0;
 }
 EOF
-$cc $CFLAGS -o $TMPO $TMPC $glutlibs 2>/dev/null || {
+#echo $cc $CFLAGS $LDFLAGS -o $TMPO $TMPC $glutlibs;
+$cc $CFLAGS $LDFLAGS -o $TMPO $TMPC $glutlibs 2>/dev/null || {
     glut="no";
     echo "nope";
 }
@@ -204,7 +207,7 @@ int main(int argc, char ** argv) {
     return 0;
 }
 EOF
-$cc $CFLAGS -o $TMPO $TMPC $magicklibs 2>/dev/null || {
+$cc $CFLAGS $LDFLAGS -o $TMPO $TMPC $magicklibs 2>/dev/null || {
     magick="no";
     echo "nope";
 }

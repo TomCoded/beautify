@@ -147,6 +147,9 @@ protected:
   inline void addCamera(Camera *);
   inline void addMaterial(Material *);
 
+  //updates all objects in the scene to reflect current time
+  void setTime(double t);
+
   //Creates a shader of type shaderType
   Shader * createShader(int shaderType, 
 			Point3Dd matAmbient,

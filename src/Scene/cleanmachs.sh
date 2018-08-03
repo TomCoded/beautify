@@ -1,2 +1,2 @@
 #!/bin/sh
-for i in `cat ../mach`; do xterm -e ssh $i killall SceneTest; done;
+for i in `cat ../mach`; do ssh $i killall -9 beautify; done;
