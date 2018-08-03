@@ -94,9 +94,6 @@ public:
 
   //reads temporal dependent camera from stream
   istream& funIn(istream &is);
-
-  //returns true iff p (World Coords) is within near/far planes
-  bool InViewVol(const Point4Dd& p) const;
   
   //Temporally dependent state info
 

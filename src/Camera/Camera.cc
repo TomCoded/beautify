@@ -133,35 +133,6 @@ Ray Camera::getRay(int r, int c) {
   return Ray(Point4Dd(0,0,0,1),dir).applyToSelf(cameraToWorld);
 }
 
-//returns true iff InViewVol is inside the view volume of the camera
-//InViewVol is in world coordinates
-bool Camera::InViewVol(const Point4Dd& p) const {
-  //localp is the direction to the point in local coords
-  //from the eye, at our local origin.
-  Point4Dd localp = worldToCamera*p;
-  
-  //reject out of hand if behind eye
-  if(localp.z > 0)
-    return false;
-
-  //distance to point
-  double distToPoint = localp.norm();
-
-  //cosine of angle between n-axis and ray through point
-  double cosTheta = 
-    n.dot(localp) / (n.norm() * distToPoint );
-
-  //closer than near plane
-  if(distToPoint <= near / cosTheta)
-    return false;
-  
-  //farther away than far plane
-  if(distToPoint >= far / cosTheta)
-    return false;
-  
-  return true;
-}
-
 // Compute camera transform from eye, u, v, and n
 void Camera::resetCameraTransform() {
   cameraToWorld = Transform4Dd(u, v, n, eye);
@@ -304,7 +275,7 @@ istream& Camera::funIn(istream& is) {
     exit(1);
   }
   is >> *funEye >> c;
-
+  cout << " 1 done!\n";
   if (c != ',') {
     cout << "Bad format for Camera: no comma" << endl;
     exit(1);
@@ -317,6 +288,8 @@ istream& Camera::funIn(istream& is) {
   is >> *funUp >> c;
   up = Point4Dd(inputPt,1);
 
+  cout << " 3 done!\n";
+
   if (c != ',') {
     cout << "Bad format for Camera" << endl;
     exit(1);
@@ -324,12 +297,16 @@ istream& Camera::funIn(istream& is) {
   funViewAngle = parser.in(is);
   is >> c;
 
+  cout << " 4 done!\n";
+
   if (c != ',') {
     cout << "Bad format for Camera" << endl;
     exit(1);
   }
   funAspectRatio = parser.in(is);
   is >> c;
+
+  cout << " 5 done!\n";
 
   if (c != ',') {
     cout << "Bad format for Camera" << endl;
@@ -339,6 +316,8 @@ istream& Camera::funIn(istream& is) {
 			    parser.in(is));
   is >> c;
   
+  cout << " 6 done!\n";
+
   if (c != ',') {
     cout << "Bad format for Camera" << endl;
     exit(1);
@@ -346,6 +325,8 @@ istream& Camera::funIn(istream& is) {
   funFar = new MultFunNode(new NumFunNode(-1.0),
 			   parser.in(is));
   is >> c;
+
+  cout << " 7 done!\n";
 
   if (c != ')') {
     cout << "Bad format for Camera: no close paren" << endl;

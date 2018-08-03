@@ -15,9 +15,6 @@
 #include <Light/PointLight/DiffusePointLight/DiffusePointLight.h>
 #include <Light/SquareLight/SquareLight.h>
 
-//in SceneTest.cc
-void saveMap(PhotonMap * pmap, string fileName);
-
 #ifdef PARALLEL
 int g_nFrame;
 #endif
@@ -225,7 +222,7 @@ void Scene::generateFiles(const char * filename,
     cout << "frame  proc  procs pMap Size  pMap dist render   pMap create kdTree\n";
     cout << "-----  ----  ----- ---------  --------- ------- ----------- ------\n";
   }
-  //  photons /= nodes;
+  photons /= nodes;
 #endif
   paintingFromLogical=false;
 
@@ -242,7 +239,6 @@ void Scene::generateFiles(const char * filename,
       cout << "Creating photon map for frame " << nFrame << endl << flush;
 #endif
 
-
       while( (g_map = g_Scene->myRenderer->map(photons) )->getSize() < 10) {
 	//give it a blank image
 	if (!rank)	cerr << "Photon Map of " << g_map->getSize() 
@@ -257,7 +253,8 @@ void Scene::generateFiles(const char * filename,
       double frame_start = MPI_Wtime();
       if (g_parallel) {
 	double start = MPI_Wtime();
-
+	//	if(g_map->getSize() < 10) {
+	//	} else {
 	if(!map_too_small) {
 	  MPI_Barrier(MPI_COMM_WORLD);
 	  if (rank) {
@@ -291,6 +288,7 @@ void Scene::generateFiles(const char * filename,
 	  }
 	  double stop = MPI_Wtime();
 
+
 	  if(!rank) {
 	    sprintf(outbuffer,"%5d  %4d  %5d %9d  %9f %6f  ",
 		   g_nFrame, rank, nodes, g_map->getSize(),
@@ -311,8 +309,6 @@ void Scene::generateFiles(const char * filename,
 	  }
 	}
 	start = MPI_Wtime();
-
-
 	draw();
 	double stop = MPI_Wtime();
 	//	if(!rank)

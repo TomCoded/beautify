@@ -55,15 +55,11 @@ PointLight& PointLight::operator=(const PointLight& other) {
 PointLight::~PointLight() {}
 
 //get Ray To light source from a given point
-Ray PointLight::getRayTo(const Point3Dd& dest) const
+Ray PointLight::getRayTo(Point3Dd& dest)
 {
   //  Point3Dd dir = location-dest;
   Point3Dd dir = dest-location;
   return Ray(dest, dir.normalize());
-}
-
-double PointLight::getDistance(const Point3Dd& p) const {
-  return (p-location).norm();
 }
 
 // append point to end of stream

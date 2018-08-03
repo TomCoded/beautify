@@ -52,7 +52,7 @@ public:
 		       );
 
   // get ray from dirlight to point
-  Ray getRayTo(const Point3Dd&) const;
+  Ray getRayTo(Point3Dd&);
 
   // Destructor
   ~DirLight();
