@@ -26,9 +26,9 @@ double Shape::closestIntersect(Ray& r) const {};
 
 double Shape::implicit(Point3Dd &loc) const {};
 
-istream& Shape::in(std::istream&) {}
+std::istream& Shape::in(std::istream&) {}
 
-ostream& Shape::out(std::ostream&) const {}
+std::ostream& Shape::out(std::ostream&) const {}
 
 
 

@@ -227,7 +227,7 @@ Point4Df Point4Df::apply(const Transform4Df& t) const
 }
 
 // append point to end of stream
-ostream& Point4Df::out(std::ostream& o) const
+std::ostream& Point4Df::out(std::ostream& o) const
 {
   o << "(";
   for(int i=0;i<size-1;i++)
@@ -238,26 +238,26 @@ ostream& Point4Df::out(std::ostream& o) const
 }
 
 // read array from stream
-istream& Point4Df::in(std::istream& is)
+std::istream& Point4Df::in(std::istream& is)
 {
   char c;
 
   is >> c;
   if (c != '(') {
-    cout << "Bad format for Point4Df" << endl;
+    std::cout << "Bad format for Point4Df" <<std::endl;
     exit(1);
   }
   else {
     for(int i=0;i<size-1;i++) {
       is >> data[i] >> c;
       if (c != ',') {
-	cout << "Bad format for Point4Df" << endl;
+	std::cout << "Bad format for Point4Df" <<std::endl;
 	exit(1);
       }
     }
     is >> data[size-1] >> c;
     if (c != ')') {
-      cout << "Bad format for Point4Df" << endl;
+      std::cout << "Bad format for Point4Df" <<std::endl;
       exit(1);
     }
   }
@@ -265,13 +265,13 @@ istream& Point4Df::in(std::istream& is)
 }
 
 // read a point:  a binary operator
-istream& operator>>(std::istream& is, Point4Df& p)
+std::istream& operator>>(std::istream& is, Point4Df& p)
 {
   p.in(is);
 }
 
 // print a point: a binary operator
-ostream& operator<<(std::ostream& o, const Point4Df& p)
+std::ostream& operator<<(std::ostream& o, const Point4Df& p)
 {
   return p.out(o);
 }

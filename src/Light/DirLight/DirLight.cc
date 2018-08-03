@@ -89,11 +89,11 @@ void DirLight::addPhotonsToMap(int numPhotons,
   float xPow = (power * (diffuse.x / denom)) / numPhotons;
   float yPow = (power * (diffuse.y / denom)) / numPhotons;
   float zPow = (power * (diffuse.z / denom)) / numPhotons;
-  cout << "power/photon = " 
+  std::cout << "power/photon = " 
        << xPow << ','
        << yPow << ','
        << zPow << ','
-       << endl;
+       <<std::endl;
   Point3Dd normal=Point3Dd(-direction.x,-direction.y,-direction.z);
   Point3Dd point = direction * tInfinite;
   Photon p;
@@ -126,7 +126,7 @@ void DirLight::addPhotonsToMap(int numPhotons,
 
 // append point to end of stream
 
-ostream& DirLight::out(std::ostream& os) const {
+std::ostream& DirLight::out(std::ostream& os) const {
   os << "(" << diffuse << "," << specular << ',' << tInfinite 
      << ',' << dx
      << ',' << dy
@@ -137,46 +137,46 @@ ostream& DirLight::out(std::ostream& os) const {
 
 // read array from stream
 
-istream& DirLight::in(std::istream& is) {
+std::istream& DirLight::in(std::istream& is) {
   char c;
   is >> c;
   if (c != '(') {
-    cout << "Bad format for Point3Dd" << endl;
+    std::cout << "Bad format for Point3Dd" <<std::endl;
     exit(1);
   }
   is >> diffuse >> c;
   if (c != ',') {
-    cout << "Bad format for Point3Df" << endl;
+    std::cout << "Bad format for Point3Df" <<std::endl;
     exit(1);
   }
   is >> specular >> c;
   if (c != ',') {
-    cout << "Bad format for Point3Df" << endl;
+    std::cout << "Bad format for Point3Df" <<std::endl;
     exit(1);
   }
   is >> direction >> c;
   if (c != ',') {
-    cout << "Bad format for Point3Df" << endl;
+    std::cout << "Bad format for Point3Df" <<std::endl;
     exit(1);
   }
   is >> tInfinite >> c;
   if (c != ',') {
-    cout << "Bad format for Point3Df" << endl;
+    std::cout << "Bad format for Point3Df" <<std::endl;
     exit(1);
   }
   is >> dx >> c;
   if (c != ',') {
-    cout << "Bad format for Point3Df" << endl;
+    std::cout << "Bad format for Point3Df" <<std::endl;
     exit(1);
   }
   is >> dy >> c;
   if (c != ',') {
-    cout << "Bad format for Point3Df" << endl;
+    std::cout << "Bad format for Point3Df" <<std::endl;
     exit(1);
   }
   is >> dz >> c;
   if (c != ')') {
-    cout << "Bad format for Point3Df" << endl;
+    std::cout << "Bad format for Point3Df" <<std::endl;
     exit(1);
   }
   direction=direction.normalize();
@@ -191,13 +191,13 @@ istream& DirLight::in(std::istream& is) {
 
 // friends
 // read a DirLight:  a binary operator
-istream& operator>>(std::istream& is, DirLight& l)
+std::istream& operator>>(std::istream& is, DirLight& l)
 {
   l.in(is);
 }
 
 // print a DirLight: a binary operator
-ostream& operator<<(std::ostream& o, const DirLight& l)
+std::ostream& operator<<(std::ostream& o, const DirLight& l)
 {
   return l.out(o);
 }

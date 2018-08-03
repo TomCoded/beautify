@@ -70,7 +70,7 @@ void FunTransformNodeGL::ActionGL()
       t=0;
 }
 
-istream & FunTransformNodeGL::in(std::istream& is)
+std::istream & FunTransformNodeGL::in(std::istream& is)
 {
   string szFun;
   FunParser parser;
@@ -85,18 +85,18 @@ istream & FunTransformNodeGL::in(std::istream& is)
   return is;
 }
 
-ostream & FunTransformNodeGL::out(std::ostream& o) const
+std::ostream & FunTransformNodeGL::out(std::ostream& o) const
 {
-  o << "Funtransform at address " << this << endl;
+  o << "Funtransform at address " << this <<std::endl;
   return o;
 }
 
-istream& operator>>(std::istream &is, FunTransformNodeGL& m)
+std::istream& operator>>(std::istream &is, FunTransformNodeGL& m)
 {
   return m.in(is);
 }
 
-ostream& operator<<(std::ostream &o, const FunTransformNodeGL& m)
+std::ostream& operator<<(std::ostream &o, const FunTransformNodeGL& m)
 {
   return m.out(o);
 }

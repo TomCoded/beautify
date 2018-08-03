@@ -76,10 +76,10 @@ public:
 // Non-member functions for the type
 
 // binary input operator
-istream& operator>>(std::istream& is, Ray& theRay);
+std::istream& operator>>(std::istream& is, Ray& theRay);
 
 // binary output operator
-ostream& operator<<(std::ostream& os, const Ray& theRay);
+std::ostream& operator<<(std::ostream& os, const Ray& theRay);
 
 #endif RAY_H
 

@@ -118,6 +118,6 @@ class PhotonMap
   //unsorted, quicksorted in dimension x, or kd-Tree
 };
 
-istream& operator>>(std::istream&,PhotonMap &);
+std::istream& operator>>(std::istream&,PhotonMap &);
 
 #endif

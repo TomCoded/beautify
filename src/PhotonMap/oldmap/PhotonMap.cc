@@ -65,9 +65,9 @@ void PhotonMap::addPhoton(Photon &p)
 #ifdef DEBUG_BUILD
   if(!(lastPhoton % (500)))
     {
-      cout << "Photon Map at size " 
+      std::cout << "Photon Map at size " 
 	   << lastPhoton
-	   << endl;
+	   <<std::endl;
     }
 #endif
 }
@@ -87,14 +87,14 @@ void PhotonMap::buildTree()
 
 void PhotonMap::outputTree(int rootNode)
 {
-  cout << rootNode << ' ';// << photonArray[rootNode];
+  std::cout << rootNode << ' ';// << photonArray[rootNode];
   if(rootNode*2+1<kdSize)
     {
-      cout << " {";// << rootNode*2 << ' ';
+      std::cout << " {";// << rootNode*2 << ' ';
       outputTree(rootNode*2);
-      cout << ',';// << rootNode*2+1 << ' ';
+      std::cout << ',';// << rootNode*2+1 << ' ';
       outputTree(rootNode*2+1);
-      cout << "} ";
+      std::cout << "} ";
     }
 }
 
@@ -436,10 +436,10 @@ void PhotonMap::quickSort()
   if(MAXSEARCHRANGE>LIMMAXSEARCHRANGE)
     MAXSEARCHRANGE=LIMMAXSEARCHRANGE;
 #ifdef DEBUG_BUILD
-  cout << "MAXSEARCHRANGE in photonmap set to " << MAXSEARCHRANGE <<
-  endl;
-  cout << "Volume of scene is " << volume << endl;
-  cout << "Photon Map Size " << lastPhoton << endl;
+  std::cout << "MAXSEARCHRANGE in photonmap set to " << MAXSEARCHRANGE <<
+ std::endl;
+  std::cout << "Volume of scene is " << volume <<std::endl;
+  std::cout << "Photon Map Size " << lastPhoton <<std::endl;
 #endif
 }
 
@@ -644,8 +644,8 @@ void PhotonMap::showMap()
 	    if(((((photonArray[p].x-dleft)/dwidth)-((double)j/(double)width)))<0)
 	      if(((((photonArray[p].y-dbottom)/dheight)-((double)i/(double)height)))<0)
 		{
-		  cout << (photonArray[p].x-dleft)/dwidth << endl;
-		  cout << (double)j/(double)width << endl;
+		  std::cout << (photonArray[p].x-dleft)/dwidth <<std::endl;
+		  std::cout << (double)j/(double)width <<std::endl;
 		  g_Scene->putPixel(j,i,1.0,1.0,1.0);
 		  break;
 		}
@@ -751,7 +751,7 @@ Point3Dd PhotonMap::getLuminanceAt(Point3Dd &p)
 	  debug_nPhotons+=numPhotons;
 	  if(!(debug_flux_cycle%1000))
 	    {
-	      cout << "Mean of " << debug_nPhotons/1000
+	      std::cout << "Mean of " << debug_nPhotons/1000
 		   << " photons used per pixel"
 		   << " and meanPowSum=" << meanPowSum
 		   << " yielding mean intensity (" 
@@ -762,7 +762,7 @@ Point3Dd PhotonMap::getLuminanceAt(Point3Dd &p)
 		   << debug_maxDist/debug_flux_cycle
 		   << "after " << debug_flux_cycle
 		   << " pixels."
-		   << endl;
+		   <<std::endl;
 	      debug_nPhotons=0;
 	      debug_flux_cycle=0;
 	      debug_maxDist=0;
@@ -805,7 +805,7 @@ Point3Dd PhotonMap::getLuminanceAt(Point3Dd &p)
 		      found=true;
 		      if(nClose <= NUMNEIGHBORS)
 			{ //if the array isn't full yet
-			  //			  cout << "Adding at position " << j << endl;;
+			  //			  std::cout << "Adding at position " << j <<std::endl;;
 			  nClose++;
 			}
 		      for(int k=j; k<nClose-1; k++)
@@ -848,7 +848,7 @@ Point3Dd PhotonMap::getLuminanceAt(Point3Dd &p)
       debug_nPhotons+=nClose-1;
       if(!(debug_flux_cycle%1000))
 	{
-	  cout << "Mean of " << debug_nPhotons/1000
+	  std::cout << "Mean of " << debug_nPhotons/1000
 	       << " photons used per pixel"
 	       << " and meanPowSum=" << meanPowSum
 	       << " yielding mean intensity (" 
@@ -859,7 +859,7 @@ Point3Dd PhotonMap::getLuminanceAt(Point3Dd &p)
 	       << debug_maxDist/debug_flux_cycle
 	       << "after " << debug_flux_cycle
 	       << " pixels."
-	       << endl;
+	       <<std::endl;
 	  debug_nPhotons=0;
 	  debug_flux_cycle=0;
 	  debug_maxDist=0;
@@ -956,18 +956,18 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &p,Point3Dd &normal)
 	  static int numPhotons;
 	  numPhotons=Q.getSize();
 #if 0
-	  cout << "maxDist = " 
+	  std::cout << "maxDist = " 
 	       << maxdist
-	       << endl;
+	       <<std::endl;
 #endif
 #endif
 	  while(Q.getSize())
 	    {
 #if 0
-	      cout << "Q.top.colors = "
+	      std::cout << "Q.top.colors = "
 		   << Q.top()->r << ','
 		   << Q.top()->g << ',' 
-		   << Q.top()->b << endl;
+		   << Q.top()->b <<std::endl;
 #endif
 	      //intensity proportional to cosine between angle of
 	      //incidence and angle from eye
@@ -991,14 +991,14 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &p,Point3Dd &normal)
 	  static double debug_maxDist=0;
 	  static Point3Dd meanPowSum(0,0,0);
 	  debug_maxDist+=maxdist;
-	  //      cout << "powSum=" << powSum << endl;
+	  //      std::cout << "powSum=" << powSum <<std::endl;
 	  meanPowSum+=powSum*con;
 	  debug_flux_cycle++;
 	  debug_nPhotons+=numPhotons;
-	  //      cout << "Checking flux this many times: " << debug_flux_cycle << endl;
+	  //      std::cout << "Checking flux this many times: " << debug_flux_cycle <<std::endl;
 	  if(!(debug_flux_cycle%1000))
 	    {
-	      cout << "Mean of " << debug_nPhotons/1000
+	      std::cout << "Mean of " << debug_nPhotons/1000
 		   << " photons used per pixel"
 		   << " and meanPowSum=" << meanPowSum
 		   << " yielding mean intensity (" 
@@ -1009,7 +1009,7 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &p,Point3Dd &normal)
 		   << debug_maxDist/debug_flux_cycle
 		   << "after " << debug_flux_cycle
 		   << " pixels."
-		   << endl;
+		   <<std::endl;
 	      debug_nPhotons=0;
 	      debug_flux_cycle=0;
 	      debug_maxDist=0;
@@ -1050,18 +1050,18 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &p,Point3Dd &normal)
 		  if(dist <= distance((*close[j]),p))
 		    { //closer neighbor
 #if 0
-		      cout << "Found closer neighbor " << n << " at distance "
+		      std::cout << "Found closer neighbor " << n << " at distance "
 			   << dist 
 			   << " and position "
 			   << photonArray[n].x << ','
 			   << photonArray[n].y << ','
 			   << photonArray[n].z << '.'
-			   << endl;
+			   <<std::endl;
 #endif
 		      found=true;
 		      if(nClose <= NUMNEIGHBORS)
 			{ //if the array isn't full yet
-			  //			  cout << "Adding at position " << j << endl;;
+			  //			  std::cout << "Adding at position " << j <<std::endl;;
 			  nClose++;
 			}
 		      for(int k=j; k<nClose-1; k++)
@@ -1085,7 +1085,7 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &p,Point3Dd &normal)
 	    }
 	  if(maxDist > MAXSEARCHRANGE)
 	    cerr << "maxDist = " << maxDist << ", MSR = " <<
-	      MAXSEARCHRANGE << endl;
+	      MAXSEARCHRANGE <<std::endl;
 	  double con = 1/(PI*maxDist);
 	  Point3Dd powSum(0,0,0);
 	  Point3Dd lDir;
@@ -1104,9 +1104,9 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &p,Point3Dd &normal)
 	      myMult = lDir.dot(normal) / (lDir.norm() * normal.norm());
 	      myMult=fabs(myMult);
 #if 0
-	      cout << "Between Light Ray " << lDir << " and Normal " << normal;
-	      cout << " Cosine is " << myMult << endl;
-	      cout << "myMult = " << myMult << endl;
+	      std::cout << "Between Light Ray " << lDir << " and Normal " << normal;
+	      std::cout << " Cosine is " << myMult <<std::endl;
+	      std::cout << "myMult = " << myMult <<std::endl;
 #endif
 	      powSum.x += (close[n]->r*myMult);
 	      powSum.y += (close[n]->g*myMult);
@@ -1120,16 +1120,16 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &p,Point3Dd &normal)
       static double debug_maxDist=0;
       static Point3Dd meanPowSum(0,0,0);
       debug_maxDist+=maxDist;
-      //      cout << "powSum=" << powSum << endl;
+      //      std::cout << "powSum=" << powSum <<std::endl;
       meanPowSum+=powSum*con;
       debug_flux_cycle++;
       debug_nPhotons+=nClose-1;
-      //      cout << "Checking flux this many times: " << debug_flux_cycle << endl;
+      //      std::cout << "Checking flux this many times: " << debug_flux_cycle <<std::endl;
 #if 0
       if(!(debug_flux_cycle%500))
 	{
 	  for(int i=0; i<nClose-1; i++)
-	    cout << "close[" << i << "]=("
+	    std::cout << "close[" << i << "]=("
 		 << close[i]->r << ','
 		 << close[i]->g << ','
 		 << close[i]->b << ")\n";
@@ -1137,7 +1137,7 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &p,Point3Dd &normal)
 #endif
       if(!(debug_flux_cycle%1000))
 	{
-	  cout << "Mean of " << debug_nPhotons/1000
+	  std::cout << "Mean of " << debug_nPhotons/1000
 	       << " photons used per pixel"
 	       << " and meanPowSum=" << meanPowSum
 	       << " yielding mean intensity (" 
@@ -1148,7 +1148,7 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &p,Point3Dd &normal)
 	       << debug_maxDist/debug_flux_cycle
 	       << "after " << debug_flux_cycle
 	       << " pixels."
-	       << endl;
+	       <<std::endl;
 	  debug_nPhotons=0;
 	  debug_flux_cycle=0;
 	  debug_maxDist=0;
@@ -1157,13 +1157,13 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &p,Point3Dd &normal)
 #endif
 
 #if 0
-      cout << nClose-1 << " photons over an area " << (PI*maxDist)
+      std::cout << nClose-1 << " photons over an area " << (PI*maxDist)
 	   << " or distance " << maxDist 
 	   << "contributed to flux for " << p 
 	   << " yielding " << powSum 
 	   << " * " << con
 	   << " = " << powSum*con
-	   << endl;
+	   <<std::endl;
       powSum=powSum*con;
 #if 0
       if(powSum.x>1) powSum.x=1;
@@ -1197,7 +1197,7 @@ void PhotonMap::kdNN(int phLoc, Point3Dd &loc,
 		     //		     priority_queue<Photon *> * Q)
 {  
   if(!kdTree[phLoc]) return;
-  //  cout << "kdNN(" << phLoc << "," << loc << ")\n";
+  //  std::cout << "kdNN(" << phLoc << "," << loc << ")\n";
   double dist;
   //check against CHILD_DIM instead?
   //  if(photonArray[phLoc].flag!=DIM_CHILD)
@@ -1224,7 +1224,7 @@ void PhotonMap::kdNN(int phLoc, Point3Dd &loc,
 	       << " at pos " 
 	       << phLoc
 	       << " not part of kd tree\n";
-	  cerr << "Is of dimension " << kdTree[phLoc]->flag << endl;
+	  cerr << "Is of dimension " << kdTree[phLoc]->flag <<std::endl;
 	  cerr << "Pretending of dimension x...\n";
 	  dist = kdTree[2*phLoc+1]->x - kdTree[phLoc]->x;
 	  break;
@@ -1249,26 +1249,26 @@ void PhotonMap::kdNN(int phLoc, Point3Dd &loc,
   //compute true squared distance from photon
   dist = distance(*kdTree[phLoc], loc);
 #if 0
-  cout << "From " << *kdTree[phLoc]
+  std::cout << "From " << *kdTree[phLoc]
        << " to " << loc
        << ' ';
-  cout << "sqr dist = " << dist << endl;
-  cout << "maxdist = " << maxdist << endl;
+  std::cout << "sqr dist = " << dist <<std::endl;
+  std::cout << "maxdist = " << maxdist <<std::endl;
 #endif
   if( dist < SQR(maxdist) )
     { //if the photon is close enough
       //insert photon into queue
 #if 0
-      cout << "Found nearest neighbor " << *kdTree[phLoc] 
+      std::cout << "Found nearest neighbor " << *kdTree[phLoc] 
       	   << " to " << loc
-      	   << endl;
+      	   <<std::endl;
 #endif
       //      Q->push((kdTree[phLoc]));
 #if 0
-      cout << "Adding to queue rgb: " 
+      std::cout << "Adding to queue rgb: " 
 	   << kdTree[phLoc]->r << ','
 	   << kdTree[phLoc]->g << ','
-	   << kdTree[phLoc]->b << endl;
+	   << kdTree[phLoc]->b <<std::endl;
 #endif
       Q->add(kdTree[phLoc]);
       //maxdist = distance(*(Q->top()),loc);
@@ -1285,7 +1285,7 @@ double PhotonMap::distance(Photon &p, Point3Dd &loc)
   return (SQR(dx)+SQR(dy)+SQR(dz));
 }
 
-ostream& PhotonMap::out(std::ostream& o)
+std::ostream& PhotonMap::out(std::ostream& o)
 {
   int FileType = UNCOMPRESSED;
   switch(FileType)
@@ -1322,7 +1322,7 @@ ostream& PhotonMap::out(std::ostream& o)
   return o;
 }
 
-istream& PhotonMap::in(std::istream& is)
+std::istream& PhotonMap::in(std::istream& is)
 {
   string beginString; int readFileType;
   char c;
@@ -1408,10 +1408,10 @@ istream& PhotonMap::in(std::istream& is)
     MAXSEARCHRANGE=LIMMAXSEARCHRANGE;
 #endif
 #ifdef DEBUG_BUILD
-  cout << "MAXSEARCHRANGE in photonmap set to " << MAXSEARCHRANGE <<
-  endl;
-  cout << "Volume of scene is " << volume << endl;
-  cout << "Photon Map Size " << lastPhoton << endl;
+  std::cout << "MAXSEARCHRANGE in photonmap set to " << MAXSEARCHRANGE <<
+ std::endl;
+  std::cout << "Volume of scene is " << volume <<std::endl;
+  std::cout << "Photon Map Size " << lastPhoton <<std::endl;
 #endif
   return is;
 }

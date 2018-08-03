@@ -50,7 +50,7 @@ double PowFunNode::eval(int day, Stock *s) {
   return pow(leftNode->eval(day,s),rightNode->eval(day,s));
 }
 
-ostream& PowFunNode::out(std::ostream& o)
+std::ostream& PowFunNode::out(std::ostream& o)
 {
   leftNode->out(o);
   o << '^';

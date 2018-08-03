@@ -71,10 +71,10 @@ private:
 // Non-member functions for the type
 
 // binary input operator: version 2
-istream& operator>>(std::istream & is, Plane& p);
+std::istream& operator>>(std::istream & is, Plane& p);
 
 // binary output operator: version 2
-ostream& operator<<(std::ostream & o, const Plane& p);
+std::ostream& operator<<(std::ostream & o, const Plane& p);
 
 #endif PLANE_H
 

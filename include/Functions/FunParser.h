@@ -27,8 +27,8 @@ class FunParser
  protected:
 };
 
-istream& operator>>(std::istream &is, FunParser& f);
+std::istream& operator>>(std::istream &is, FunParser& f);
 
-ostream& operator<<(std::istream &o, const FunParser& f);
+std::ostream& operator<<(std::istream &o, const FunParser& f);
 
 #endif

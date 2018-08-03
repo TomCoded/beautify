@@ -31,7 +31,7 @@
 exit(1); 
 
 #define BADFORMAT(s) { \
-cerr << "Input file syntax error: " << s << endl;\
+cerr << "Input file syntax error: " << s <<std::endl;\
 exit(1); \
 }
 

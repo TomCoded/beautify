@@ -14,7 +14,7 @@
 SquareLight::SquareLight() :
   direction(0.0,1.0,0.0)
 {
-  //  cout << "Creating Square Light " << this << endl;
+  //  std::cout << "Creating Square Light " << this <<std::endl;
   specular = Point3Dd(1.0,1.0,1.0);
   diffuse = Point3Dd(1.0,1.0,1.0);
   power=1e3;
@@ -85,7 +85,7 @@ void SquareLight::addPhotonsToMap(int numPhotons,
 		     Renderer * renderer
 		     )
 {
-  //  cout << "Processing Square Light " << this << endl;
+  //  std::cout << "Processing Square Light " << this <<std::endl;
   double x, y, z;
 
   double denom = diffuse.x+diffuse.y+diffuse.z;
@@ -135,7 +135,7 @@ void SquareLight::addPhotonsToMap(int numPhotons,
 
       static int counter=0;
       if(!counter++%50)
-	cout << p << endl;
+	std::cout << p <<std::endl;
 
       //trace photon
       p = renderer->tracePhoton(p);
@@ -147,7 +147,7 @@ void SquareLight::addPhotonsToMap(int numPhotons,
 
 // append point to end of stream
 
-ostream& SquareLight::out(std::ostream& os) const {
+std::ostream& SquareLight::out(std::ostream& os) const {
   os << '(' 
      << position
      << ',' 
@@ -170,35 +170,35 @@ ostream& SquareLight::out(std::ostream& os) const {
 
 // read array from stream
 
-istream& SquareLight::in(std::istream& is) {
+std::istream& SquareLight::in(std::istream& is) {
   char c;
   is >> c;
   if (c != '(') {
-    cerr << "Bad format for SquareLight" << endl;
+    cerr << "Bad format for SquareLight" <<std::endl;
     cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> diffuse >> c;
   if (c != ',') {
-    cerr << "Bad format for SquareLight" << endl;
+    cerr << "Bad format for SquareLight" <<std::endl;
     cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> position >> c;
   if (c != ',') {
-    cerr << "Bad format for SquareLight" << endl;
+    cerr << "Bad format for SquareLight" <<std::endl;
     cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> specular >> c;
   if (c != ',') {
-    cerr << "Bad format for SquareLight" << endl;
+    cerr << "Bad format for SquareLight" <<std::endl;
     cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> power >> c;
   if (c != ',') {
-    cerr << "Bad format for SquareLight" << endl;
+    cerr << "Bad format for SquareLight" <<std::endl;
     cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
@@ -210,19 +210,19 @@ istream& SquareLight::in(std::istream& is) {
   }
   is >> dx >> c;
   if (c != ',') {
-    cerr << "Bad format for Squarelight" << endl;
+    cerr << "Bad format for Squarelight" <<std::endl;
     cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> dy >> c;
   if (c != ',') {
-    cerr << "Bad format for Squarelight" << endl;
+    cerr << "Bad format for Squarelight" <<std::endl;
     cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> dz >> c;
   if (c != ')') {
-    cerr << "Bad format for Squarelight" << endl;
+    cerr << "Bad format for Squarelight" <<std::endl;
     cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
@@ -232,13 +232,13 @@ istream& SquareLight::in(std::istream& is) {
 
 // friends
 // read a SquareLight:  a binary operator
-istream& operator>>(std::istream& is, SquareLight& l)
+std::istream& operator>>(std::istream& is, SquareLight& l)
 {
   l.in(is);
 }
 
 // print a SquareLight: a binary operator
-ostream& operator<<(std::ostream& o, const SquareLight& l)
+std::ostream& operator<<(std::ostream& o, const SquareLight& l)
 {
   return l.out(o);
 }

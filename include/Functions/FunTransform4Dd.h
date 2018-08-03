@@ -127,9 +127,9 @@ public:
 };
   
 // read transform from stream
-istream& operator>>(std::istream& is, FunTransform4Dd& t);
+std::istream& operator>>(std::istream& is, FunTransform4Dd& t);
 
 // append transform to stream
-ostream& operator<<(std::ostream& o, const FunTransform4Dd& t);
+std::ostream& operator<<(std::ostream& o, const FunTransform4Dd& t);
 
 #endif D4TRANSFORM_H

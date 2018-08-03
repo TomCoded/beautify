@@ -66,9 +66,9 @@ public:
 };
 // friends
 // read a SquareLight:  a binary operator
-istream& operator>>(std::istream& is, SquareLight& m);
+std::istream& operator>>(std::istream& is, SquareLight& m);
 
 // print a SquareLight: a binary operator
-ostream& operator<<(std::ostream& o, const SquareLight& m);
+std::ostream& operator<<(std::ostream& o, const SquareLight& m);
 
 #endif

@@ -71,7 +71,7 @@ const double& Transform3Dd::entry(int row,int col) const
   if ((0 <= row) && (row < rowSize) && (0 <= col) && (col <= colSize))
     return data[row][col];
   else {
-    cout << "Range error in function entry()" << endl;
+    std::cout << "Range error in function entry()" <<std::endl;
     exit(1);
   }
 }
@@ -82,7 +82,7 @@ double& Transform3Dd::entry(int row,int col)
   if ((0 <= row) && (row < rowSize) && (0 <= col) && (col <= colSize))
     return data[row][col];
   else {
-    cout << "Range error in function entry()" << endl;
+    std::cout << "Range error in function entry()" <<std::endl;
     exit(1);
   }
 }
@@ -156,7 +156,7 @@ Transform3Dd& Transform3Dd::operator+=(const Transform3Dd& other)
     return *this;
   }
   else
-    cout << "Matrix addition error: different shapes" << endl;
+    std::cout << "Matrix addition error: different shapes" <<std::endl;
 }
 
 Transform3Dd& Transform3Dd::operator-=(const Transform3Dd& other)
@@ -168,7 +168,7 @@ Transform3Dd& Transform3Dd::operator-=(const Transform3Dd& other)
     return *this;
   }
   else
-    cout << "Matrix subtraction error: different shapes" << endl;
+    std::cout << "Matrix subtraction error: different shapes" <<std::endl;
 }
 
 // note: this is matrix multiplication--NOT co-ordinate-wise
@@ -187,7 +187,7 @@ Transform3Dd& Transform3Dd::operator*=(const Transform3Dd& other)
     return *this;
   }
  else {
-   cout << "Matrix product error: different shapes" << endl;
+   std::cout << "Matrix product error: different shapes" <<std::endl;
    exit(1);
  }
 }
@@ -290,7 +290,7 @@ Point3Dd Transform3Dd::operator*(const Point3Dd& p) const
 }
 
 // append transform to stream
-ostream& Transform3Dd::out(std::ostream& o) const
+std::ostream& Transform3Dd::out(std::ostream& o) const
 {
   o << "(";
   for(int r=0;r<rowSize-1;r++) {
@@ -306,27 +306,27 @@ ostream& Transform3Dd::out(std::ostream& o) const
     o << entry(rowSize-1,c) << ", ";
   o << entry(rowSize-1,colSize-1) << ")";
   
-  o << ")" << endl;
+  o << ")" <<std::endl;
 
   return o;
 }
 
 // read Transform from stream
-istream& Transform3Dd::in(std::istream& is)
+std::istream& Transform3Dd::in(std::istream& is)
 {
   char c;
   Point3Dd input;
 
   is >> c;
   if (c != '(') {
-    cout << "Bad format for Transform3Dd" << endl;
+    std::cout << "Bad format for Transform3Dd" <<std::endl;
     exit(1);
   }
   else {
     for(int r=0;r<rowSize-1;r++) {
       is >> input >> c;
       if (c != ',') {
-	cout << "Bad format for Point3Dd" << endl;
+	std::cout << "Bad format for Point3Dd" <<std::endl;
 	exit(1);
       }
       for(int c=0;c<colSize;c++)
@@ -334,7 +334,7 @@ istream& Transform3Dd::in(std::istream& is)
     }
     is >> input >> c;
     if (c != ')') {
-      cout << "Bad format for Point3Dd" << endl;
+      std::cout << "Bad format for Point3Dd" <<std::endl;
       exit(1);
     }
     for(int c=0;c<colSize;c++)
@@ -345,13 +345,13 @@ istream& Transform3Dd::in(std::istream& is)
 }
 
 // read transform from stream
-istream& operator>>(std::istream& is, Transform3Dd& t)
+std::istream& operator>>(std::istream& is, Transform3Dd& t)
 {
   t.in(is);
 }
 
 // append transform to stream
-ostream& operator<<(std::ostream& o, const Transform3Dd& t)
+std::ostream& operator<<(std::ostream& o, const Transform3Dd& t)
 {
   return t.out(o);
 }

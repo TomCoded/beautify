@@ -9,12 +9,12 @@
 
 void print(const char * string, const Point4Df& p)
 {
-  cout << string << " = " << p << endl;
+  std::cout << string << " = " << p <<std::endl;
 }
 
 void print(const char * string, const Transform4Df& t)
 {
-  cout << string << " = " << t << endl;
+  std::cout << string << " = " << t <<std::endl;
 }
 
 int main(void) {
@@ -36,16 +36,16 @@ int main(void) {
   print("p = ",p);
 
   print("p1 * p2 = ",p1 * p2);
-  cout << "p1 dot p2 = " << p1.dot(p2) << endl;
+  std::cout << "p1 dot p2 = " << p1.dot(p2) <<std::endl;
   
-  cout << p1.x << ",";
-  cout << p1.y << ",";
-  cout << p1.z << endl;
+  std::cout << p1.x << ",";
+  std::cout << p1.y << ",";
+  std::cout << p1.z <<std::endl;
 
   Transform4Df t(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16);
   print("t = ",t);
   print("t*p = ",p.apply(t));
   print("t*p = ",p.applyToSelf(t));
   p2.x = 11;
-  cout << p2 << endl;
+  std::cout << p2 <<std::endl;
 }

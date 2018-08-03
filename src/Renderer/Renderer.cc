@@ -126,9 +126,9 @@ PhotonMap * Renderer::map(int nPhotons)
 
 #ifdef DEBUG_BUILD
 #ifdef PARALLEL
-      cout << rank << ':';
+      std::cout << rank << ':';
 #endif
-      //      cout << "seed is " << seed << endl;
+      //      std::cout << "seed is " << seed <<std::endl;
 #endif
       lightPower=((*itLights)->getPower());
       nPhotonsForThisLight=(int)(nPhotons*(lightPower/totalPower));
@@ -196,7 +196,7 @@ Point3Dd Renderer::getColor(
   Surface * farthestSurface = 0;
   double tClose = 100000000; double tLast = tClose; double tFar=0;
 
-  cout << "Renderer::getColor()" << endl;
+  std::cout << "Renderer::getColor()" <<std::endl;
 
   if(recursionDepth>1) return Point3Dd(0,0,0);
   else recursionDepth++;
@@ -254,7 +254,7 @@ Point3Dd Renderer::getColor(
 	  closestSurface->surShape->getNormal(localSampleRay);
 	//only use transLocalToWorldNormal for directional changes, when
 
-	cout << "huh1\n";
+	std::cout << "huh1\n";
 
 	//and if they are necessary.
 	//normal source has to be translated differently
@@ -269,7 +269,7 @@ Point3Dd Renderer::getColor(
 	//the surface uses a reflective shader that needs to
 	//know the other surfaces to test the ray
 	//against
-	cout << "huh2\n";
+	std::cout << "huh2\n";
 
 	itIntSurf=intersectedSurfaces.begin();
 	otherSurfaces = vector<Surface *>();
@@ -287,7 +287,7 @@ Point3Dd Renderer::getColor(
 
 	//FIXME: Multiple Shaders not supported at this time
 	//this code is deprecated
-	cerr << "Assertion failed in Renderer.cc:267" << endl;
+	cerr << "Assertion failed in Renderer.cc:267" <<std::endl;
 	exit(1);
 	
 	color=
@@ -301,12 +301,12 @@ Point3Dd Renderer::getColor(
 }
 
 //I/O functions
-istream& Renderer::in(std::istream& in)
+std::istream& Renderer::in(std::istream& in)
 {
   UNIMPLEMENTED("Renderer.in");
 }
 
-ostream& Renderer::out(std::ostream& out)
+std::ostream& Renderer::out(std::ostream& out)
 {
   UNIMPLEMENTED("Renderer.out")
 }
@@ -475,8 +475,8 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse=0)
     { //for all surfaces in scene
       //determine the t-Value of the closest intersect
       tCurrent = (*itSurfaces)->closestIntersect(*sampleRay);
-      //      cout << "Implicit value of " << location << " is " <<
-      //	(*itSurfaces)->implicit(location) << endl;
+      //      std::cout << "Implicit value of " << location << " is " <<
+      //	(*itSurfaces)->implicit(location) <<std::endl;
       if((tCurrent!=-1)&&(tCurrent < tClose)&&(0<((*itSurfaces)->implicit(location))))
 	{
 	  tClose=tCurrent;
@@ -489,8 +489,8 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse=0)
   //  call this recursively if the photon is not absorbed.
 #ifdef DEBUG_BUILD
       if(!(total % 20000))
-	cout << "Current ratio of Hits/Misses: " << intersected << '/'
-	     << total << endl;
+	std::cout << "Current ratio of Hits/Misses: " << intersected << '/'
+	     << total <<std::endl;
 #endif
 
   if(closestSurface)
@@ -499,17 +499,17 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse=0)
       intersected++;
 #endif
 #ifdef DEBUG_BUILD
-      cout << "tClose = " << tClose << endl;
+      std::cout << "tClose = " << tClose <<std::endl;
       if (tClose < 0) 
-	cout << "NEGTCLOSE\n";
-      cout << "point at tClose = " << sampleRay->GetPointAt(tClose) <<
+	std::cout << "NEGTCLOSE\n";
+      std::cout << "point at tClose = " << sampleRay->GetPointAt(tClose) <<
 	endl;
-      cout << "BUMPDISTANCE = " << BUMPDISTANCE << endl;
-      cout << "point at tClose - BUMPDISTANCE = " <<
-	sampleRay->GetPointAt(tClose-BUMPDISTANCE) << endl;
-      cout << "point at tClose + BUMPDISTANCE = " <<
-	sampleRay->GetPointAt(tClose+BUMPDISTANCE) << endl;
-      cout << "SampleRay = " << *sampleRay << endl;
+      std::cout << "BUMPDISTANCE = " << BUMPDISTANCE <<std::endl;
+      std::cout << "point at tClose - BUMPDISTANCE = " <<
+	sampleRay->GetPointAt(tClose-BUMPDISTANCE) <<std::endl;
+      std::cout << "point at tClose + BUMPDISTANCE = " <<
+	sampleRay->GetPointAt(tClose+BUMPDISTANCE) <<std::endl;
+      std::cout << "SampleRay = " << *sampleRay <<std::endl;
 #endif
       Point4Dd ip4 = sampleRay->GetPointAt(tClose-BUMPDISTANCE);
       Point3Dd iPoint(ip4.x,ip4.y,ip4.z);
@@ -521,13 +521,13 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse=0)
 						    p.dz
 						    );
 #ifdef DEBUG_BUILD
-      cout << "Normal from surface " << closestSurface << 
+      std::cout << "Normal from surface " << closestSurface << 
 	" is " << nPoint 
 	   << " for photon at "
 	   << p.x << ',' << p.y << ',' << p.z 
 	   << " w/ incident dir " 
 	   << p.dx << ',' << p.dy << ',' << p.dz
-	   << endl;
+	   <<std::endl;
 #endif
 
       //nDoRoulette runs Russian roulette on the photon.
@@ -552,9 +552,9 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse=0)
 		    p2.y=iPoint.y;
 		    p2.z=iPoint.z;
 		    //just using lambertian model for now.
-		    //		  cout << "pre -BRDF p2 is " << p2 << endl;
+		    //		  std::cout << "pre -BRDF p2 is " << p2 <<std::endl;
 		    //		  closestSurface->DoBRDF(p2);
-		    //		  cout << "post-BRDF p2 is " << p2 << endl;
+		    //		  std::cout << "post-BRDF p2 is " << p2 <<std::endl;
 		    p=p2;
 		    pMap->addPhoton(p2);
 
@@ -699,7 +699,7 @@ void Renderer::participantMarch(Photon &p,
 	      }
 	      //	      cerr << "P " << p;
 	      medium->DoVolBRDF(p);
-	      //	      cerr << " ==> " << p << endl;
+	      //	      cerr << " ==> " << p <<std::endl;
 
 	      break;
 	    case ABSORPTION:
@@ -748,8 +748,8 @@ Photon& Renderer::resetIncidentDir(Photon &p,
 {
   //The phong model;  Calculate reflection ray, opposite incident ray
   //about normal.
-  //  cout << "Before reseting incident direction: " << p << endl;
-  //  cout << "Resetting incident direction about " << normal << endl;
+  //  std::cout << "Before reseting incident direction: " << p <<std::endl;
+  //  std::cout << "Resetting incident direction about " << normal <<std::endl;
   //reflected vector = incidentDir + 2 * (-incidentDir dot normal) /
   //  (normal.norm squared) * normal
   Point3Dd incidentDir(p.dx, p.dy, p.dz);
@@ -760,7 +760,7 @@ Photon& Renderer::resetIncidentDir(Photon &p,
   p.dx = newDir.x;
   p.dy = newDir.y;
   p.dz = newDir.z;
-  //  cout << "After  reseting incident direction: " << p << endl;
+  //  std::cout << "After  reseting incident direction: " << p <<std::endl;
   return p;
 }
 
@@ -859,8 +859,8 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
 
 #ifdef DEBUG_BUILD
   if(!(total % 20000))
-    cout << "Specular pass ratio of Hits/Misses: " << intersected << '/'
-	 << total << endl;
+    std::cout << "Specular pass ratio of Hits/Misses: " << intersected << '/'
+	 << total <<std::endl;
 #endif;
   
   if(closestSurface&&(!closestSurface->participates()))
@@ -930,14 +930,14 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
 		  Point3Dd hd(h.dir.x,h.dir.y,h.dir.z);
 
 #ifdef DEBUG_BUILD
-		  cout << "Light  = " << LightRay.dir*-1 << endl;
-		  cout << "v      = " << sampleRay->dir*-1 << endl;
-		  cout << "normal = " << normal << endl;
-		  cout << "halfway= " << hd << endl;
-		  cout << "hd.nrml= " << hd.dot(normal);
-		  cout << "cosf   = " ;
-		  cout << cosf << endl;
-		  cout << "---------\n";
+		  std::cout << "Light  = " << LightRay.dir*-1 <<std::endl;
+		  std::cout << "v      = " << sampleRay->dir*-1 <<std::endl;
+		  std::cout << "normal = " << normal <<std::endl;
+		  std::cout << "halfway= " << hd <<std::endl;
+		  std::cout << "hd.nrml= " << hd.dot(normal);
+		  std::cout << "cosf   = " ;
+		  std::cout << cosf <<std::endl;
+		  std::cout << "---------\n";
 #endif
 		  cosf=hd.dot(normal)/(hd.norm()*normal.norm());
 
@@ -950,14 +950,14 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
 		  specPowD.z = cosf*(*itLights)->specular.z *
 		    matSpec.z;
 		  /*
-		  cout << "Light power spec: " <<
+		  std::cout << "Light power spec: " <<
 		    (*itLights)->specular.x
 		       << ',' << (*itLights)->specular.y
 		       << ',' << (*itLights)->specular.z
-		       << endl;
-		  cout << "Matspec: " << matSpec << endl;
-		  cout << "cosf: " << cosf << endl;
-		  cout << "specPowD = " << specPowD << endl;
+		       <<std::endl;
+		  std::cout << "Matspec: " << matSpec <<std::endl;
+		  std::cout << "cosf: " << cosf <<std::endl;
+		  std::cout << "specPowD = " << specPowD <<std::endl;
 		  */
 		  if(specPowD.x>0)
 		    specPower.x+=specPowD.x;
@@ -969,10 +969,10 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
 	      
 	    }
 	  #ifdef DEBUG_BUILD
-	  else cout << "Shadowed\n";
+	  else std::cout << "Shadowed\n";
 	  #endif
 	}
-      //            cout << specPower << endl;
+      //            std::cout << specPower <<std::endl;
       //      specPower = Point3Dd(1.0,0.0,0.0);
       //      specPower.x = 0.5;
     }
@@ -1008,11 +1008,11 @@ Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
 
 #ifdef DEBUG_BUILD
       if(!(total % 5000)) {
-	cout << " Surface " << *itSurfaces 
+	std::cout << " Surface " << *itSurfaces 
 	     << "tCurrent = " << tCurrent
 	     << "; tClose = " << tClose
 	     << "; InViewVol = " << currentCamera->InViewVol(sampleRay->GetPointAt(tCurrent))
-	     << endl;
+	     <<std::endl;
       }
 #endif      
       
@@ -1031,8 +1031,8 @@ Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
 
 #ifdef DEBUG_BUILD
       if(!(total % 20000))
-	cout << "Trace pass ratio of Hits/Misses: " << intersected << '/'
-	     << total << endl;
+	std::cout << "Trace pass ratio of Hits/Misses: " << intersected << '/'
+	     << total <<std::endl;
 #endif
 
   if(closestSurface)
@@ -1164,7 +1164,7 @@ Point3Dd Renderer::getIlluminationInMedium(const Point3Dd &point,
      lastVal+= increment;
   }
   
-  cerr << "totalScar " << totalScat << endl;
+  cerr << "totalScar " << totalScat <<std::endl;
   return totalScat;
 }
 
@@ -1240,7 +1240,7 @@ Point3Dd Renderer::getIlluminationAtPointInMedium(const Point3Dd &point,
     //Then multiply result by phase function for direction shift
     //    cerr << "pre-phase: " << incomingLight;
     temp = incomingLight * medium->phaseFunction(sourceDir,dir);
-    //    cerr << " post-phase: " << temp << endl;
+    //    cerr << " post-phase: " << temp <<std::endl;
 
     if(temp.x < 0) temp.x=0;
     if(temp.y < 0) temp.y=0;

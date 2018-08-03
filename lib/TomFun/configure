@@ -109,6 +109,8 @@ else
 fi
 fi
 
+CFLAGS="$CFLAGS -std=c++03"
+
 #test to see if win32 was set; if so, cross-compile
 if test "$win32" = "yes" ; then
     cross_prefix="i386-mingw32msvc-"

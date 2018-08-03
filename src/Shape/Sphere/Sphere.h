@@ -81,10 +81,10 @@ private:
 // Non-member functions for the type
 
 // binary input operator: version 2
-istream& operator>>(std::istream & is, Sphere& s);
+std::istream& operator>>(std::istream & is, Sphere& s);
 
 // binary output operator: version 2
-ostream& operator<<(std::ostream & o, const Sphere& s);
+std::ostream& operator<<(std::ostream & o, const Sphere& s);
 
 #endif SPHERE_H
 

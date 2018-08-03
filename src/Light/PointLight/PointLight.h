@@ -56,9 +56,9 @@ public:
 };
 // friends
 // read a PointLight:  a binary operator
-istream& operator>>(std::istream& is, PointLight& m);
+std::istream& operator>>(std::istream& is, PointLight& m);
 
 // print a PointLight: a binary operator
-ostream& operator<<(std::ostream& o, const PointLight& m);
+std::ostream& operator<<(std::ostream& o, const PointLight& m);
 
 #endif POINTLIGHT_H_

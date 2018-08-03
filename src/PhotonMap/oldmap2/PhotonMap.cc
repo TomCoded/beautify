@@ -31,7 +31,7 @@ void PhotonMap::buildTree() {
   kdTree = (Photon **) malloc(kdSize * sizeof(Photon *));
   for(int n=1; n<kdSize; n++) {
     kdTree[n]=&unsortedPhotons[n-1];
-    cout << "Assigning " << &unsortedPhotons[n-1] << " to kdTree[" <<
+    std::cout << "Assigning " << &unsortedPhotons[n-1] << " to kdTree[" <<
       n << "]\n";
   }
   kdBalance(1);
@@ -41,34 +41,34 @@ void PhotonMap::buildTree() {
 /* private helper functions */
 //recursively balances the kdTree
 int PhotonMap::kdBalance(int nRoot) {
-  cout << "kdBalance(" << nRoot << ")\n";
-  cout << "kdSize = " << kdSize << endl;
-  cout << "kdTree[nRoot] = " << kdTree[nRoot] << endl;
+  std::cout << "kdBalance(" << nRoot << ")\n";
+  std::cout << "kdSize = " << kdSize <<std::endl;
+  std::cout << "kdTree[nRoot] = " << kdTree[nRoot] <<std::endl;
   if(!kdTree[nRoot]) return -1;
-  cout << "**kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] << endl;
+  std::cout << "**kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] <<std::endl;
   if(nRoot * 2 < kdSize) {
-    cout << "inside kdBal() loop\n";
+    std::cout << "inside kdBal() loop\n";
     //has children
     //find splitting dimension
     KD_DIM dim=findMaxDim(nRoot);
-    cout << "dim = " << dim << " for " << nRoot << endl;
-    if(dim==X) cout << "Splitting dimension of X for node " << nRoot
-		      << endl;
-    if(dim==Y) cout << "Splitting dimension of Y for node " << nRoot
-		      << endl;
-    if(dim==Z) cout << "Splitting dimension of Z for node " << nRoot
-		      << endl;
+    std::cout << "dim = " << dim << " for " << nRoot <<std::endl;
+    if(dim==X) std::cout << "Splitting dimension of X for node " << nRoot
+		      <<std::endl;
+    if(dim==Y) std::cout << "Splitting dimension of Y for node " << nRoot
+		      <<std::endl;
+    if(dim==Z) std::cout << "Splitting dimension of Z for node " << nRoot
+		      <<std::endl;
     //find median; swap with root node
     //set flag to identify splitting dimension
     //need to partition set into nodes on either side of splitting
     //    plane
     ///... stuff
     //now load each set into the kdTree
-  cout << "kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] << endl;
+  std::cout << "kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] <<std::endl;
     medianRootSwapAndPartition(nRoot,dim);
-  cout << "kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] << endl;
+  std::cout << "kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] <<std::endl;
     //balance left and right children
-    cout << "kdBalance(" << nRoot << ") calling kdBalance(" << 2*nRoot
+    std::cout << "kdBalance(" << nRoot << ") calling kdBalance(" << 2*nRoot
 	 << ")\n";
     kdBalance(2*nRoot);
     if(nRoot*2+1<kdSize)
@@ -84,7 +84,7 @@ int PhotonMap::kdBalance(int nRoot) {
 //swaps left and right nodes in tree of nRoot according to
 //  location relative to median; orders tree
 void PhotonMap::medianRootSwapAndPartition(int nRoot,KD_DIM dim) {
-  cout << "medianRootSwapAndPartition(" << nRoot << "," << dim << ")\n";
+  std::cout << "medianRootSwapAndPartition(" << nRoot << "," << dim << ")\n";
   list<Photon **> sortedPList;
   list<Photon **> leftList;
   list<Photon **> rightList;
@@ -93,13 +93,13 @@ void PhotonMap::medianRootSwapAndPartition(int nRoot,KD_DIM dim) {
   for(list<Photon **>::iterator itList = sortedPList.begin();
       itList!=sortedPList.end();
       itList++) {
-    cout << "sortedPList elt = (" << (**itList)->x << ','
+    std::cout << "sortedPList elt = (" << (**itList)->x << ','
 	 << (**itList)->y << ','
 	 << (**itList)->z << ")\n";
   }
   list<Photon **>::iterator itList = sortedPList.begin();
   int listSize = sortedPList.size()/2;
-  cout << "mrswp+kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] << endl;
+  std::cout << "mrswp+kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] <<std::endl;
   if(listSize) {
     for(int n=0;n<listSize;(itList++)) {
       n++;
@@ -113,43 +113,43 @@ void PhotonMap::medianRootSwapAndPartition(int nRoot,KD_DIM dim) {
   for(list<Photon **>::iterator itList = sortedPList.begin();
       itList!=sortedPList.end();
       itList++) {
-    cout << "sortedPList elt = (" << (**itList)->x << ','
+    std::cout << "sortedPList elt = (" << (**itList)->x << ','
 	 << (**itList)->y << ','
 	 << (**itList)->z << ")\n";
   }
 
-  cout << "mrsqp++kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] << endl;
+  std::cout << "mrsqp++kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] <<std::endl;
 
     //itList is now pointing at the median of the list; swap with root
     if((**itList)!=kdTree[nRoot]) {
       //swap them if unequal
       Photon * temp=kdTree[nRoot];
-      cout << "kdTree[" << nRoot << "]=" << kdTree[nRoot] << ',' << kdTree[2] << ',' << kdTree[4] << endl;
+      std::cout << "kdTree[" << nRoot << "]=" << kdTree[nRoot] << ',' << kdTree[2] << ',' << kdTree[4] <<std::endl;
       kdTree[nRoot] = *(*itList);
-      cout << "kdTree[" << nRoot << "]=" << kdTree[nRoot] << ',' << kdTree[2] << ',' << kdTree[4] << endl;
+      std::cout << "kdTree[" << nRoot << "]=" << kdTree[nRoot] << ',' << kdTree[2] << ',' << kdTree[4] <<std::endl;
       *(*itList) = temp;
-      cout << "kdTree[" << nRoot << "]=" << kdTree[nRoot] << ',' << kdTree[2] << ',' << kdTree[4] << endl;
+      std::cout << "kdTree[" << nRoot << "]=" << kdTree[nRoot] << ',' << kdTree[2] << ',' << kdTree[4] <<std::endl;
     }
-  cout << "1-mrsqp++kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] << endl;
+  std::cout << "1-mrsqp++kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] <<std::endl;
     kdTree[nRoot]->flag=dim;
     int  n=0;
-  cout << "1-mrsqp++kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] << endl;
+  std::cout << "1-mrsqp++kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] <<std::endl;
     for(itList=rightListStart; itList!=sortedPList.end(); itList++) {
       rightList.push_back(*itList);
     }
     //now load each set into the kdTree
-  cout << "1mrsqp++kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] << endl;
+  std::cout << "1mrsqp++kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] <<std::endl;
     fillTree(nRoot*2,&leftList);
-  cout << "1mrsqp++kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] << endl;
+  std::cout << "1mrsqp++kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] <<std::endl;
     fillTree(nRoot*2+1,&rightList);
-  cout << "2mrsqp++kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] << endl;
+  std::cout << "2mrsqp++kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] <<std::endl;
   }
 }
 
 //fills tree with photons in vector, in unspecified order
 //removes them from the vector once they've been added.
 void PhotonMap::fillTree(int nRoot, list<Photon **> * pNodes) {
-  cout << "filltree( " << nRoot << "):" << "kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] << endl;
+  std::cout << "filltree( " << nRoot << "):" << "kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] <<std::endl;
   if(!pNodes->empty())
     {
       if(nRoot<kdSize)
@@ -182,12 +182,12 @@ void PhotonMap::fillTree(int nRoot, list<Photon **> * pNodes) {
 //FIXME: flags here set to be place in kdTree[] of current node
 void PhotonMap::generateList(list<Photon **> * sList, int nRoot, KD_DIM dim) {
   if(!kdTree[nRoot]) return;
-  cout << "generateList(" << sList << ',' << nRoot << ',' << dim << ")\n";
-  cout << "kdTree[nRoot]=(" << kdTree[nRoot]->x << ',' << kdTree[nRoot]->y << ")\n";
-  cout << "kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] << endl;
+  std::cout << "generateList(" << sList << ',' << nRoot << ',' << dim << ")\n";
+  std::cout << "kdTree[nRoot]=(" << kdTree[nRoot]->x << ',' << kdTree[nRoot]->y << ")\n";
+  std::cout << "kdTree[2,4]=" << kdTree[2] << ',' << kdTree[4] <<std::endl;
   if(sList->empty()) {
     kdTree[nRoot]->flag=nRoot;
-    cout << "Inserting root node into list with x val of " << kdTree[nRoot]->x << endl;
+    std::cout << "Inserting root node into list with x val of " << kdTree[nRoot]->x <<std::endl;
     sList->push_back(&kdTree[nRoot]);
   }
   else {
@@ -280,7 +280,7 @@ KD_DIM PhotonMap::findMaxDim(int nRoot) {
   double yDiff = yMax - yMin;
   double xDiff = xMax - xMin;
   double zDiff = zMax - zMin;
-  cout << xDiff << ',' << yDiff << ',' << zDiff << endl;
+  std::cout << xDiff << ',' << yDiff << ',' << zDiff <<std::endl;
   //return largest dimension
   return ( yDiff > xDiff ? ( zDiff > yDiff ? Z : Y ) : (zDiff > xDiff ? Z : X) );
 }
@@ -336,21 +336,21 @@ void PhotonMap::fillDimSpreads(int rootNode,
 //outputs a representation of the tree to stdout
 void PhotonMap::outputTree(int nRoot) {
   if(kdTree[nRoot]) {
-    cout << '(' << (*kdTree[nRoot]).flag << ":" << (*kdTree[nRoot]).x << ',' << kdTree[nRoot]->y <<
+    std::cout << '(' << (*kdTree[nRoot]).flag << ":" << (*kdTree[nRoot]).x << ',' << kdTree[nRoot]->y <<
       ',' << kdTree[nRoot]->z << ')';
     if(nRoot * 2 < kdSize) {
-      cout << '[';
+      std::cout << '[';
       outputTree(nRoot*2);
     } 
     if(nRoot*2+1 < kdSize) {
-      cout << ',';
+      std::cout << ',';
       outputTree(nRoot*2+1);
     }
-    cout << ']';
+    std::cout << ']';
   }
 }
 
-ostream& PhotonMap::out(std::ostream& o){
+std::ostream& PhotonMap::out(std::ostream& o){
   FILE_TYPE FileType = UNCOMPRESSED_V2;
   switch(FileType)
     {
@@ -367,7 +367,7 @@ ostream& PhotonMap::out(std::ostream& o){
   return o;
 }
 
-istream& PhotonMap::in(std::istream& is){
+std::istream& PhotonMap::in(std::istream& is){
   string beginString; 
   int readFileType;
   char c;

@@ -13,22 +13,22 @@ int main()
   FunNode * myFun;
   while(!done2)
     {
-      cout << "Input expression: " << endl;
-      cin >> myString;
+      std::cout << "Input expression: " <<std::endl;
+      std::cin >> myString;
       myFun = myParser.parseString(myString);
       done=false;
       while(!done)
 	{
-	  cout << "Evaluating expression at t = ?: ";
-	  cin >> t;
-	  cout << "Value of ";
+	  std::cout << "Evaluating expression at t = ?: ";
+	  std::cin >> t;
+	  std::cout << "Value of ";
 	  myFun->out(cout);
-	  cout << " at t = " << t;
+	  std::cout << " at t = " << t;
 	  
-	  cout << " is " << (myFun->eval(t)) <<
-	    endl;
-	  cout << "(q)uit/(e)xpression/(c)ontinue:";
-	  cin >> c;
+	  std::cout << " is " << (myFun->eval(t)) <<
+	   std::endl;
+	  std::cout << "(q)uit/(e)xpression/(c)ontinue:";
+	  std::cin >> c;
 	  if(c=='q') 
 	    {
 	      done=true;

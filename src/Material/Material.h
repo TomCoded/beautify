@@ -42,7 +42,7 @@ class Material
 						   //three doubles
 };
 
-istream& operator>>(std::istream&, Material&);
-ostream& operator<<(std::ostream&, Material&);
+std::istream& operator>>(std::istream&, Material&);
+std::ostream& operator<<(std::ostream&, Material&);
 
 #endif

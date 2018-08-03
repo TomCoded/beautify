@@ -48,7 +48,7 @@ Ray::~Ray() {}
 // Ray operations
 
 // output function
-ostream& Ray::out(std::ostream& os) const
+std::ostream& Ray::out(std::ostream& os) const
 {
   Point3Dd src3 = src.dehomogenize();
   Point3Dd dir3 = dir.dehomogenize();
@@ -58,26 +58,26 @@ ostream& Ray::out(std::ostream& os) const
 
 // input function
 // get Ray from keyboard: ((x,y,z),(x,y,z))
-istream & Ray::in(std::istream& is)
+std::istream & Ray::in(std::istream& is)
 {
   char c;
   Point3Dd inputPt;
 
   is >> c;
   if (c != '(') {
-    cout << "Bad format for Ray" << endl;
+    std::cout << "Bad format for Ray" <<std::endl;
     exit(1);
   }
   is >> inputPt >> c;
   src = Point4Dd(inputPt,1);
   if (c != ',') {
-    cout << "Bad format for Ray" << endl;
+    std::cout << "Bad format for Ray" <<std::endl;
     exit(1);
   }
   is >> inputPt >> c;
   dir = Point4Dd(inputPt,0);
   if (c != ')') {
-    cout << "Bad format for Ray" << endl;
+    std::cout << "Bad format for Ray" <<std::endl;
     exit(1);
   }
   return is;
@@ -114,13 +114,13 @@ Ray& Ray::applyToSelf(const Transform4Dd& tr) {
 // Non-member functions for the type
 
 // binary input operator
-istream& operator>>(std::istream & is, Ray& theRay)
+std::istream& operator>>(std::istream & is, Ray& theRay)
 {
   return theRay.in(is);
 }
 
 // binary output operator
-ostream& operator<<(std::ostream & os, const Ray& theRay)
+std::ostream& operator<<(std::ostream & os, const Ray& theRay)
 {
   return theRay.out(os);
 }

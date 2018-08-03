@@ -80,13 +80,13 @@ void FunTranslateNodeGL::ActionGL()
       t=0;
 }
 
-ostream & FunTranslateNodeGL::out(std::ostream& o) const
+std::ostream & FunTranslateNodeGL::out(std::ostream& o) const
 {
-  o << "Funtranslation at address " << this << endl;
+  o << "Funtranslation at address " << this <<std::endl;
   return o;
 }
 
-istream & FunTranslateNodeGL::in(std::istream& is)
+std::istream & FunTranslateNodeGL::in(std::istream& is)
 {
   char c;
   string funX;
@@ -105,12 +105,12 @@ istream & FunTranslateNodeGL::in(std::istream& is)
   return is;
 }
 
-istream& operator>>(std::istream &is, FunTranslateNodeGL& p)
+std::istream& operator>>(std::istream &is, FunTranslateNodeGL& p)
 {
   return p.in(is);
 }
 
-ostream& operator<<(std::ostream &o, const FunTranslateNodeGL& p)
+std::ostream& operator<<(std::ostream &o, const FunTranslateNodeGL& p)
 {
   return p.out(o);
 }

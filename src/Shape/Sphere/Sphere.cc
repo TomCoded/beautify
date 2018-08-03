@@ -110,31 +110,31 @@ void Sphere::SetRadius(double rad)
 }
 
 // output function
-ostream& Sphere::out(std::ostream& o) const
+std::ostream& Sphere::out(std::ostream& o) const
 {
   o << "(" << center << "," << radius << ")";
 }
 
 // input function
 // get Sphere from keyboard: ((x,y,z),r)
-istream & Sphere::in(std::istream& is)
+std::istream & Sphere::in(std::istream& is)
 {
   char c;
 
   is >> c;
   if (c != '(') {
-    cout << "Bad format for Sphere" << endl;
+    std::cout << "Bad format for Sphere" <<std::endl;
     exit(1);
   }
   else {
     is >> center >> c;
     if (c != ',') {
-      cout << "Bad format for Sphere" << endl;
+      std::cout << "Bad format for Sphere" <<std::endl;
       exit(1);
     }
     is >> radius >> c;
     if (c != ')') {
-      cout << "Bad format for Sphere" << endl;
+      std::cout << "Bad format for Sphere" <<std::endl;
       exit(1);
     }
   }
@@ -144,13 +144,13 @@ istream & Sphere::in(std::istream& is)
 // Non-member functions for the type
 
 // binary input operator: version 2
-istream& operator>>(std::istream & is, Sphere& s)
+std::istream& operator>>(std::istream & is, Sphere& s)
 {
   return s.in(is);
 }
 
 // binary output operator: version 2
-ostream& operator<<(std::ostream & o, const Sphere& s)
+std::ostream& operator<<(std::ostream & o, const Sphere& s)
 {
   return s.out(o);
 }

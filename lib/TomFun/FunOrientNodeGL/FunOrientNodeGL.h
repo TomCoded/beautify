@@ -50,8 +50,8 @@ class FunOrientNodeGL : public NodeGL
   double t; //current t
 };
 
-istream& operator>>(std::istream &is, FunOrientNodeGL& p);
+std::istream& operator>>(std::istream &is, FunOrientNodeGL& p);
 
-ostream& operator<<(std::ostream &o, const FunOrientNodeGL& p);
+std::ostream& operator<<(std::ostream &o, const FunOrientNodeGL& p);
 
 #endif

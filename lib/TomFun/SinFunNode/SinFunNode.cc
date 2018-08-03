@@ -41,7 +41,7 @@ double SinFunNode::eval(int day, Stock *s) {
   return sin(childNode->eval(day,s));
 }
 
-ostream& SinFunNode::out(std::ostream& o)
+std::ostream& SinFunNode::out(std::ostream& o)
 {
   o << "sin(";
   childNode->out(o);

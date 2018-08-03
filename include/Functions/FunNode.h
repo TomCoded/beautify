@@ -39,7 +39,7 @@ class FunNode
  protected:
 };
 
-istream& operator>>(std::istream& is, FunNode&);
-ostream& operator<<(std::ostream& o, FunNode&);
+std::istream& operator>>(std::istream& is, FunNode&);
+std::ostream& operator<<(std::ostream& o, FunNode&);
 
 #endif

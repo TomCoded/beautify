@@ -30,7 +30,7 @@ class DiffusePointLight : public PointLight
  protected:
 };
 
-istream& operator>>(std::istream&, DiffusePointLight&);
-ostream& operator<<(std::ostream&, DiffusePointLight&);
+std::istream& operator>>(std::istream&, DiffusePointLight&);
+std::ostream& operator<<(std::ostream&, DiffusePointLight&);
 
 #endif

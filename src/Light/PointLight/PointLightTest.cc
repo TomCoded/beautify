@@ -12,6 +12,6 @@ int main() {
 		  Point3Df(0.4,0.5,0.1), // diffuse
 		  Point3Df(0.5,0.7,0.6)); // specular
 
-  cout << l1 << endl;
-  cout << l2 << endl;
+  std::cout << l1 <<std::endl;
+  std::cout << l2 <<std::endl;
 }

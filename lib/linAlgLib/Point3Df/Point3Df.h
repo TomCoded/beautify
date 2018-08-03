@@ -103,10 +103,10 @@ public:
 };
 
 // read a point:  a binary operator
-istream& operator>>(std::istream& is, Point3Df& p);
+std::istream& operator>>(std::istream& is, Point3Df& p);
 
 // print a point: a binary operator
-ostream& operator<<(std::ostream& o, const Point3Df& p);
+std::ostream& operator<<(std::ostream& o, const Point3Df& p);
 
 #endif POINT3DF_H
 

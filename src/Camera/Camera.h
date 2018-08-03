@@ -122,10 +122,10 @@ public:
 // Non-member functions for the type
 
 // read Camera from stream
-istream& operator>>(std::istream & is, Camera& c);
+std::istream& operator>>(std::istream & is, Camera& c);
 
 // write Camera to stream
-ostream& operator<<(std::ostream & os, const Camera& c);
+std::ostream& operator<<(std::ostream & os, const Camera& c);
 
 #endif CAMERA_H
 

@@ -32,9 +32,9 @@ class FunTransformNodeGL : public NodeGL
   double t;
 };
 
-istream& operator>>(std::istream &is, FunTransformNodeGL& m);
+std::istream& operator>>(std::istream &is, FunTransformNodeGL& m);
 
-ostream& operator<<(std::ostream &o, const FunTransformNodeGL& m);
+std::ostream& operator<<(std::ostream &o, const FunTransformNodeGL& m);
 
 #endif
 

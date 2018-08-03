@@ -7,12 +7,12 @@
 
 void print(const char * string, const Point3Df& p)
 {
-  cout << string << " = " << p << endl;
+  std::cout << string << " = " << p <<std::endl;
 }
 
 void print(const char * string, const Transform3Df& t)
 {
-  cout << string << " = " << t << endl;
+  std::cout << string << " = " << t <<std::endl;
 }
 
 int main(void) {
@@ -34,8 +34,8 @@ int main(void) {
   Transform3Df t;
   print("t = ",t);
 
-  cout << "Enter a transform: ";
-  cin >> t;
+  std::cout << "Enter a transform: ";
+  std::cin >> t;
   print("t = ",t);
 
   t = (t1 * 3) - (t2 * 2);

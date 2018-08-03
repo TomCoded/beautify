@@ -46,8 +46,8 @@ class FunTranslateNodeGL : public NodeGL
   double t; //current t
 };
 
-istream& operator>>(std::istream &is, FunTranslateNodeGL& p);
+std::istream& operator>>(std::istream &is, FunTranslateNodeGL& p);
 
-ostream& operator<<(std::ostream &o, const FunTranslateNodeGL& p);
+std::ostream& operator<<(std::ostream &o, const FunTranslateNodeGL& p);
 
 #endif

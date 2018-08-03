@@ -25,8 +25,8 @@ int main(void) {
   // Also << is not a Shape method, so we can't hope for correct dispatch
   // to derived types:  Therefore, use class method "out"
   for(int i=0;i<4;i++) {
-    cout << "shapeList[" << i << "] = ";
-    shapeList[i]->out(cout) << endl;
+    std::cout << "shapeList[" << i << "] = ";
+    shapeList[i]->out(cout) <<std::endl;
   }
 
   // Testing cloning...
@@ -34,9 +34,9 @@ int main(void) {
   for(int i=0;i<4;i++) {
     copyList[i] = shapeList[i]->clone();
 
-    cout << "Original: ";
+    std::cout << "Original: ";
     shapeList[i]->out(cout) << ", copy: ";
-    copyList[i]->out(cout) << endl;
+    copyList[i]->out(cout) <<std::endl;
   }
 
   // create some rays
@@ -44,27 +44,27 @@ int main(void) {
     r2(Point3Dd(-0.2,-0.2,4),Point3Dd(-0.15,-0.1,-1));
   double t; // for t-value of intersections
 
-  cout << "r1 = " << r1 << endl << "r2 = " << " " << r2 << endl;
+  std::cout << "r1 = " << r1 <<std::endl << "r2 = " << " " << r2 << endl;
 
   // test r1 against shapes
   for(int i=0;i<4;i++) {
     t = shapeList[i]->closestIntersect(r1);
     if(t<0)
-      cout << "t = " << t << ": "
-	   << "Ray r1 does not intersect plane shapeList[" << i << "]" << endl;
+      std::cout << "t = " << t << ": "
+	   << "Ray r1 does not intersect plane shapeList[" << i << "]" <<std::endl;
     else
-      cout << "Ray r1 intersects plane shapeList[" << i << "] when t = " << t
-	   << " at point " << r1.GetPointAt(t) << endl;
+      std::cout << "Ray r1 intersects plane shapeList[" << i << "] when t = " << t
+	   << " at point " << r1.GetPointAt(t) <<std::endl;
   }
 
   // now test r2
   for(int i=0;i<4;i++) {
     t = shapeList[i]->closestIntersect(r2);
     if(t<0)
-      cout << "t = " << t << ": "
-	   << "Ray r2 does not intersect plane shapeList[" << i << "]" << endl;
+      std::cout << "t = " << t << ": "
+	   << "Ray r2 does not intersect plane shapeList[" << i << "]" <<std::endl;
     else
-      cout << "Ray r2 intersects plane shapeList[" << i << "] when t = " << t
-	   << " at point " << r2.GetPointAt(t) << endl;
+      std::cout << "Ray r2 intersects plane shapeList[" << i << "] when t = " << t
+	   << " at point " << r2.GetPointAt(t) <<std::endl;
   }
 }

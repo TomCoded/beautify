@@ -69,33 +69,33 @@ double PointLight::getDistance(const Point3Dd& p) const {
 
 // append point to end of stream
 
-ostream& PointLight::out(std::ostream& os) const {
+std::ostream& PointLight::out(std::ostream& os) const {
   os << "(" << location << "," << diffuse << "," << specular << ")";
   return os;
 }
 
 // read array from stream
 
-istream& PointLight::in(std::istream& is) {
+std::istream& PointLight::in(std::istream& is) {
   char c;
   is >> c;
   if (c != '(') {
-    cout << "Bad format for Point3Dd" << endl;
+    std::cout << "Bad format for Point3Dd" <<std::endl;
     exit(1);
   }
   is >> location >> c;
   if (c != ',') {
-    cout << "Bad format for Point3Df" << endl;
+    std::cout << "Bad format for Point3Df" <<std::endl;
     exit(1);
   }
   is >> diffuse >> c;
   if (c != ',') {
-    cout << "Bad format for Point3Df" << endl;
+    std::cout << "Bad format for Point3Df" <<std::endl;
     exit(1);
   }
   is >> specular >> c;
   if (c != ')') {
-    cout << "Bad format for Point3Df" << endl;
+    std::cout << "Bad format for Point3Df" <<std::endl;
     exit(1);
   }
   return is;
@@ -103,13 +103,13 @@ istream& PointLight::in(std::istream& is) {
 
 // friends
 // read a PointLight:  a binary operator
-istream& operator>>(std::istream& is, PointLight& l)
+std::istream& operator>>(std::istream& is, PointLight& l)
 {
   l.in(is);
 }
 
 // print a PointLight: a binary operator
-ostream& operator<<(std::ostream& o, const PointLight& l)
+std::ostream& operator<<(std::ostream& o, const PointLight& l)
 {
   return l.out(o);
 }

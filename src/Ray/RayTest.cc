@@ -15,22 +15,22 @@ int main(void) {
   Ray r1;
   Ray r2(Point4Dd(1,1,2,1),Point4Dd(1,-2,1,0));
 
-  cout << "r1 = " << r1 << endl;
-  cout << "r2 = " << r2 << endl;
+  std::cout << "r1 = " << r1 <<std::endl;
+  std::cout << "r2 = " << r2 <<std::endl;
 
-  cout << "t-value of closest point on line through r1 to point (1,1,1) is ";
-  cout << r1.TofClosestPoint(Point4Dd(1,1,1,1)) << endl;
+  std::cout << "t-value of closest point on line through r1 to point (1,1,1) is ";
+  std::cout << r1.TofClosestPoint(Point4Dd(1,1,1,1)) <<std::endl;
 
-  cout << "Closest point on line through r1 to point (1,1,1) is ";
-  cout << r1.ClosestPoint(Point4Dd(1,1,1,1)) << endl;
+  std::cout << "Closest point on line through r1 to point (1,1,1) is ";
+  std::cout << r1.ClosestPoint(Point4Dd(1,1,1,1)) <<std::endl;
 
-  cout << "Point on ray r2 having t = 3 is ";
-  cout << r2.GetPointAt(3) << endl;
+  std::cout << "Point on ray r2 having t = 3 is ";
+  std::cout << r2.GetPointAt(3) <<std::endl;
 
-  cout << "Closest point on line through r2 to point (6,-2,3) is ";
-  cout << r2.ClosestPoint(Point4Dd(6,-2,3,1)) <<
-    " (Hint: answer should be (3,-3,4)" << endl;
+  std::cout << "Closest point on line through r2 to point (6,-2,3) is ";
+  std::cout << r2.ClosestPoint(Point4Dd(6,-2,3,1)) <<
+    " (Hint: answer should be (3,-3,4)" <<std::endl;
   Point4Dd p(6,-2,3,1);
   Point4Dd q = r2.ClosestPoint(p);
-  cout << q << endl;
+  std::cout << q <<std::endl;
 }

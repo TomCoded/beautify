@@ -80,7 +80,7 @@ const float& Transform4Df::entry(int row,int col) const
   if ((0 <= row) && (row < rowSize) && (0 <= col) && (col <= colSize))
     return data[row][col];
   else {
-    cout << "Range error in function entry()" << endl;
+    std::cout << "Range error in function entry()" <<std::endl;
     exit(1);
   }
 }
@@ -91,7 +91,7 @@ float& Transform4Df::entry(int row,int col)
   if ((0 <= row) && (row < rowSize) && (0 <= col) && (col <= colSize))
     return data[row][col];
   else {
-    cout << "Range error in function entry()" << endl;
+    std::cout << "Range error in function entry()" <<std::endl;
     exit(1);
   }
 }
@@ -165,7 +165,7 @@ Transform4Df& Transform4Df::operator+=(const Transform4Df& other)
     return *this;
   }
   else
-    cout << "Matrix addition error: different shapes" << endl;
+    std::cout << "Matrix addition error: different shapes" <<std::endl;
 }
 
 Transform4Df& Transform4Df::operator-=(const Transform4Df& other)
@@ -177,7 +177,7 @@ Transform4Df& Transform4Df::operator-=(const Transform4Df& other)
     return *this;
   }
   else
-    cout << "Matrix subtraction error: different shapes" << endl;
+    std::cout << "Matrix subtraction error: different shapes" <<std::endl;
 }
 
 // note: this is matrix multiplication--NOT co-ordinate-wise
@@ -196,7 +196,7 @@ Transform4Df& Transform4Df::operator*=(const Transform4Df& other)
     return *this;
   }
  else {
-   cout << "Matrix product error: different shapes" << endl;
+   std::cout << "Matrix product error: different shapes" <<std::endl;
    exit(1);
  }
 }
@@ -299,7 +299,7 @@ Point4Df Transform4Df::operator*(const Point4Df& v) const
 }
 
 // append transform to stream
-ostream& Transform4Df::out(std::ostream& o) const
+std::ostream& Transform4Df::out(std::ostream& o) const
 {
   o << "(";
   for(int r=0;r<rowSize-1;r++) {
@@ -315,27 +315,27 @@ ostream& Transform4Df::out(std::ostream& o) const
     o << entry(rowSize-1,c) << ", ";
   o << entry(rowSize-1,colSize-1) << ")";
   
-  o << ")" << endl;
+  o << ")" <<std::endl;
 
   return o;
 }
 
 // read Transform from stream
-istream& Transform4Df::in(std::istream& is)
+std::istream& Transform4Df::in(std::istream& is)
 {
   char c;
   Point4Df input;
 
   is >> c;
   if (c != '(') {
-    cout << "Bad format for Transform4Df" << endl;
+    std::cout << "Bad format for Transform4Df" <<std::endl;
     exit(1);
   }
   else {
     for(int r=0;r<rowSize-1;r++) {
       is >> input >> c;
       if (c != ',') {
-	cout << "Bad format for Point4Df" << endl;
+	std::cout << "Bad format for Point4Df" <<std::endl;
 	exit(1);
       }
       for(int c=0;c<colSize;c++)
@@ -343,7 +343,7 @@ istream& Transform4Df::in(std::istream& is)
     }
     is >> input >> c;
     if (c != ')') {
-      cout << "Bad format for Point4Df" << endl;
+      std::cout << "Bad format for Point4Df" <<std::endl;
       exit(1);
     }
     for(int c=0;c<colSize;c++)
@@ -354,13 +354,13 @@ istream& Transform4Df::in(std::istream& is)
 }
 
 // read transform from stream
-istream& operator>>(std::istream& is, Transform4Df& t)
+std::istream& operator>>(std::istream& is, Transform4Df& t)
 {
   t.in(is);
 }
 
 // append transform to stream
-ostream& operator<<(std::ostream& o, const Transform4Df& t)
+std::ostream& operator<<(std::ostream& o, const Transform4Df& t)
 {
   return t.out(o);
 }

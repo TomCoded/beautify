@@ -56,7 +56,7 @@ double DivFunNode::eval(int day, Stock*s) {
   return (leftNode->eval(day,s)/temp);
 }
 
-ostream& DivFunNode::out(std::ostream& o)
+std::ostream& DivFunNode::out(std::ostream& o)
 {
   leftNode->out(o);
   o << '/';

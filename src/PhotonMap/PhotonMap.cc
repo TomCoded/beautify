@@ -131,13 +131,13 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
     static double totalMaxDist = 0;
     totalMaxDist+= distance(Q.top(),loc);
     if(!(passes%1000)) 
-    cout << "Q.getSize() = " << Q.getSize() << "; avg Q size so far "
+    std::cout << "Q.getSize() = " << Q.getSize() << "; avg Q size so far "
 	 << (double)totalQueued / (double)passes 
 	 << "; maxDist = " << distance(Q.top(),loc) 
 	 << "; avg maxDist = " << totalMaxDist / (double)passes 
 	 << "; avg true maxDist = " 
 	 << std::sqrt(totalMaxDist/(double)passes) 
-	 << endl;
+	 <<std::endl;
 #endif
 #if 0
     if(Q.getSize() > (numNeighbors*(6.0/7.0))) 
@@ -173,9 +173,9 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
       cosPass++;
       cosTotal+=cosMult;
       if(!(cosPass%1000)) {
-	cout << "normal is " << normal << endl;
-	cout << "incident light dir is " << incident << endl;
-	cout << "avg cosMult so far " << cosTotal / (double)cosPass << endl;
+	std::cout << "normal is " << normal <<std::endl;
+	std::cout << "incident light dir is " << incident <<std::endl;
+	std::cout << "avg cosMult so far " << cosTotal / (double)cosPass <<std::endl;
       }
 #endif
       Point3Dd pow(topPhoton->r * cosMult,
@@ -201,7 +201,7 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
   delete close;
 
   //  if(rval.x || rval.y || rval.z)
-  //    cout << "Flux is " << rval << endl;
+  //    std::cout << "Flux is " << rval <<std::endl;
   return rval;
 }
 
@@ -217,11 +217,11 @@ Point3Dd PhotonMap::getLuminanceAt(const Point3Dd &loc,
 #endif
 #if 0
   if(!((++counter)%10000)) {
-    cout << "Getting luminance...";
-    cout << "based on "
+    std::cout << "Getting luminance...";
+    std::cout << "based on "
 	 << numNeighbors
 	 << " out to a distance of " << maxDist
-	 << " from map of size " << getSize() << endl;
+	 << " from map of size " << getSize() <<std::endl;
   }
 #endif
 
@@ -251,9 +251,9 @@ Point3Dd PhotonMap::getLuminanceAt(const Point3Dd &loc,
   static int queuetotal=0;
   queuetotal+=Q.getSize();
   if(!(counter%20000)) {
-    cout << "Queue Size about " << loc << " is " << Q.getSize() <<
+    std::cout << "Queue Size about " << loc << " is " << Q.getSize() <<
       " for a mean of " << (queuetotal / counter) <<
-      endl;
+     std::endl;
   }
 #endif
 
@@ -277,10 +277,10 @@ Point3Dd PhotonMap::getLuminanceAt(const Point3Dd &loc,
     totalQueued+=Q.getSize();
     static double totalMaxDist = 0;
     totalMaxDist+= distance(Q.top(),loc);
-    cout << "Q.getSize() = " << Q.getSize() << "; avg Q size so far "
+    std::cout << "Q.getSize() = " << Q.getSize() << "; avg Q size so far "
 	 << (double)totalQueued / (double)passes 
 	 << "; maxDist = " << distance(Q.top(),loc) 
-	 << "; avg maxDist = " << totalMaxDist / (double)passes << endl;;
+	 << "; avg maxDist = " << totalMaxDist / (double)passes <<std::endl;;
     if(Q.getSize() > 30) 
       return Point3Dd(1,0,0);
     if(Q.getSize() > 25)
@@ -571,7 +571,7 @@ int PhotonMap::kdBalance(int nRoot) {
 //  location relative to median; orders tree
 void PhotonMap::medianRootSwapAndPartition(int nRoot,KD_DIM dim,
 		list<Photon *> *leftList, list<Photon *> *rightList) {
-  //  cout << "medianRootSwapAndPartition(" << nRoot << ',' << dim << ")\n";
+  //  std::cout << "medianRootSwapAndPartition(" << nRoot << ',' << dim << ")\n";
   list<Photon **> sortedPList;
   //generate sorted list in dimension dim of all photons below nRoot
   generateList(&sortedPList, nRoot, dim);
@@ -630,7 +630,7 @@ void PhotonMap::fillTree(int nRoot, list<Photon *> * pNodes) {
 
 //FIXME: flags here set to be place in kdTree[] of current node
 void PhotonMap::generateList(list<Photon **> * sList, int nRoot,KD_DIM dim) {
-  //  cout << "generateList(" << sList << ',' << nRoot << ',' << dim << ")\n";
+  //  std::cout << "generateList(" << sList << ',' << nRoot << ',' << dim << ")\n";
   if(!kdTree[nRoot]) return;
   if(sList->empty()) {
     //    kdTree[nRoot]->flag=nRoot;
@@ -720,7 +720,7 @@ KD_DIM PhotonMap::findMaxDim(int nRoot) {
   double yDiff = yMax - yMin;
   double xDiff = xMax - xMin;
   double zDiff = zMax - zMin;
-  // cout << xDiff << ',' << yDiff << ',' << zDiff << endl;
+  // std::cout << xDiff << ',' << yDiff << ',' << zDiff <<std::endl;
   //return largest dimension
   return ( yDiff > xDiff ? ( zDiff > yDiff ? Z : Y ) : (zDiff > xDiff ? Z : X) );
 }
@@ -793,23 +793,23 @@ inline double PhotonMap::distance(const Photon * p, const Point3Dd& l) {
 //outputs a representation of the tree to stdout
 void PhotonMap::outputTree(int nRoot) {
   if(kdTree[nRoot]) {
-    cout << '(' << (*kdTree[nRoot]).flag << ":" << (*kdTree[nRoot]).x << ',' << kdTree[nRoot]->y <<
+    std::cout << '(' << (*kdTree[nRoot]).flag << ":" << (*kdTree[nRoot]).x << ',' << kdTree[nRoot]->y <<
       ',' << kdTree[nRoot]->z << ')';
     if((nRoot * 2 < kdSize)&&(kdTree[nRoot*2])) {
-      cout << '[';
+      std::cout << '[';
       if((nRoot * 2 < kdSize)&&(kdTree[nRoot*2])) {
 	outputTree(nRoot*2);
       } 
       if((nRoot*2+1 < kdSize)&&(kdTree[nRoot*2+1])) {
-	cout << ',';
+	std::cout << ',';
 	outputTree(nRoot*2+1);
       }
-      cout << ']';
+      std::cout << ']';
     }
   }
 }
   
-ostream& PhotonMap::out(std::ostream& o){
+std::ostream& PhotonMap::out(std::ostream& o){
   FILE_TYPE FileType = UNCOMPRESSED_V2;
   switch(FileType)
     {
@@ -838,7 +838,7 @@ ostream& PhotonMap::out(std::ostream& o){
 	else
 	  o << '\n';
       }
-      o << endl;
+      o <<std::endl;
       o << "END_PHOTONMAP";
       break;
 
@@ -849,7 +849,7 @@ ostream& PhotonMap::out(std::ostream& o){
   return o;
 }
 
-istream& PhotonMap::in(std::istream& is){
+std::istream& PhotonMap::in(std::istream& is){
   string beginString; 
   int readFileType;
   char c;

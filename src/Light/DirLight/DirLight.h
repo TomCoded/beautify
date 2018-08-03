@@ -67,9 +67,9 @@ public:
 };
 // friends
 // read a DirLight:  a binary operator
-istream& operator>>(std::istream& is, DirLight& m);
+std::istream& operator>>(std::istream& is, DirLight& m);
 
 // print a DirLight: a binary operator
-ostream& operator<<(std::ostream& o, const DirLight& m);
+std::ostream& operator<<(std::ostream& o, const DirLight& m);
 
 #endif DIRLIGHT_H_

@@ -6,9 +6,9 @@
 //destructor
 Light::~Light() {}
 
-istream& Light::in(std::istream&) {}
+std::istream& Light::in(std::istream&) {}
 
-ostream& Light::out(std::ostream&) const {}
+std::ostream& Light::out(std::ostream&) const {}
 
 double Light::getPower() const
 {
@@ -29,5 +29,5 @@ void Light::addPhotonsToMap(int numPhotons,
 			     )
 {
   //this light does not contribute any photons to the overall map;
-  cerr << "No photon contribution from light source at " << this << endl;
+  cerr << "No photon contribution from light source at " << this <<std::endl;
 }

@@ -59,7 +59,7 @@ FunPoint4Dd& FunPoint4Dd::operator=(const FunPoint4Dd& other)
 	data[c] = other.data[c]->clone();
 	//	  cerr << "Assigning " << r << ',' << c << ':';
 	//	  data[r][c]->out(cerr);
-	//	  cerr << endl;
+	//	  cerr <<std::endl;
       }
     destroyOnDeath=true;
   }
@@ -184,7 +184,7 @@ FunPoint4Dd FunPoint4Dd::operator*(const double x) const
 }
 
 // append transform to stream
-ostream& FunPoint4Dd::out(std::ostream& o) const
+std::ostream& FunPoint4Dd::out(std::ostream& o) const
 {
   o << "(";
   for(int c=0;c<size;c++) 
@@ -197,7 +197,7 @@ ostream& FunPoint4Dd::out(std::ostream& o) const
 }
 
 // read Transform from stream
-istream& FunPoint4Dd::in(std::istream& is)
+std::istream& FunPoint4Dd::in(std::istream& is)
 {
   char c;
   POINT_TYPE_4D input;
@@ -212,13 +212,13 @@ istream& FunPoint4Dd::in(std::istream& is)
 }
 
 // read transform from stream
-istream& operator>>(std::istream& is, FunPoint4Dd& t)
+std::istream& operator>>(std::istream& is, FunPoint4Dd& t)
 {
   t.in(is);
 }
 
 // append transform to stream
-ostream& operator<<(std::ostream& o, const FunPoint4Dd& t)
+std::ostream& operator<<(std::ostream& o, const FunPoint4Dd& t)
 {
   return t.out(o);
 }

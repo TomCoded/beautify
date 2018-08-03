@@ -189,14 +189,14 @@ void TaperedCyl::SetRadius(double rad)
 }
 
 // output function
-ostream& TaperedCyl::out(std::ostream& o) const
+std::ostream& TaperedCyl::out(std::ostream& o) const
 {
   o << radius;
 }
 
 // input function
 // get TaperedCyl from keyboard: ((x,y,z),r)
-istream & TaperedCyl::in(std::istream& is)
+std::istream & TaperedCyl::in(std::istream& is)
 {
   is >> radius;
   return is;
@@ -205,13 +205,13 @@ istream & TaperedCyl::in(std::istream& is)
 // Non-member functions for the type
 
 // binary input operator: version 2
-istream& operator>>(std::istream & is, TaperedCyl& s)
+std::istream& operator>>(std::istream & is, TaperedCyl& s)
 {
   return s.in(is);
 }
 
 // binary output operator: version 2
-ostream& operator<<(std::ostream & o, const TaperedCyl& s)
+std::ostream& operator<<(std::ostream & o, const TaperedCyl& s)
 {
   return s.out(o);
 }

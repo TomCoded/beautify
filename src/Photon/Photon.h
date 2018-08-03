@@ -18,7 +18,7 @@ inline Photon createPhoton(Point3Dd location,
 			   Point3Dd intensity
 			   );
 
-ostream& operator<<(std::ostream&, Photon&); 
-istream& operator>>(std::istream&, Photon&);
+std::ostream& operator<<(std::ostream&, Photon&); 
+std::istream& operator>>(std::istream&, Photon&);
 
 #endif

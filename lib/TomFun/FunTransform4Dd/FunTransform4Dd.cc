@@ -79,7 +79,7 @@ FunTransform4Dd& FunTransform4Dd::operator=(const FunTransform4Dd& other)
 	  data[r][c] = other.data[r][c]->clone();
 	  //	  cerr << "Assigning " << r << ',' << c << ':';
 	  //	  data[r][c]->out(cerr);
-	  //	  cerr << endl;
+	  //	  cerr <<std::endl;
 	}
     destroyOnDeath=true;
   }
@@ -113,7 +113,7 @@ FunNode * FunTransform4Dd::entry(int row,int col) const
   if ((0 <= row) && (row < rowSize) && (0 <= col) && (col <= colSize))
     return data[row][col];
   else {
-    cout << "Range error in function entry()" << endl;
+    std::cout << "Range error in function entry()" <<std::endl;
     exit(1);
   }
 }
@@ -124,7 +124,7 @@ FunNode*& FunTransform4Dd::entry(int row,int col)
   if ((0 <= row) && (row < rowSize) && (0 <= col) && (col <= colSize))
     return data[row][col];
   else {
-    cout << "Range error in function entry()" << endl;
+    std::cout << "Range error in function entry()" <<std::endl;
     exit(1);
   }
 }
@@ -208,7 +208,7 @@ FunTransform4Dd& FunTransform4Dd::operator+=(const FunTransform4Dd& other)
     return *this;
   }
   else
-    cerr << "Matrix addition error: different shapes" << endl;
+    cerr << "Matrix addition error: different shapes" <<std::endl;
 }
 
 FunTransform4Dd& FunTransform4Dd::operator-=(const FunTransform4Dd& other)
@@ -222,7 +222,7 @@ FunTransform4Dd& FunTransform4Dd::operator-=(const FunTransform4Dd& other)
     return *this;
   }
   else
-    cerr << "Matrix subtraction error: different shapes" << endl;
+    cerr << "Matrix subtraction error: different shapes" <<std::endl;
 }
 
 // note: this is matrix multiplication--NOT co-ordinate-wise
@@ -286,7 +286,7 @@ FunTransform4Dd& FunTransform4Dd::operator*=(const FunTransform4Dd& other)
   
   }
   else {
-   cerr << "Matrix product error: different shapes" << endl;
+   cerr << "Matrix product error: different shapes" <<std::endl;
    exit(1);
  }
 }
@@ -402,7 +402,7 @@ POINT_TYPE_4D FunTransform4Dd::operator*(const POINT_TYPE_4D& v) const
 }
 
 // append transform to stream
-ostream& FunTransform4Dd::out(std::ostream& o) const
+std::ostream& FunTransform4Dd::out(std::ostream& o) const
 {
   o << "(";
   for(int r=0;r<rowSize;r++) {
@@ -418,7 +418,7 @@ ostream& FunTransform4Dd::out(std::ostream& o) const
 }
 
 // read Transform from stream
-istream& FunTransform4Dd::in(std::istream& is)
+std::istream& FunTransform4Dd::in(std::istream& is)
 {
   char c;
   POINT_TYPE_4D input;
@@ -440,20 +440,20 @@ istream& FunTransform4Dd::in(std::istream& is)
 	data[i][j]->out(cerr);
 	cerr << ' ';
       }
-  cerr << endl;
+  cerr <<std::endl;
 #endif
 
   return is;
 }
 
 // read transform from stream
-istream& operator>>(std::istream& is, FunTransform4Dd& t)
+std::istream& operator>>(std::istream& is, FunTransform4Dd& t)
 {
   t.in(is);
 }
 
 // append transform to stream
-ostream& operator<<(std::ostream& o, const FunTransform4Dd& t)
+std::ostream& operator<<(std::ostream& o, const FunTransform4Dd& t)
 {
   return t.out(o);
 }

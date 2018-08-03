@@ -82,20 +82,20 @@ FunNode * FunNode::in(std::istream& is)
   return parseString(s);
 };
 
-ostream& FunNode::out(std::ostream& o)
+std::ostream& FunNode::out(std::ostream& o)
 {
-  o << "Function Node at " << this << endl;
+  o << "Function Node at " << this <<std::endl;
   return o;
 };
 
 // read Function
-istream& operator>>(std::istream& is, FunNode& f)
+std::istream& operator>>(std::istream& is, FunNode& f)
 {
   f.in(is);
 }
 
 // write function
-ostream& operator<<(std::ostream& o,  FunNode& f)
+std::ostream& operator<<(std::ostream& o,  FunNode& f)
 {
   return f.out(o);
 }

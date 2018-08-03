@@ -124,7 +124,7 @@ void Participating::DoBRDF(Photon &p)
     rand1 = drand48();
     ttemp += acos( (2.0*rand1 + greenK - 1.0) / (2.0 * greenK * rand1 - greenK + 1.0) );
   }
-  cerr << "Mean theta for " << greenK << " = " << ttemp/1000 << endl;
+  cerr << "Mean theta for " << greenK << " = " << ttemp/1000 <<std::endl;
 #endif
 
   //Dump incoming photon dir into 4d point
@@ -154,7 +154,7 @@ void Participating::DoBRDF(Photon &p)
 #if 0
   cerr << "phase function (" << theta << "): " 
        << modifier 
-       << endl;
+       <<std::endl;
 #endif
   p.r *= modifier;
   p.g *= modifier;
@@ -236,7 +236,7 @@ void Participating::copyExtinctCo(Point3Dd &outparam,
 }
 
 
-istream& Participating::in(std::istream &is)
+std::istream& Participating::in(std::istream &is)
 {
   char ch;
   is >> ch;
@@ -283,19 +283,19 @@ istream& Participating::in(std::istream &is)
   return is;
 }
 
-ostream& Participating::out(std::ostream &o)
+std::ostream& Participating::out(std::ostream &o)
 {
   o << '('
     << scatCo << ')';
   return o;
 }
 
-istream& operator>>(std::istream& is, Participating&p)
+std::istream& operator>>(std::istream& is, Participating&p)
 {
   return p.in(is);
 }
 
-ostream& operator<<(std::ostream& o, Participating &p)
+std::ostream& operator<<(std::ostream& o, Participating &p)
 {
   return p.out(o);
 }

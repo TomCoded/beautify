@@ -111,9 +111,9 @@ public:
 };
   
 // read transform from stream
-istream& operator>>(std::istream& is, Transform3Dd& t);
+std::istream& operator>>(std::istream& is, Transform3Dd& t);
 
 // append transform to stream
-ostream& operator<<(std::ostream& o, const Transform3Dd& t);
+std::ostream& operator<<(std::ostream& o, const Transform3Dd& t);
 
 #endif TRANSFORM3DD_H

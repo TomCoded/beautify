@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
   int n = 0;
   while (q->pop());
 #if 0
-    cout << n << ": (" << temp->x << ',' << temp->y <<
+    std::cout << n << ": (" << temp->x << ',' << temp->y <<
 	    ',' << temp->z << ")\n";
   }
 #endif

@@ -18,7 +18,7 @@ class FunNode
   ~FunNode();
 
   virtual FunNode * clone(void) {};
-  FunNode * parseString(string szFunction);
+  FunNode * parseString(std::string szFunction);
 
   //assignment operator
   FunNode * operator=(FunNode& other);
@@ -43,7 +43,7 @@ class FunNode
  protected:
 };
 
-istream& operator>>(std::istream& is, FunNode&);
-ostream& operator<<(std::ostream& o, FunNode&);
+std::istream& operator>>(std::istream& is, FunNode&);
+std::ostream& operator<<(std::ostream& o, FunNode&);
 
 #endif

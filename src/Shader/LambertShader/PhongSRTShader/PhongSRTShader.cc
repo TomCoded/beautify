@@ -150,10 +150,10 @@ Point3Dd PhongSRTShader::getColor(Hit &hitPoint)
   return theLight;
 }
 
-istream& PhongSRTShader::in(std::istream&)
+std::istream& PhongSRTShader::in(std::istream&)
 {
 }
 
-ostream& PhongSRTShader::out(std::ostream&)
+std::ostream& PhongSRTShader::out(std::ostream&)
 {
 }

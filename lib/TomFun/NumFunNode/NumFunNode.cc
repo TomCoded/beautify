@@ -26,7 +26,7 @@ double NumFunNode::eval(int date, Stock*s)
   return myVal;
 }
 
-ostream& NumFunNode::out(std::ostream& o)
+std::ostream& NumFunNode::out(std::ostream& o)
 {
   o << myVal;
   return o;

@@ -139,23 +139,23 @@ void keyboard(unsigned char c, int, int)
     case 's':
       if(g_Scene->hasImage)
 	{
-	  cout << "Image file name: ";
+	  std::cout << "Image file name: ";
 	  string fileName;
-	  cin >> fileName;
+	  std::cin >> fileName;
 	  g_Scene->writeImage(fileName.c_str());
 	}
       break;
     case 'r':
       if(g_Scene->hasImage)
 	{
-	  cout << "Redisplaying Image\n";
+	  std::cout << "Redisplaying Image\n";
 	  g_Scene->repaint();
 	}
       break;
     case 't':
       if(g_Scene->hasImage)
 	{
-	  cout << "Smoothing Image\n";
+	  std::cout << "Smoothing Image\n";
 	  g_Scene->smoothLogicalImage();
 	  g_Scene->repaint();
 	}
@@ -232,9 +232,9 @@ void Scene::generateFiles(const char * filename,
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
   MPI_Comm_size(MPI_COMM_WORLD,&nodes);
   if(!rank) {
-    cout << endl;
-    cout << "frame  proc  procs pMap Size  pMap dist render   pMap create kdTree\n";
-    cout << "-----  ----  ----- ---------  --------- ------- ----------- ------\n";
+    std::cout <<std::endl;
+    std::cout << "frame  proc  procs pMap Size  pMap dist render   pMap create kdTree\n";
+    std::cout << "-----  ----  ----- ---------  --------- ------- ----------- ------\n";
   }
   //  photons /= nodes;
 #endif
@@ -250,7 +250,7 @@ void Scene::generateFiles(const char * filename,
       g_nFrame = nFrame;
       myRenderer->setSeed(rank);
 #else
-      cout << "Creating photon map for frame " << nFrame << endl << flush;
+      std::cout << "Creating photon map for frame " << nFrame <<std::endl << flush;
 #endif
 
 
@@ -292,7 +292,7 @@ void Scene::generateFiles(const char * filename,
 		      g_nFrame, rank, nodes, g_map->getSize(),
 		      0.0, 0.0, 
 		      stop-start);
-	      //	    cout << "Took " << stop - start << " seconds to create photon map.\n";
+	      //	    std::cout << "Took " << stop - start << " seconds to create photon map.\n";
 	      start = MPI_Wtime();
 
 	      g_map->buildTree();
@@ -301,7 +301,7 @@ void Scene::generateFiles(const char * filename,
 	      stop = MPI_Wtime();
 	      sprintf(outbuffer + strlen(outbuffer),"%6f",stop-start);
 	      printf("%s\n",outbuffer);
-	      //	    cout << "Took " << stop - start << " seconds to build kdTree.\n";
+	      //	    std::cout << "Took " << stop - start << " seconds to build kdTree.\n";
 	      if(minDist) {
 		g_map->setMinSearch(minDist);
 		myRenderer->getVolMap()->setMinSearch(minDist);
@@ -329,7 +329,7 @@ void Scene::generateFiles(const char * filename,
 
 	double stop = MPI_Wtime();
 	//	if(!rank)
-	//	  cout << "Took " << stop - start << " seconds to render image.\n";
+	//	  std::cout << "Took " << stop - start << " seconds to render image.\n";
       }
       
       if(!rank) {
@@ -345,10 +345,10 @@ void Scene::generateFiles(const char * filename,
       MPI_Barrier(MPI_COMM_WORLD);
       double frame_stop = MPI_Wtime();
       if(!rank)
-	cout << "Frame " << nFrame << " Done in " <<
+	std::cout << "Frame " << nFrame << " Done in " <<
 	  frame_stop - frame_start << " seconds.\n";
 #else
-      cout << "Rendering frame " << nFrame << endl;
+      std::cout << "Rendering frame " << nFrame <<std::endl;
       //FIXME: Use a better algorithm for numneighbors
       g_map->setNumNeighbors(g_map->getSize()/10);
 
@@ -364,7 +364,7 @@ void Scene::generateFiles(const char * filename,
 #endif
     }
   //  MPI_Barrier(MPI_COMM_WORLD);
-  //  cout << endl << rank << " post-draw() waiting at barrier.\n" << flush;
+  //  std::cout <<std::endl << rank << " post-draw() waiting at barrier.\n" << flush;
   //inter-frame barrier
 #ifdef PARALLEL
   MPI_Barrier(MPI_COMM_WORLD);
@@ -539,16 +539,16 @@ void Scene::ReadFile(string fileName) {
 
   // check for success of stream constructor
   if(!inFile) { // could not open file
-    cout << "Could not open file: " << fileName << " exiting...";
+    std::cout << "Could not open file: " << fileName << " exiting...";
     exit(1);
   }
 
   // read in contents
   string keyword;
-  //  cout << fileName << endl;
+  //  std::cout << fileName <<std::endl;
   while(!inFile.eof()) {
     inFile >> keyword;
-    //    cout << keyword << endl;
+    //    std::cout << keyword <<std::endl;
     if(keyword == "include") {
       string ifile;
       inFile >> ifile;
@@ -577,12 +577,12 @@ void Scene::ReadFile(string fileName) {
       int antiAlias;
       inFile >> antiAlias;
       antialias = antiAlias;
-      //      cout << "antialias = " << antiAlias << endl;
+      //      std::cout << "antialias = " << antiAlias <<std::endl;
     }
     else if(keyword == "fast") {
       int fast;
       inFile >> fast;
-      // cout << "fast = " << fast << endl;
+      // std::cout << "fast = " << fast <<std::endl;
     }
     else if(keyword == "camera") {
       Camera * cam = new Camera();
@@ -601,8 +601,8 @@ void Scene::ReadFile(string fileName) {
       addLight(tempPointLight);
     }
     else if(keyword == "spotLight") {
-      cout << "spotLight ";
-      cout << "skipping parameters..." << endl;
+      std::cout << "spotLight ";
+      std::cout << "skipping parameters..." <<std::endl;
       skipDescription(inFile);
     }
 #endif
@@ -666,7 +666,7 @@ void Scene::ReadFile(string fileName) {
       shaderID = PHONGSRT;
     }
     else if(keyword == "phongSRF") {
-      cout << "Current shader is phongSRF" << endl;
+      std::cout << "Current shader is phongSRF" <<std::endl;
     }
 #endif
     //temporarily remove transforms
@@ -793,21 +793,21 @@ void Scene::ReadFile(string fileName) {
       inFile >> ch;
       if(ch!='(')
 	{
-	  cout << "bad format for rotation: !(\n";
+	  std::cout << "bad format for rotation: !(\n";
 	  break;
 	}
       inFile >> a;
       inFile >> ch;
       if(ch!=',')
 	{
-	  cout << "Bad format for rotation: !,\n";
+	  std::cout << "Bad format for rotation: !,\n";
 	  break;
 	}
       inFile >> d;
       inFile >> ch;
       if(ch!=')')
 	{
-	  cout << "Bad format for rotation: !)\n";
+	  std::cout << "Bad format for rotation: !)\n";
 	  break;
 	}
 
@@ -888,13 +888,13 @@ void Scene::ReadFile(string fileName) {
     }
     else if(keyword == "invtransform") {
       Transform4Dd lUserTransform;
-      cin >> lUserTransform;
+      std::cin >> lUserTransform;
       currentWTLTransform=
 	lUserTransform*currentWTLTransform;
     }
     else if(keyword == "invtransformNormals") {
       Transform4Dd lUserTransform;
-      cin >> lUserTransform;
+      std::cin >> lUserTransform;
       currentLTWNTransform=
 	lUserTransform*currentLTWNTransform;
     }
@@ -960,7 +960,7 @@ void Scene::ReadFile(string fileName) {
       inFile.ignore(1000,'\n'); // skip up to and including next end-of-line
     }
     else {
-      cout << "Unrecognized keyword: " << keyword << "  Exiting..." << endl;
+      std::cout << "Unrecognized keyword: " << keyword << "  Exiting..." <<std::endl;
       exit(1);
     }
   }
@@ -1252,10 +1252,10 @@ void Scene::drawParallel() {
 	  if(tag==TAG_HANDSHAKE) {
 	    //request for data from child
 	    int size;
-	    //	    cout << "Receiving request from " << child << " for new task.\n";
+	    //	    std::cout << "Receiving request from " << child << " for new task.\n";
 	    int junk;
 	    MPI_Recv(&junk,1,MPI_INT,child,TAG_HANDSHAKE,MPI_COMM_WORLD,&status);
-	    //	    cout << "Received request...\n";
+	    //	    std::cout << "Received request...\n";
 	    junk=-1;
 	    if(bag>=(getWindowHeight()-1)) {
 	      done=true;
@@ -1272,7 +1272,7 @@ void Scene::drawParallel() {
 	    //child sent data; dump it into buffer
 	    progressMeter++;
 	    if(!(progressMeter % (height/20)))
-	      cout << "|" << flush;
+	      std::cout << "|" << flush;
 	    MPI_Recv(&logicalImage[tag*3*getWindowWidth()],
 		     localLogicalSize*3, MPI_DOUBLE,
 		     child,tag,MPI_COMM_WORLD,&status);
@@ -1283,20 +1283,20 @@ void Scene::drawParallel() {
 	} else {
 	  //run a portion of our own task.
 	  if(!done2) {
-	    //	    cout << "Master process doing pixel " << taskPlace
-	    //	    << endl;
+	    //	    std::cout << "Master process doing pixel " << taskPlace
+	    //	    <<std::endl;
 	    myRenderer->showMap(g_map,
 				taskPlace++,
 				1
 				);
 	    if(taskPlace%width == 0) {
-	      //	      cout << "taskplace is " << taskPlace << endl;
-	      //	      cout << "task " << task << " finished by master\n";
+	      //	      std::cout << "taskplace is " << taskPlace <<std::endl;
+	      //	      std::cout << "task " << task << " finished by master\n";
 	      //now copy stuff over to logicalImage from local
 	      //	      int done = task*3*width+localLogicalSize*3;
 	      progressMeter++;
 	      if(!(progressMeter % (height/20)))
-		cout << "|" << flush;
+		std::cout << "|" << flush;
 
 	      for(int i=0; i<localLogicalSize*3; i++) {
 		logicalImage[i+localLogicalStart*3]
@@ -1311,7 +1311,7 @@ void Scene::drawParallel() {
 		doneProcs++;
 	      }
 	      else {
-		//		cout << "task " << task << " to be worked on by master\n";
+		//		std::cout << "task " << task << " to be worked on by master\n";
 		localLogicalStart = task * localLogicalSize;
 		taskPlace = getWindowWidth()*task+1;
 	      }
@@ -1326,8 +1326,8 @@ void Scene::drawParallel() {
     sprintf(outbuffer + strlen(outbuffer), "%6f\n",stop-start);
   } 
   if(!rank) {
-    cout << endl;
-    cerr << "Volumetric Photon Map is size " << myRenderer->getVolMap()->getSize() << endl;
+    std::cout <<std::endl;
+    cerr << "Volumetric Photon Map is size " << myRenderer->getVolMap()->getSize() <<std::endl;
 
   }
   // Don't think we need this...
@@ -1345,7 +1345,7 @@ void Scene::drawParallel() {
   stop = MPI_Wtime();
   if(!rank)
     printf("%d %d %d Gather Required: %f s\n",g_nFrame,rank,nodes,stop-start);
-    //      cout << "Took " << stop - start << " seconds to gather pixels.\n";
+    //      std::cout << "Took " << stop - start << " seconds to gather pixels.\n";
   hasImage = true;
 
 }
@@ -1539,8 +1539,8 @@ void Scene::normalizeChannels()
      ||((1.0/maxChannels.z)!=1.0)
      )
     {
-      cout << "Normalizing color channels; scaling over "
-	   << maxChannels << endl;
+      std::cout << "Normalizing color channels; scaling over "
+	   << maxChannels <<std::endl;
       for(int n=0; n<max;)
 	{
 	  logicalImage[n]=logicalImage[n]/maxChannels.x;

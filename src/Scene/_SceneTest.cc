@@ -29,26 +29,26 @@ int main(int argc, char ** argv) {
   double dtdf;
   while(c!='q')
     {
-      cout << "(q)uit, (f)ile:";
-      cin >> c;
+      std::cout << "(q)uit, (f)ile:";
+      std::cin >> c;
       if(c=='f')
 	{
 	  if(sc) delete sc;
 	  sc = new Scene();
 	  sc->ReadFile();
-	  cout << "(q)uit, (g)enerate map, (l)oad map, (d)isplay and generate map, (c)reate frames: ";
-	  cin >> c;
+	  std::cout << "(q)uit, (g)enerate map, (l)oad map, (d)isplay and generate map, (c)reate frames: ";
+	  std::cin >> c;
 	  switch(c)
 	    {
 	    case 'c':
-	      cout << "Number of frames? ";
-	      cin >> frames;
-	      cout << "Change in t per frame? ";
-	      cin >> dtdf;
-	      cout << "Number of photons for each image? ";
-	      cin >> nPhotons;
-	      cout << "filename? (<filename> --> <filename><n>.jpg) ?  ";
-	      cin >> fname;
+	      std::cout << "Number of frames? ";
+	      std::cin >> frames;
+	      std::cout << "Change in t per frame? ";
+	      std::cin >> dtdf;
+	      std::cout << "Number of photons for each image? ";
+	      std::cin >> nPhotons;
+	      std::cout << "filename? (<filename> --> <filename><n>.jpg) ?  ";
+	      std::cin >> fname;
 	      
 	      g_Scene->generateFiles(fname.c_str(),
 				     frames,
@@ -57,12 +57,12 @@ int main(int argc, char ** argv) {
 				     );
 	      break;
 	    case 'g':
-	      cout << "Number of photons? ";
-	      cin >> nPhotons;
+	      std::cout << "Number of photons? ";
+	      std::cin >> nPhotons;
 	      g_map = g_Scene->myRenderer->map(nPhotons);
-	      cout << "Map Generated.\n";
-	      cout << "(s)ave map / (d)isplay map / (k)dTree map\n";
-	      cin >> c;
+	      std::cout << "Map Generated.\n";
+	      std::cout << "(s)ave map / (d)isplay map / (k)dTree map\n";
+	      std::cin >> c;
 	      switch(c)
 		{
 		case 'k':
@@ -72,8 +72,8 @@ int main(int argc, char ** argv) {
 		  break;
 		case 's': 
 		  saveMap(g_map);
-		  cout << "(q)uit / (d)isplay map\n";
-		  cin >> c;
+		  std::cout << "(q)uit / (d)isplay map\n";
+		  std::cin >> c;
 		  if(c=='d')
 		    {
 		      sc->draw();
@@ -87,9 +87,9 @@ int main(int argc, char ** argv) {
 	      break;
 	    case 'l':
 	      g_map = loadMap();
-	      cout << "Map loaded.\n";
-	      cout << "(d)isplay map\n";
-	      cin >> c;
+	      std::cout << "Map loaded.\n";
+	      std::cout << "(d)isplay map\n";
+	      std::cin >> c;
 	      switch(c)
 		{
 		case 'd':
@@ -110,9 +110,9 @@ int main(int argc, char ** argv) {
 
 PhotonMap * loadMap()
 {
-  cout << "Enter filename to load from: ";
+  std::cout << "Enter filename to load from: ";
   string fileName;
-  cin >> fileName;
+  std::cin >> fileName;
   ifstream inFile(fileName.c_str());
   if(!inFile)
     {
@@ -131,9 +131,9 @@ PhotonMap * loadMap()
 
 void saveMap(PhotonMap * pmap)
 {
-  cout << "Enter filename to save to: ";
+  std::cout << "Enter filename to save to: ";
   string fileName;
-  cin >> fileName;
+  std::cin >> fileName;
   ofstream outFile(fileName.c_str());
   if(!outFile)
     {
@@ -142,7 +142,7 @@ void saveMap(PhotonMap * pmap)
   else
     {
       pmap->out(outFile);
-      cout << "Photon Map saved to " << fileName << endl;
+      std::cout << "Photon Map saved to " << fileName <<std::endl;
       outFile.close();
     }
 }

@@ -36,8 +36,8 @@ int main(int argc, char ** argv) {
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     char hostname[63];
     gethostname(hostname,63);
-    cout << "Process " << rank << " running on " 
-	 << hostname << endl;
+    std::cout << "Process " << rank << " running on " 
+	 << hostname <<std::endl;
   }
   int nodes;
   MPI_Comm_size(MPI_COMM_WORLD,&nodes);
@@ -92,28 +92,28 @@ int main(int argc, char ** argv) {
   };
 
   if(help) {
-    cout << "Usage:\n";
-    cout << argv[0] << "-s <scene> -n <photons> [-N <neigbors>] [-d <minDist>]\n";
-    cout << "          [-f <frames> -F <framefilebase> -t <dtdf> [-r <start frame>] ]\n";
-    cout << "          [-[m|M] <mapfile>] [-?] [-S]\n";
-    cout << "Parameters:   \n";
-    cout << "  -s <scene>         The name of the Scene file to read.\n";
-    cout << "  -n <photons>       The number of photons to use for each image.\n";
-    cout << "  -N <neighbors>     The desired number of photons to use in radiance estimate.\n";
-    cout << "  -d <minDist>       Photons within this radius of a\n";
-    cout << "   given location will never be discarded when calculating flux,\n";
-    cout << "   unless there are <neighbors> or it's default setting photons closer.\n";
-    cout << "  -D <maxDist>       Photons more distant than maxDist from a point will never\n";
-    cout << "   be included in the irradiance estimate for that point.\n";
-    cout << "  -r <start frame>   The number of the frame to resume a job at.\n";
-    cout << "  -f <frames>        The number of frames to output in batch mode.\n";
-    cout << "  -F <framefilebase> The base name of frame output jpegs.\n";
-    cout << "  -t <dtdf>          Change in t per frame\n";
-    cout << "  -M <mapfile>       Output generated photon map to <mapfile>\n";
-    cout << "  -m <mapfile>       Import scene's Photon map from <mapfile>\n";
-    cout << "  -p                 G_Parallel execution using MPI\n";
-    cout << "  -S                 Suppress graphic output\n";
-    cout << "  -?                 Output this message\n";
+    std::cout << "Usage:\n";
+    std::cout << argv[0] << "-s <scene> -n <photons> [-N <neigbors>] [-d <minDist>]\n";
+    std::cout << "          [-f <frames> -F <framefilebase> -t <dtdf> [-r <start frame>] ]\n";
+    std::cout << "          [-[m|M] <mapfile>] [-?] [-S]\n";
+    std::cout << "Parameters:   \n";
+    std::cout << "  -s <scene>         The name of the Scene file to read.\n";
+    std::cout << "  -n <photons>       The number of photons to use for each image.\n";
+    std::cout << "  -N <neighbors>     The desired number of photons to use in radiance estimate.\n";
+    std::cout << "  -d <minDist>       Photons within this radius of a\n";
+    std::cout << "   given location will never be discarded when calculating flux,\n";
+    std::cout << "   unless there are <neighbors> or it's default setting photons closer.\n";
+    std::cout << "  -D <maxDist>       Photons more distant than maxDist from a point will never\n";
+    std::cout << "   be included in the irradiance estimate for that point.\n";
+    std::cout << "  -r <start frame>   The number of the frame to resume a job at.\n";
+    std::cout << "  -f <frames>        The number of frames to output in batch mode.\n";
+    std::cout << "  -F <framefilebase> The base name of frame output jpegs.\n";
+    std::cout << "  -t <dtdf>          Change in t per frame\n";
+    std::cout << "  -M <mapfile>       Output generated photon map to <mapfile>\n";
+    std::cout << "  -m <mapfile>       Import scene's Photon map from <mapfile>\n";
+    std::cout << "  -p                 G_Parallel execution using MPI\n";
+    std::cout << "  -S                 Suppress graphic output\n";
+    std::cout << "  -?                 Output this message\n";
   }
 
   PhotonMap pMap;
@@ -141,9 +141,9 @@ int main(int argc, char ** argv) {
   if(nPhotons) {
     if(mapImport) {
       sc->ReadFile(sceneFile);
-      cout << "Inputting map from " << mapInName << endl;
+      std::cout << "Inputting map from " << mapInName <<std::endl;
       g_map = loadMap(mapInName);
-      cout << "Map Loaded\n";
+      std::cout << "Map Loaded\n";
     }
     if(frames) {
       sc->ReadFile(sceneFile);
@@ -198,7 +198,7 @@ int main(int argc, char ** argv) {
 	  }
 	  double stop = MPI_Wtime();
 	  if(!rank)
-	    cout << "Took " << stop - start << " seconds to create photon map.\n";
+	    std::cout << "Took " << stop - start << " seconds to create photon map.\n";
 	}
 #endif
 #ifdef PARALLEL
@@ -226,7 +226,7 @@ int main(int argc, char ** argv) {
           MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 	  sc->draw();
           if(!rank) {
-	    cout << "Photon Map Size: " << g_map->getSize() << endl;
+	    std::cout << "Photon Map Size: " << g_map->getSize() <<std::endl;
 	    if(!g_suppressGraphics)	    
 	      glutMainLoop();
           } 
@@ -241,13 +241,13 @@ int main(int argc, char ** argv) {
 #endif
       } else {
 	sc->ReadFile(sceneFile);
-	cout << "Graphics Suppression not yet implemented\n";
+	std::cout << "Graphics Suppression not yet implemented\n";
 	exit(1);
       }
     }
     if(mapExport) {
       if(g_map) {
-	cout << "Outputting map to " << mapOutName << endl;
+	std::cout << "Outputting map to " << mapOutName <<std::endl;
 	saveMap(g_map,mapOutName);
       }
     } 
@@ -289,7 +289,7 @@ void saveMap(PhotonMap * pmap, string fileName)
   else
     {
       pmap->out(outFile);
-      cout << "Photon Map saved to " << fileName << endl;
+      std::cout << "Photon Map saved to " << fileName <<std::endl;
       outFile.close();
     }
 }

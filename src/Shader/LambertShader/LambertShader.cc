@@ -110,10 +110,10 @@ Point3Dd LambertShader::getLambertColor(Hit &hitPoint)
   return theLight;
 }
 
-istream& LambertShader::in(std::istream&)
+std::istream& LambertShader::in(std::istream&)
 {
 }
 
-ostream& LambertShader::out(std::ostream&)
+std::ostream& LambertShader::out(std::ostream&)
 {
 }

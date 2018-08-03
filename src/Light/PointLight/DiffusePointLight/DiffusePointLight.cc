@@ -65,24 +65,24 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
       p.dy = dy;
       p.dz = dz;
       
-      //      cout << "__BEGIN_PHOTON_CHECK__\n";
+      //      std::cout << "__BEGIN_PHOTON_CHECK__\n";
       p = renderer->tracePhoton(p);
-      //      cout << "__END_PHOTON_CHECK__\n";
+      //      std::cout << "__END_PHOTON_CHECK__\n";
       //add returned photon to map.
       if(!((p.r==p.g)&&(p.g==p.b)&&(p.g==0))) //if the photon has any power
 	{
-	  //	  cout << "Photon has power.\n";
+	  //	  std::cout << "Photon has power.\n";
 	  map->addPhoton(p);
-	  //	  cout << "Added Photon " << p << endl;
+	  //	  std::cout << "Added Photon " << p <<std::endl;
 	}
     }
   
-  cout << "Light " << (int)this << " adds " <<
+  std::cout << "Light " << (int)this << " adds " <<
     map->getSize() - priorPhotons << " photons to map\n";
 
 }
 
-istream& DiffusePointLight::in(std::istream& is)
+std::istream& DiffusePointLight::in(std::istream& is)
 {
   char c;
   is >> c >> location;
@@ -123,7 +123,7 @@ istream& DiffusePointLight::in(std::istream& is)
   return is;
 }
 
-ostream& DiffusePointLight::out(std::ostream& o)
+std::ostream& DiffusePointLight::out(std::ostream& o)
 {
   o << '(' 
     << location 
@@ -137,13 +137,13 @@ ostream& DiffusePointLight::out(std::ostream& o)
   return o;
 }
 
-istream& operator>>(std::istream &is, DiffusePointLight
+std::istream& operator>>(std::istream &is, DiffusePointLight
 &l)
 {
   return l.in(is);
 }
 
-ostream& operator<<(std::ostream &o, DiffusePointLight &l)
+std::ostream& operator<<(std::ostream &o, DiffusePointLight &l)
 {
   return l.out(o);
 }
