@@ -2,7 +2,7 @@
 #define PHOTONMAP_H_
 
 #include <parallel_pm.h>
-#include <iostream.h>
+#include <iostream>
 #include <string>
 #include "Photon/Photon.h"
 #include "PhotonPriorityQueue/PhotonPriorityQueue.h"

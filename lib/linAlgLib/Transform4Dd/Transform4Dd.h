@@ -10,6 +10,7 @@
 #define D4TRANSFORM_H
 
 #include <iostream>
+using namespace std;
 
 ///////////////////////
 // class Transform4Dd //
@@ -105,7 +106,7 @@ public:
   Point4Dd operator*(const Point4Dd&) const;
 
   // read Transform from stream
-  istream& Transform4Dd::in(istream& is);
+  istream& in(istream& is);
 
   // append transform to stream
   ostream& out(ostream&) const;

@@ -8,6 +8,7 @@
 #define POINT4DD_H
 
 #include <iostream>
+using namespace std;
 
 ///////////////////
 // class Point4Dd //
@@ -64,7 +65,7 @@ public:
   int length(void) const;
 
   // sum of coordinates
-  double Point4Dd::sum() const;
+  double sum() const;
 
   // dot product
   double dot(const Point4Dd& v2) const;

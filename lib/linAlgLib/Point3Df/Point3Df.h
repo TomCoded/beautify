@@ -8,6 +8,7 @@
 #define POINT3DF_H
 
 #include <iostream>
+using namespace std;
 
 ///////////////////
 // class Point3Df //

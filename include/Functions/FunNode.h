@@ -4,7 +4,7 @@
 //Holds interface for all function classes
 
 #include <FunDefs.h>
-#include <iostream.h>
+#include <iostream>
 #include <string>
 
 class FunNode

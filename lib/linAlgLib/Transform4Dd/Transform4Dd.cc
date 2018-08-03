@@ -4,8 +4,10 @@
 
 // (C) 2002 Bill Lenhart
 
+#include <stdlib.h>
 #include "Point4Dd/Point4Dd.h"
 #include "Transform4Dd/Transform4Dd.h"
+using namespace std;
 
 // Constructors
 // Default: create identity transform

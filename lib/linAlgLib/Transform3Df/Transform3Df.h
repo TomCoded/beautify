@@ -10,6 +10,7 @@
 #define TRANSFORM3DF_H
 
 #include <iostream>
+using namespace std;
 
 ///////////////////////
 // class Transform3Df //
@@ -103,7 +104,7 @@ public:
   Point3Df operator*(const Point3Df&) const;
 
   // read transform from stream
-  istream& Transform3Df::in(istream& is);
+  istream& in(istream& is);
 
   // append transform to stream
   ostream& out(ostream&) const;

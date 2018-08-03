@@ -8,6 +8,7 @@
 #define POINT4DF_H
 
 #include <iostream>
+using namespace std;
 
 ///////////////////
 // class Point4Df //
@@ -64,7 +65,7 @@ public:
   int length(void) const;
 
   // sum of coordinates
-  float Point4Df::sum() const;
+  float sum() const;
 
   // dot product
   float dot(const Point4Df& v2) const;

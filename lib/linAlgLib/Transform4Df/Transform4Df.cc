@@ -4,8 +4,10 @@
 
 // (C) 2002 Bill Lenhart
 
+#include <stdlib.h>
 #include "Point4Df/Point4Df.h"
 #include "Transform4Df/Transform4Df.h"
+using namespace std;
 
 // Constructors
 // Default: create identity transform

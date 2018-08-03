@@ -18,6 +18,7 @@
 #endif
 
 #include <iostream>
+using namespace std;
 
 class POINT_TYPE_4D;
 class FunNode;

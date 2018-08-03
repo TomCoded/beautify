@@ -5,6 +5,7 @@
 // (C) 2002 Bill Lenhart
 
 #include <stdlib.h>
+#include <cmath>
 #include "Point3Df/Point3Df.h"
 #include "Point4Df/Point4Df.h"
 #include "Transform4Df/Transform4Df.h"
@@ -107,7 +108,7 @@ float Point4Df::dot(const Point4Df& v2) const
 // compute length of vector (distance to origin)
 float Point4Df::norm() const
 {
-  return sqrt(this->dot(*this));
+  return std::sqrt(this->dot(*this));
 }
 
 // normalize vector: divide self by self.norm()

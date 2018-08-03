@@ -10,6 +10,7 @@
 #define D4TRANSFORM_H
 
 #include <iostream>
+using namespace std;
 
 ///////////////////////
 // class Transform4Dd //

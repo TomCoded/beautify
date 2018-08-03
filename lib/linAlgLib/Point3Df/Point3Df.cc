@@ -5,6 +5,7 @@
 // (C) 2002 Bill Lenhart
 
 #include <stdlib.h>
+#include <cmath>
 #include "Point3Df/Point3Df.h"
 #include "Transform3Df/Transform3Df.h"
 
@@ -80,7 +81,7 @@ float Point3Df::dot(const Point3Df& v2) const
 // compute length (distance to origin)
 float Point3Df::norm() const
 {
-  return sqrt(this->dot(*this));
+  return std::sqrt(this->dot(*this));
 }
 
 // normalize: divide self by self.norm()

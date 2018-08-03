@@ -4,6 +4,7 @@
 
 // (C) 2002 Bill Lenhart
 
+#include <stdlib.h>
 #include "Point3Dd/Point3Dd.h"
 #include "Transform3Dd/Transform3Dd.h"
 
