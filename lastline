@@ -1,0 +1,3 @@
+./configure --extra-cflags=-I /usr/cs-local/include/cs371include --enable-mpi
+./configure --extra-cflags=-I /usr/cs-local/include/cs371include --enable-mpi
+./configure --extra-cflags=-I /usr/cs-local/include/cs371include -O3 --enable-mpi

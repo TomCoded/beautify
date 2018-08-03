@@ -1,0 +1,3 @@
+#/bin/sh
+#pushd ../$1/; gmake; popd; SceneTest
+pushd ..; gmake; popd; $1 

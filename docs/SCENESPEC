@@ -1,0 +1,47 @@
+Scene File Format Specification:
+
+windowDims (integer, integer)
+  - specifies width and height of output images.
+
+camera (location,lookAt,up,?,?,?,far)
+  - places camera at location location, looking at lookAt, oriented
+s.t. up is the top.  
+
+DiffusePointLight(power,location,specular)
+  - creates a diffuse point light source at the specified location.
+  - specular reflects the specular intensity of each color channel.
+  - power reflects the total power of all photons present in the light
+source.
+
+Material (ambient,diffuse,specular,specular exponent)
+  - ambient is unused in global illumination algorithm
+
+Participating (ambient,diffuse,specular,specular exponent,scatterring
+coefficient)
+  - ambient is unused in global illumination algorithm
+  - scattering coefficient determines density of medium.
+     - the higher the coefficient, the more dense the medium.
+
+
+---------------------------------------
+
+Transformations:
+
+translate (x,y,z)
+  - translates specified object
+
+funTransform 00 01 02 03 10 11 12 13 20 21 22 23 30 31 32 33
+  - creates a transform that is a function of time.  Accepted valued
+for 00-33 entries in matrix include:
+     - arbitrary polynomials
+     - sin(f) and cos(f) where f is any function that can be parsed.
+     - addition, multiplication, division, exponentiation
+     - functions of time t
+     - The parser may have issues with leading minus signs; when in
+        doubt, use "0-<whatever>" instead of "-<whatever>"
+  - YOU MUST SPECIFY THE INVERSE OF THIS TRANSFORMATION for it to
+work, and potentially the appropriate inverse normal transformation.
+
+funTransformInverse
+  - same as above, but for the transformation from world coordinates
+to local coordinates.

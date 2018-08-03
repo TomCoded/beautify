@@ -1,0 +1,62 @@
+ALLCLASSDIRS = \
+Camera/Camera.cc \
+Ray/Ray.cc \
+TransformMaker/TransformMaker.cc NodeGL/NodeGL.cc \
+PopNodeGL/PopNodeGL.cc MaterialNodeGL/MaterialNodeGL.cc \
+TranslationFormNodeGL/TranslationFormNodeGL.cc Scene/Scene.cc \
+functions/functions.cc \
+LightNodeGL/LightNodeGL.cc PlanetNodeGL/PlanetNodeGL.cc \
+TransformNodeGL/TransformNodeGL.cc OrbitNodeGL/OrbitNodeGL.cc \
+SpinNodeGL/SpinNodeGL.cc OrientNodeGL/OrientNodeGL.cc \
+TorusNodeGL/TorusNodeGL.cc TeapotNodeGL/TeapotNodeGL.cc \
+CubeNodeGL/CubeNodeGL.cc IcosahedronNodeGL/IcosahedronNodeGL.cc \
+OctahedronNodeGL/OctahedronNodeGL.cc \
+TetrahedronNodeGL/TetrahedronNodeGL.cc \
+DodecahedronNodeGL/DodecahedronNodeGL.cc ConeNodeGL/ConeNodeGL.cc \
+RotateNodeGL/RotateNodeGL.cc SinTranslateNodeGL/SinTranslateNodeGL.cc \
+SinSpinNodeGL/SinSpinNodeGL.cc \
+CustomNodeGL/CustomNodeGL.cc \
+FunNode/FunNode.cc VarFunNode/VarFunNode.cc \
+NumFunNode/NumFunNode.cc \
+SumFunNode/SumFunNode.cc MultFunNode/MultFunNode.cc \
+DivFunNode/DivFunNode.cc \
+PowFunNode/PowFunNode.cc SinFunNode/SinFunNode.cc \
+CosFunNode/CosFunNode.cc FunParser/FunParser.cc \
+FunTranslateNodeGL/FunTranslateNodeGL.cc \
+FunOrientNodeGL/FunOrientNodeGL.cc \
+IdentityNodeGL/IdentityNodeGL.cc \
+FunTransformNodeGL/FunTransformNodeGL.cc \
+Scene/SceneTest.cc 
+
+CCFILES=$(ALLCLASSDIRS)
+OFILES=$(CCFILES:.cc=.o)
+
+MAKE = make
+
+LOCALCLASSESDIR=.
+
+OUTDIR=ofiles
+CCFLAGS=-O3
+CC = g++
+INCLDIRS = -IG:/Dev/include -Ic:/Dev/mingw/include \
+	-I$(LOCALCLASSESDIR) -IC:/cygwin/usr/include
+
+LIBDIRS = -LG:/Dev/lib
+GLLIBS = -lglut32 -lglu32 -lopengl32
+LIBS = -llinAlg $(GLLIBS) -lm
+
+TARGET=Scene/SceneTest
+
+#how to build a .o from a .cc
+.cc.o: $(CCFILES)
+	$(CC) $(CCFLAGS) -o $@ -c $< $(INCLDIRS)
+#	$(MAKE) $<; cd ..;
+
+all: $(OFILES)
+	$(CC) $(CCFLAGS) -o $(TARGET) $(OFILES) $(INCLDIRS) $(LIBDIRS) $(LIBS)
+
+clean:
+	c:\cygwin\bin\rm $(OFILES)
+
+
+

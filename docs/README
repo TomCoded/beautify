@@ -1,0 +1,103 @@
+Photon Mapper
+
+(C) 2002 Tom White
+Do not reproduce in any form without express permission of the author.
+
+----------------------
+
+demo:
+
+log into basuto (or another machine with plaympeg).
+
+chdir to the Scene/ directory.
+
+run the script demo
+
+----------------------
+
+Sample output files:
+
+There are sample output movies in the Scene/movies/ folder.
+There are sample output stills in the Scene/stills/ folder.
+
+----------------------
+Compilation instructions:
+
+gmake in the root project directory will make the project.
+
+. retry in the Scene directory will do the same.
+
+gmake funtest will make the executable funtest, which allows you to
+test the functionality of the function parser / evaluator.
+
+gmake kdTest will make the executable kdTest, which runs some simple
+tests on the kdTree system.
+
+-------------------------
+
+Running the programs:
+
+Executable is Scene/SceneTest
+
+Keys:
+ 's': Saves the image on screen to a file.
+ 'r': Redisplays the image.  Does not re-render.
+ 't': Applies a smoothing filter to the image.
+ 'q': Quits
+
+Known Bugs/Working On:
+
+For the moment, If a light source is contained within an object, the
+light source's photons do not impact the object; they penetrate its
+surface and illuminate other objects in the scene as if it did not
+exist.  This is deliberate.
+
+---------------------------
+Program usage:
+
+SceneTest asks for a scenefile to load when it is started up.
+
+You then generate a new photon map, telling it how many photons to
+use.  Ranges from 1000 to 1000000 make sense, depending on the number
+of lights in the scene, the density of the scene, the presence or
+absence of participating media, etc...  Try one or two thousand
+first.  This many photons will be emitted from light sources, but only
+a few of them will hit objects.
+
+The (d) button will then display the photon map.  (q) with the
+keyboard focus on the graphic window will quit.  (s) with the keyboard
+focus on the graphic window will wait for a filename at standard in,
+and save the image to that file when the user hits return.  Note that
+the file extension is necessary.
+
+-----------------------------
+Creating a movie
+
+To create a movie, start SceneTest.
+
+Press (l) to load a file.
+Enter the filename.
+Press (c) to generate frames.
+You will be prompted for:
+	The number of frames to produce.
+	The Change in the variable t with per frame.
+	The base filename - ex: "ten" for ten frames
+	  produces "ten0.jpg" through "ten9.jpg"
+	The number of photons to use in each image.  The more photons,
+	  the longer it will take.
+When it's done rendering, type (q) to quit.
+
+To convert to a movie, run:
+
+~03jda/bin/ffmpeg -y -an -r 10 -i <filename>%d.jpg <filename>.mpg
+
+To view the movie, log into basuto and run:
+
+plaympeg <filename>.mpg
+
+
+
+
+
+
+

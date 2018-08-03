@@ -1,0 +1,24 @@
+Bugs to Fix / Thing to do:
+
+Translation is messing up the normal on planes. ?
+
+2003-05-29 - must add support for FunTransform4Dd matrix-matrix multiply for multiple user specified funtransformations
+ 2003-06-10 - done;
+
+2003-05-29 - add support for resuming a batch job on any frame
+ 2003-05-29 - done
+
+2003-05-29 - confirm single-proc mode and visual mode are working properly
+
+2003-05-29 - figure out a way to make different frames consistently shaded
+
+2003-05-29 - get photonmap i/o to function properly; also set up for multiple frames
+
+2003-06-10 - get Anonymous1's Linear Algebra Library integrated into configure and make somehow
+
+2003-06-10 - Seperate Functions into their own library
+
+2003-06-10 - Add logarithms to functions
+
+2003-06-10 - re-organize; write a configure script and integrate with make.
+

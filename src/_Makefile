@@ -1,0 +1,94 @@
+include ./allclassdirs.mak
+include ./Functions/Funs.mak
+
+CCFILES=$(ALLCLASSDIRS) $(FUNCCS)
+OFILES=$(CCFILES:.cc=.o)
+CCBACKUPS=$(CCFILES:.cc=.cc~)
+HBACKUPS=$(CCFILES:.cc=.h~)
+HFILES=$(CCFILES:.cc=.h)
+COREFILES=$(CCFILES:.cc=.core)
+
+MAKE = gmake
+
+LOCALCLASSESDIR=-I. -I./Functions
+
+OUTDIR=ofiles
+CCFLAGS=-O3 $(CSCCFLAGS)
+#CCFLAGS= -g $(CSCCFLAGS)
+#CC = /usr/local/mpich/bin/mpiCC
+CC = mpiCC
+
+CSINCLDIRS = -I/usr/cs-local/include/cs371include \
+-I/usr/X11R6/include/ \
+-I/usr/local/include/ \
+$(LOCALCLASSESDIR) 
+#-I$(CSPROJECT)
+CSLIBDIRS = -L/usr/cs-local/lib/cs371lib \
+-L/usr/X11R6/lib \
+-L/usr/local/lib
+#CSPROJECT = /home/cs-students/04thw/371/final/src
+CSGLLIBS = -lglut -lGLU -lGL 
+#-lg++
+CSMAGICKLIBS = -lMagick++ -lMagick
+CSXLIBS = -lXmu -lXi -lXext -lX11
+CSLIBS = $(CSGLLIBS) $(CSMAGICKLIBS) $(CSXLIBS)
+CSCCFLAGS = -pthread
+
+PCINCLDIRS = -IG:/Dev/include -Ic:/Dev/mingw/include \
+	-I$(LOCALCLASSESDIR) -IC:/cygwin/usr/include
+PCGLLIBS = -lglut32 -lglu32 -lopengl32
+PCLIBDIRS = -LG:/Dev/lib
+
+LIBDIRS = $(CSLIBDIRS)
+INCLDIRS = $(CSINCLDIRS)
+LIBS = -llinAlg -lm $(CSLIBS)
+
+TARGET=../bin/beautify
+
+#how to build a .o from a .cc
+.cc.o: $(CCFILES)
+	$(CC) $(CCFLAGS) -o $@ -c $< $(INCLDIRS)
+#	$(MAKE) $<; cd ..;
+
+all: $(OFILES) 
+	$(CC) $(CCFLAGS) -o $(TARGET) $(OFILES) $(INCLDIRS) $(LIBDIRS) $(LIBS)
+
+profiled: $(OFILES)
+	$(CC) $(CCFLAGS:-g=-pg) -o $(TARGET) $(OFILES) $(INCLDIRS) $(LIBDIRS) $(LIBS)
+
+FUNCTIONSTESTOS=$(OFILES:Scene/SceneTest.o=Functions/FunctionsTest.o)
+FUNCTIONSTESTCCS=$(CCFILES:Scene/SceneTest.cc=Functions/FunctionsTest.cc)
+funtest: $(FUNCTIONSTESTOS)
+	$(CC) $(CCFLAGS) -o funtest $(FUNCTIONSTESTOS) $(INCLDIRS) $(LIBDIRS) $(LIBS)
+
+#FUNCTIONSTEST2OS=$(OFILES:Scene/SceneTest.o=Functions/FunctionsTest2.o)
+#FUNCTIONSTEST2CCS=$(CCFILES:Scene/SceneTest.cc=Functions/FunctionsTest2.cc)
+FUNCTIONSTEST2CCS=$(FUNCCS) Functions/FunctionsTest2.cc
+FUNCTIONSTEST2OS=$(FUNCTIONSTEST2CCS:.cc=.o)
+funtest2: $(FUNCTIONSTEST2OS)
+	$(CC) $(CCFLAGS) -o funtest2 $(FUNCTIONSTEST2OS) $(INCLDIRS) $(LIBDIRS) $(LIBS)
+
+#to print
+print:	
+	enscript -2r $(CCFILES) $(HFILES)
+
+wc:
+	wc $(CCFILES) $(HFILES)
+
+kdtest: $(OFILES:Scene/SceneTest.o=PhotonMap/kdTest.o)
+	$(CC) $(CCFLAGS) -o kdTest $(OFILES:Scene/SceneTest.o=PhotonMap/kdTest.o) $(INCLDIRS) $(LIBDIRS) $(LIBS)
+
+clean:
+	rm -f $(OFILES)
+	rm -f $(CCBACKUPS)
+	rm -f $(HBACKUPS)	
+	rm -f $(COREFILES)
+
+emacsopen:
+	emacs $(CCFILES) $(HFILES) &
+
+enscript2r:
+	enscript -2r $(HFILES)
+
+
+
