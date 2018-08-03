@@ -7,8 +7,8 @@
 #include "Photon/Photon.h"
 #include "PhotonPriorityQueue/PhotonPriorityQueue.h"
 #include "Material/Participating/Participating.h"
-#include "vector.h"
-#include "list.h"
+#include <vector>
+#include <list>
 
 #ifdef PI
 #undef PI
@@ -84,7 +84,7 @@ class PhotonMap {
   std::istream& in(std::istream&);
 
  protected:
-  vector<Photon> unsortedPhotons;
+  std::vector<Photon> unsortedPhotons;
   PHOTONMAP_STORAGE_TYPE storage;
   Photon ** kdTree;
   int kdSize;

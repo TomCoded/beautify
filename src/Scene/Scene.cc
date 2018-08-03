@@ -7,6 +7,7 @@
 #include <allIncludes.h>
 #include <iostream>
 #include <string>
+#include <string.h>
 #include <GL/glut.h>
 #include <Magick++.h>
 #include <PhotonMap/PhotonMap.h>
@@ -1367,7 +1368,8 @@ vector<Surface *> * Scene::getSurfaces()
 Camera * Scene::getCamera()
 {
   //  if(cameras->size()) return (*cameras)[currentCamera];
-  if(cameras->begin()) return (*(cameras->begin()));
+  if(cameras->size()) return (*(cameras->begin()));
+  //  if(cameras->begin()) return (*(cameras->begin()));
   else return 0;
 }
 

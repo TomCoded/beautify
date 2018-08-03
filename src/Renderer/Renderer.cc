@@ -444,7 +444,7 @@ vector<Light *> * Renderer::getVisibleLights(Point3Dd point)
  */
 //for when photons should not be added to the global photon map
 #define NULL_PHOTON p.r = p.g = p.b = 0
-Photon& Renderer::tracePhoton(Photon &p, int recurse=0)
+Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
 {
 #ifdef DEBUG_BUILD
   static int total=0; static int intersected=0;
@@ -605,7 +605,7 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse=0)
 
 void Renderer::participantMarch(Photon &p, 
 				Surface * medium,
-				int single_scatter=0
+                                int single_scatter/*=0*/
 				)
 {
   //march participant through medium until reach boundary or scatter

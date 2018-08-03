@@ -22,8 +22,8 @@ class LambertShader: public Shader
 
   Point3Dd getColor(Hit&);
 
-  std::istream& LambertShader::in(std::istream&);
-  std::ostream& LambertShader::out(std::ostream&);
+  std::istream& in(std::istream&);
+  std::ostream& out(std::ostream&);
 
  protected:
   Point3Dd ambient;
