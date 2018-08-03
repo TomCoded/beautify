@@ -697,7 +697,7 @@ Point3Dd PhotonMap::getLuminanceAt(Point3Dd &p)
        for(int n=1; n<nClose; n++)
 	if(distance(*close[n],p)<maxDist)
 	  maxDist=distance(*close[n],p);
-      double con = 1/((4.0/3.0)*PI*(maxDist)*sqrt(maxDist));
+      double con = 1/((4.0/3.0)*PI*(maxDist)*std::sqrt(maxDist));
       Point3Dd powSum(close[0]->r,
 		      close[0]->g,
 		      close[1]->b
@@ -724,7 +724,7 @@ Point3Dd PhotonMap::getLuminanceAt(Point3Dd &p)
 	  double myMult;
 	  while(Q.getSize()>NUMNEIGHBORS)
 	    Q.pop();
-	  maxdist=sqrt(distance(*Q.top(),p));
+	  maxdiststd::sqrt(distance(*Q.top(),p));
 #ifdef DEBUG_BUILD
 	  static int numPhotons;
 	  numPhotons=Q.getSize();
@@ -738,7 +738,7 @@ Point3Dd PhotonMap::getLuminanceAt(Point3Dd &p)
 	      powSum.z += (Q.top()->b);
 	      Q.pop(); 
 	    }
-	  double con = 1/((4.0/3.0)*PI*(this->maxdist)*sqrt(this->maxdist));
+	  double con = 1/((4.0/3.0)*PI*(this->maxdist)*std::sqrt(this->maxdist));
 #ifdef DEBUG_BUILD
 	  //keep track of aggregate statistics
 	  static int debug_flux_cycle=0;
@@ -827,7 +827,7 @@ Point3Dd PhotonMap::getLuminanceAt(Point3Dd &p)
 	      if(distance(*(close[n]),p)>maxDist)
 		maxDist=distance(*close[n],p);
 	    }
-	  double con = 1/((4.0/3.0)*PI*maxDist*sqrt(maxDist));
+	  double con = 1/((4.0/3.0)*PI*maxDist*std::sqrt(maxDist));
 	  Point3Dd powSum(0,0,0);
 	  for(int n=0; n<nClose-1; n++)
 	    {
@@ -951,7 +951,7 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &p,Point3Dd &normal)
 	  double myMult;
 	  while(Q.getSize()>NUMNEIGHBORS)
 	    Q.pop();
-	  maxdist=sqrt(distance(*Q.top(),p));
+	  maxdiststd::sqrt(distance(*Q.top(),p));
 #ifdef DEBUG_BUILD
 	  static int numPhotons;
 	  numPhotons=Q.getSize();
@@ -1272,7 +1272,7 @@ void PhotonMap::kdNN(int phLoc, Point3Dd &loc,
 #endif
       Q->add(kdTree[phLoc]);
       //maxdist = distance(*(Q->top()),loc);
-      maxdist=sqrt(dist);
+      maxdiststd::sqrt(dist);
     }
 }
 

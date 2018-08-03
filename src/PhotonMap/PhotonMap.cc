@@ -328,7 +328,7 @@ Point3Dd PhotonMap::getLuminanceAt(const Point3Dd &loc,
     }
     //flux = intensity / area, area is on a surface so approximate
     //with circle
-    double con = 1/((4.0/3.0)*PI*maxDistSqr*sqrt(maxDistSqr));
+    double con = 1/((4.0/3.0)*PI*maxDistSqr*std::sqrt(maxDistSqr));
     rval = powSum*con;
   }
   //tag this to highlight image areas where we don't have enough photons

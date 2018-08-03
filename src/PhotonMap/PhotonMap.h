@@ -4,6 +4,7 @@
 #include <parallel_pm.h>
 #include <iostream>
 #include <string>
+#include <cmath>
 #include "Photon/Photon.h"
 #include "PhotonPriorityQueue/PhotonPriorityQueue.h"
 #include "Material/Participating/Participating.h"
