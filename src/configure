@@ -122,7 +122,7 @@ if test "$debug" = "no"; then
 else
     CFLAGS="$CFLAGS -g"
 fi
-CFLAGS="$CFLAGS -I$source_path/include/Functions -I$source_path/include/linAlgLib"
+CFLAGS="$CFLAGS -I$source_path/include/Functions -I$source_path/include/linAlgLib -I$source_path/../include/Functions -I$source_path/include/linAlgLib -Wno-endif-labels"
 fi
 
 #test to see if win32 was set; if so, cross-compile
@@ -173,6 +173,8 @@ int main(int argc, char ** argv) {
     return 0;
 }
 EOF
+echo $cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg -lTomFun 2>/dev/null 
+$cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg -lTomFun 
 $cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg -lTomFun 2>/dev/null || { 
   echo "nope."; 
   exit;
