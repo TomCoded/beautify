@@ -1,13 +1,14 @@
 //FunParser.cc
 //(C) 2002 Tom White
 // parses functions
+#include <stdlib.h>
 #include "FunParser.h"
 
 FunParser::FunParser() {}
 
 FunParser::~FunParser() {}
 
-FunNode * FunParser::parseString(string szFunction)
+FunNode * FunParser::parseString(std::string szFunction)
 { //doesn't support - at beginning of string
   int nLen = szFunction.length();
   int nPlace=0;
@@ -129,7 +130,7 @@ FunNode * FunParser::parseString(string szFunction)
 	{ //sin function
 	  if(szFunction[nPlace+3]!='(')
 	    {
-	      cerr << "sin function must be written sin(...)\n";
+	      std::cerr << "sin function must be written sin(...)\n";
 	      exit(1);
 	    }
 	  rightNode =
@@ -140,7 +141,7 @@ FunNode * FunParser::parseString(string szFunction)
 	{ //cos function
 	  if(szFunction[nPlace+3]!='(')
 	    {
-	      cerr << "cos function must be written cos(...)\n";
+	      std::cerr << "cos function must be written cos(...)\n";
 	      exit(1);
 	    }
 	  rightNode =

@@ -15,6 +15,7 @@ class NumFunNode : public FunNode
   ~NumFunNode();
 
   double eval(double t);
+  double eval(int date, Stock *s);
 
   std::ostream& out(std::ostream&);
 

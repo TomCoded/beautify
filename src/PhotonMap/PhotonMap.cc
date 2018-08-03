@@ -15,7 +15,7 @@ PhotonMap::PhotonMap(PhotonMap& other)
   numNeighbors = other.numNeighbors;
   kdSize = other.kdSize;
   minSearchSqr = other.minSearchSqr;
-  cerr << "Attempt to copy Photon Map; Unimpemented\n";
+  std::cerr << "Attempt to copy Photon Map; Unimpemented\n";
   exit(1);
 }
 
@@ -91,7 +91,7 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
 
   // if photonmap really tiny, go to hell.
   if(getSize() < numNeighbors) {
-    cerr << "PhotonMap not large enough; require at least " <<
+    std::cerr << "PhotonMap not large enough; require at least " <<
       numNeighbors << " photons.\n";
     return Point3Dd(0,0,0);
   }
@@ -102,7 +102,7 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
   maxDistSqr = maxDist * maxDist;
 
   if(storage!=KD_TREE) {
-    cerr << "Photon Map must be sorted into kdtree before calling getFlux.\n";
+    std::cerr << "Photon Map must be sorted into kdtree before calling getFlux.\n";
     exit(1);
   }
 
@@ -238,7 +238,7 @@ Point3Dd PhotonMap::getLuminanceAt(const Point3Dd &loc,
   maxDistSqr = maxDist * maxDist;
 
   if(storage!=KD_TREE) {
-    cerr << "Photon Map must be sorted into kdtree before calling getluminance.\n";
+    std::cerr << "Photon Map must be sorted into kdtree before calling getluminance.\n";
     exit(1);
   }
 
@@ -365,12 +365,12 @@ void PhotonMap::findNearestNeighbors(int phLoc, const Point3Dd &loc,PhotonPriori
 	dist = loc.z - kdTree[phLoc]->z;
 	break;
       default:
-	cerr << "Photon "
+	std::cerr << "Photon "
 	     << *kdTree[phLoc]
 	     << " at position "
 	     << phLoc
 	     << " is not part of kd tree\n";
-	cerr << "Pretending is of dimension x...\n";
+	std::cerr << "Pretending is of dimension x...\n";
 	dist = loc.x - kdTree[phLoc]->x;
 	break;
       }
@@ -683,7 +683,7 @@ void PhotonMap::generateList(list<Photon **> * sList, int nRoot,KD_DIM dim) {
       }
      break;
     default:
-      cerr << "PhotonMap given wrong dimension variable!\n";
+      std::cerr << "PhotonMap given wrong dimension variable!\n";
       exit(1);
       break;
     }
@@ -843,7 +843,7 @@ std::ostream& PhotonMap::out(std::ostream& o){
       break;
 
     default:
-      cerr << "unknown file type\n";
+      std::cerr << "unknown file type\n";
       break;
     }
   return o;
@@ -856,7 +856,7 @@ std::istream& PhotonMap::in(std::istream& is){
   is >> beginString;
   if(beginString!="BEGIN_PHOTONMAP")
     {
-      cerr << "Error reading photon map file.  No \"BEGIN_PHOTONMAP\""
+      std::cerr << "Error reading photon map file.  No \"BEGIN_PHOTONMAP\""
 	   << " string found\n";
     }
   else
@@ -865,10 +865,10 @@ std::istream& PhotonMap::in(std::istream& is){
       switch(readFileType)
 	{
 	case UNCOMPRESSED:
-	  cerr << "File is of antiquated type\n";
+	  std::cerr << "File is of antiquated type\n";
 	  break;
 	case UNCOMPRESSED_V2:
-	  cerr << "Function not yet implemented\n";
+	  std::cerr << "Function not yet implemented\n";
 	  break;
 	}
     }

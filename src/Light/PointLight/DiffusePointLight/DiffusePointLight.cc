@@ -88,36 +88,36 @@ std::istream& DiffusePointLight::in(std::istream& is)
   is >> c >> location;
   if(c!='(')
     {
-      cerr << "Badformat for DiffusePointLight\n";
-      cerr << "Format: (location,diffuse,specular,power)\n";
+      std::cerr << "Badformat for DiffusePointLight\n";
+      std::cerr << "Format: (location,diffuse,specular,power)\n";
       exit(1);
     }
   is >> c >> diffuse;
   if(c!=',')
     {
-      cerr << "Badformat for DiffusePointLight\n";
-      cerr << "Format: (location,diffuse,specular,power)\n";
+      std::cerr << "Badformat for DiffusePointLight\n";
+      std::cerr << "Format: (location,diffuse,specular,power)\n";
       exit(1);
     }
   is >> c >> specular;
   if(c!=',')
     {
-      cerr << "Badformat for DiffusePointLight\n";
-      cerr << "Format: (location,diffuse,specular,power)\n";
+      std::cerr << "Badformat for DiffusePointLight\n";
+      std::cerr << "Format: (location,diffuse,specular,power)\n";
       exit(1);
     }
   is >> c >> power;
   if(c!=',')
     {
-      cerr << "Badformat for DiffusePointLight\n";
-      cerr << "Format: (location,diffuse,specular,power)\n";
+      std::cerr << "Badformat for DiffusePointLight\n";
+      std::cerr << "Format: (location,diffuse,specular,power)\n";
       exit(1);
     }
   is >> c;
   if(c!=')')
     {
-      cerr << "Badformat for DiffusePointLight\n";
-      cerr << "Format: (location,diffuse,specular,power)\n";
+      std::cerr << "Badformat for DiffusePointLight\n";
+      std::cerr << "Format: (location,diffuse,specular,power)\n";
       exit(1);
     }
   return is;

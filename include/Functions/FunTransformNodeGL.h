@@ -18,8 +18,8 @@ class FunTransformNodeGL : public NodeGL
 
   ~FunTransformNodeGL();
 
-  std::ostream& FunTransformNodeGL::out(std::ostream& o) const;
-  std::istream& FunTransformNodeGL::in(std::istream& is);
+  std::ostream& out(std::ostream& o) const;
+  std::istream& in(std::istream& is);
 
   void ActionGL();
 

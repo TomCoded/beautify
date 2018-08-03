@@ -287,7 +287,7 @@ Point3Dd Renderer::getColor(
 
 	//FIXME: Multiple Shaders not supported at this time
 	//this code is deprecated
-	cerr << "Assertion failed in Renderer.cc:267" <<std::endl;
+	std::cerr << "Assertion failed in Renderer.cc:267" <<std::endl;
 	exit(1);
 	
 	color=
@@ -580,7 +580,7 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse=0)
 	      return p;
 	      break;
 	    default: 
-	      cerr << "Error: unknown Russian Roulette result in Renderer.cc\n";
+	      std::cerr << "Error: unknown Russian Roulette result in Renderer.cc\n";
 	      exit(1);
 	    }
 	}
@@ -697,9 +697,9 @@ void Renderer::participantMarch(Photon &p,
 		pVolMap->addPhoton(p);
 		++single_scatter;
 	      }
-	      //	      cerr << "P " << p;
+	      //	      std::cerr << "P " << p;
 	      medium->DoVolBRDF(p);
-	      //	      cerr << " ==> " << p <<std::endl;
+	      //	      std::cerr << " ==> " << p <<std::endl;
 
 	      break;
 	    case ABSORPTION:
@@ -711,7 +711,7 @@ void Renderer::participantMarch(Photon &p,
 	      return;
 	      break;
 	    default:
-	      cerr << "Error: unknown volumetric Russian Roulette result in Renderer.cc\n";
+	      std::cerr << "Error: unknown volumetric Russian Roulette result in Renderer.cc\n";
 	      exit(1);
 	    }
 	}
@@ -790,7 +790,7 @@ void Renderer::showMap(PhotonMap * map, int start, int pixels)
   currentCamera=myScene->getCamera();
   if(!currentCamera) 
     {
-      cerr << "No camera defined!";
+      std::cerr << "No camera defined!";
       exit(1);
     }
   currentCamera->setSampleDims(width,height);
@@ -1164,7 +1164,7 @@ Point3Dd Renderer::getIlluminationInMedium(const Point3Dd &point,
      lastVal+= increment;
   }
   
-  cerr << "totalScar " << totalScat <<std::endl;
+  std::cerr << "totalScar " << totalScat <<std::endl;
   return totalScat;
 }
 
@@ -1238,9 +1238,9 @@ Point3Dd Renderer::getIlluminationAtPointInMedium(const Point3Dd &point,
     }
 
     //Then multiply result by phase function for direction shift
-    //    cerr << "pre-phase: " << incomingLight;
+    //    std::cerr << "pre-phase: " << incomingLight;
     temp = incomingLight * medium->phaseFunction(sourceDir,dir);
-    //    cerr << " post-phase: " << temp <<std::endl;
+    //    std::cerr << " post-phase: " << temp <<std::endl;
 
     if(temp.x < 0) temp.x=0;
     if(temp.y < 0) temp.y=0;

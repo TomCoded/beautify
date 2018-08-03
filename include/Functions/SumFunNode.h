@@ -15,6 +15,7 @@ class SumFunNode : public FunNode
   ~SumFunNode();
 
   double eval(double t);
+  double eval(int date, Stock *stock);
 
   std::ostream& out(std::ostream&);
 

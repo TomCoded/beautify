@@ -15,6 +15,7 @@ class CosFunNode : public FunNode
   ~CosFunNode();
 
   double eval(double t);
+  double eval(int day, Stock *s);
 
   std::ostream& out(std::ostream&);
 

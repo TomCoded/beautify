@@ -9,6 +9,7 @@
 
 #include <iostream>
 
+
 ///////////////////
 // class Point3Df //
 ///////////////////

@@ -19,7 +19,6 @@
 
 #include <iostream>
 
-
 class POINT_TYPE_4D;
 class FunNode;
 
@@ -119,7 +118,7 @@ public:
   FunNode * data[rowSize][colSize];
 
   // read Transform from stream
-  std::istream& FunTransform4Dd::in(std::istream& is);
+  std::istream& in(std::istream& is);
 
   // append transform to stream
   std::ostream& out(std::ostream&) const;

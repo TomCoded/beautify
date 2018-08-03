@@ -45,11 +45,11 @@ int main(int argc, char ** argv) {
   MPI_Aint disp[3] = { 0, (9 * sizeof(float)), (9*sizeof(float)+sizeof(int)) };
   MPI_Datatype types[3] = { MPI_FLOAT, MPI_INT, MPI_SHORT };
   if (MPI_Type_struct(3,blocklen,disp,types,&MPI_PHOTON) != MPI_SUCCESS) {
-    cerr << "Could not initialize MPI_PHOTON.\n";
+    std::cerr << "Could not initialize MPI_PHOTON.\n";
     exit(1);
   }
   if (MPI_Type_commit(&MPI_PHOTON) != MPI_SUCCESS) {
-    cerr << "Could not commit MPI_PHOTON.\n";
+    std::cerr << "Could not commit MPI_PHOTON.\n";
     exit(1);
   }
 #endif
@@ -266,7 +266,7 @@ PhotonMap * loadMap(string fileName)
   ifstream inFile(fileName.c_str());
   if(!inFile)
     {
-      cerr << "Could not open file to load.\n";
+      std::cerr << "Could not open file to load.\n";
       exit(1);
     }
   else
@@ -284,7 +284,7 @@ void saveMap(PhotonMap * pmap, string fileName)
   ofstream outFile(fileName.c_str());
   if(!outFile)
     {
-      cerr << "Could not open file to save.\n";
+      std::cerr << "Could not open file to save.\n";
     }
   else
     {

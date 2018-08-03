@@ -6,6 +6,9 @@
 #include <FunDefs.h>
 #include <iostream>
 #include <string>
+class Stock;
+
+
 
 class FunNode
 {
@@ -15,7 +18,7 @@ class FunNode
   ~FunNode();
 
   virtual FunNode * clone(void) {};
-  FunNode * parseString(string szFunction);
+  FunNode * parseString(std::string szFunction);
 
   //assignment operator
   FunNode * operator=(FunNode& other);
@@ -32,6 +35,7 @@ class FunNode
   FunNode * operator /(const double scalar);
 
   virtual double eval(double t)=0;
+  virtual double eval(int date, Stock *stock)=0;
   
   FunNode * in(std::istream& is);
   virtual std::ostream& out(std::ostream&);

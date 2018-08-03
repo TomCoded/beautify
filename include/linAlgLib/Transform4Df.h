@@ -11,6 +11,7 @@
 
 #include <iostream>
 
+
 ///////////////////////
 // class Transform4Df //
 ///////////////////////
@@ -105,7 +106,7 @@ public:
   Point4Df operator*(const Point4Df&) const;
 
   // read Transform from stream
-  std::istream& Transform4Df::in(std::istream& is);
+  std::istream& in(std::istream& is);
 
   // append transform to stream
   std::ostream& out(std::ostream&) const;

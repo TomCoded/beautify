@@ -124,7 +124,7 @@ void Participating::DoBRDF(Photon &p)
     rand1 = drand48();
     ttemp += acos( (2.0*rand1 + greenK - 1.0) / (2.0 * greenK * rand1 - greenK + 1.0) );
   }
-  cerr << "Mean theta for " << greenK << " = " << ttemp/1000 <<std::endl;
+  std::cerr << "Mean theta for " << greenK << " = " << ttemp/1000 <<std::endl;
 #endif
 
   //Dump incoming photon dir into 4d point
@@ -152,7 +152,7 @@ void Participating::DoBRDF(Photon &p)
   double modifier = left * (1.0 / (denom * denom));
   //#ifdef DEBUG_BUILD
 #if 0
-  cerr << "phase function (" << theta << "): " 
+  std::cerr << "phase function (" << theta << "): " 
        << modifier 
        <<std::endl;
 #endif
@@ -245,7 +245,7 @@ std::istream& Participating::in(std::istream &is)
 
   if(ch!='(')
     {
-      cerr << "Bad format for Participating: '(' not found!\n";
+      std::cerr << "Bad format for Participating: '(' not found!\n";
       exit(1);
     }
   scatX = parser.in(is);
@@ -255,7 +255,7 @@ std::istream& Participating::in(std::istream &is)
   is >> ch;
   if(ch!=',')
     {
-      cerr << "Bad format for Participating: ',' not found!\n";
+      std::cerr << "Bad format for Participating: ',' not found!\n";
       exit(1);
     }
 
@@ -266,15 +266,15 @@ std::istream& Participating::in(std::istream &is)
   is >> ch;
   if(ch!=',')
     {
-      cerr << "Bad format for Participating: ',' not found!\n";
+      std::cerr << "Bad format for Participating: ',' not found!\n";
       exit(1);
     }
   is >> greenK;
   is >> ch;
   if(ch!=')')
     {
-      cerr << "Bad format for Participating: ')' not found!\n";
-      cerr << ch << "found instead\n";
+      std::cerr << "Bad format for Participating: ')' not found!\n";
+      std::cerr << ch << "found instead\n";
       exit(1);
     }
 

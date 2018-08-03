@@ -77,9 +77,9 @@ FunTransform4Dd& FunTransform4Dd::operator=(const FunTransform4Dd& other)
 	    delete data[r][c];
 	  }
 	  data[r][c] = other.data[r][c]->clone();
-	  //	  cerr << "Assigning " << r << ',' << c << ':';
+	  //	  std::cerr << "Assigning " << r << ',' << c << ':';
 	  //	  data[r][c]->out(cerr);
-	  //	  cerr <<std::endl;
+	  //	  std::cerr <<std::endl;
 	}
     destroyOnDeath=true;
   }
@@ -208,7 +208,7 @@ FunTransform4Dd& FunTransform4Dd::operator+=(const FunTransform4Dd& other)
     return *this;
   }
   else
-    cerr << "Matrix addition error: different shapes" <<std::endl;
+    std::cerr << "Matrix addition error: different shapes" <<std::endl;
 }
 
 FunTransform4Dd& FunTransform4Dd::operator-=(const FunTransform4Dd& other)
@@ -222,7 +222,7 @@ FunTransform4Dd& FunTransform4Dd::operator-=(const FunTransform4Dd& other)
     return *this;
   }
   else
-    cerr << "Matrix subtraction error: different shapes" <<std::endl;
+    std::cerr << "Matrix subtraction error: different shapes" <<std::endl;
 }
 
 // note: this is matrix multiplication--NOT co-ordinate-wise
@@ -286,7 +286,7 @@ FunTransform4Dd& FunTransform4Dd::operator*=(const FunTransform4Dd& other)
   
   }
   else {
-   cerr << "Matrix product error: different shapes" <<std::endl;
+   std::cerr << "Matrix product error: different shapes" <<std::endl;
    exit(1);
  }
 }
@@ -433,14 +433,14 @@ std::istream& FunTransform4Dd::in(std::istream& is)
     }
 
 #if 0  
-  cerr << "Read fun transform:\n";
+  std::cerr << "Read fun transform:\n";
   for(int i=0; i<4; i++)
     for(int j=0; j<4; j++)
       {
 	data[i][j]->out(cerr);
-	cerr << ' ';
+	std::cerr << ' ';
       }
-  cerr <<std::endl;
+  std::cerr <<std::endl;
 #endif
 
   return is;

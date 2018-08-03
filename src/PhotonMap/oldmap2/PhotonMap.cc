@@ -243,7 +243,7 @@ void PhotonMap::generateList(list<Photon **> * sList, int nRoot, KD_DIM dim) {
 	 }
       break;
     default:
-      cerr << "PhotonMap given wrong dimension variable!\n";
+      std::cerr << "PhotonMap given wrong dimension variable!\n";
       exit(1);
       break;
     }
@@ -361,7 +361,7 @@ std::ostream& PhotonMap::out(std::ostream& o){
       o << " END_PHOTONMAP";
       break;
     default:
-      cerr << "unknown file type\n";
+      std::cerr << "unknown file type\n";
       break;
     }
   return o;
@@ -374,7 +374,7 @@ std::istream& PhotonMap::in(std::istream& is){
   is >> beginString;
   if(beginString!="BEGIN_PHOTONMAP")
     {
-      cerr << "Error reading photon map file.  No \"BEGIN_PHOTONMAP\""
+      std::cerr << "Error reading photon map file.  No \"BEGIN_PHOTONMAP\""
 	   << " string found\n";
     }
   else
@@ -383,10 +383,10 @@ std::istream& PhotonMap::in(std::istream& is){
       switch(readFileType)
 	{
 	case UNCOMPRESSED:
-	  cerr << "File is of antiquated type\n";
+	  std::cerr << "File is of antiquated type\n";
 	  break;
 	case UNCOMPRESSED_V2:
-	  cerr << "Function not yet implemented\n";
+	  std::cerr << "Function not yet implemented\n";
 	  break;
 	}
     }

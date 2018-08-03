@@ -106,7 +106,7 @@ public:
   Point4Dd operator*(const Point4Dd&) const;
 
   // read Transform from stream
-  std::istream& Transform4Dd::in(std::istream& is);
+  std::istream& in(std::istream& is);
 
   // append transform to stream
   std::ostream& out(std::ostream&) const;

@@ -29,5 +29,5 @@ void Light::addPhotonsToMap(int numPhotons,
 			     )
 {
   //this light does not contribute any photons to the overall map;
-  cerr << "No photon contribution from light source at " << this <<std::endl;
+  std::cerr << "No photon contribution from light source at " << this <<std::endl;
 }

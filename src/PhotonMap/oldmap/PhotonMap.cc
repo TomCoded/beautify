@@ -23,7 +23,7 @@ PhotonMap::PhotonMap():
 //not complete; do not use
 PhotonMap::PhotonMap(PhotonMap& other)
 {
-  cerr << "Unusual call to PhotonMap::PhotonMap(&other);\n";
+  std::cerr << "Unusual call to PhotonMap::PhotonMap(&other);\n";
   if(this!=&other)
     {
       nSize=other.nSize;
@@ -341,7 +341,7 @@ void PhotonMap::generateList(list<Photon *> * sList,
 	  sList->insert(itList,kdTree[rootNode]);
 	  break;
 	default:
-	  cerr << "generateList() with invalid dim!\n";
+	  std::cerr << "generateList() with invalid dim!\n";
 	  exit(1);
 	}
     }
@@ -383,7 +383,7 @@ void PhotonMap::splitKDNodes(int splitNode, int dim, int rootNode,
 	dist = kdTree[rootNode]->z - kdTree[splitNode]->z;
 	break;
       default:
-	cerr << "PhotonMap::splitKDNodes called with invalid
+	std::cerr << "PhotonMap::splitKDNodes called with invalid
  splitting dimension.\n";
 	exit(1);
 	}
@@ -1084,7 +1084,7 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &p,Point3Dd &normal)
 		maxDist=distance(*close[n],p);
 	    }
 	  if(maxDist > MAXSEARCHRANGE)
-	    cerr << "maxDist = " << maxDist << ", MSR = " <<
+	    std::cerr << "maxDist = " << maxDist << ", MSR = " <<
 	      MAXSEARCHRANGE <<std::endl;
 	  double con = 1/(PI*maxDist);
 	  Point3Dd powSum(0,0,0);
@@ -1219,13 +1219,13 @@ void PhotonMap::kdNN(int phLoc, Point3Dd &loc,
 	    - kdTree[phLoc]->z;
 	  break;
 	default:
-	  cerr << "Photon " 
+	  std::cerr << "Photon " 
 	       << *kdTree[phLoc]
 	       << " at pos " 
 	       << phLoc
 	       << " not part of kd tree\n";
-	  cerr << "Is of dimension " << kdTree[phLoc]->flag <<std::endl;
-	  cerr << "Pretending of dimension x...\n";
+	  std::cerr << "Is of dimension " << kdTree[phLoc]->flag <<std::endl;
+	  std::cerr << "Pretending of dimension x...\n";
 	  dist = kdTree[2*phLoc+1]->x - kdTree[phLoc]->x;
 	  break;
 	}
@@ -1316,7 +1316,7 @@ std::ostream& PhotonMap::out(std::ostream& o)
       o << " END_PHOTONMAP";
       break;
     default:
-      cerr << "unknown file type\n";
+      std::cerr << "unknown file type\n";
       break;
     }
   return o;
@@ -1329,7 +1329,7 @@ std::istream& PhotonMap::in(std::istream& is)
   is >> beginString;
   if(beginString!="BEGIN_PHOTONMAP")
     {
-      cerr << "Error reading photon map file.  No \"BEGIN_PHOTONMAP\""
+      std::cerr << "Error reading photon map file.  No \"BEGIN_PHOTONMAP\""
 	   << " string found\n";
     }
   else
@@ -1362,13 +1362,13 @@ std::istream& PhotonMap::in(std::istream& is)
 	  is >> beginString;
 	  if(beginString!="END_PHOTONMAP")
 	    {
-	      cerr << "Error reading photon map file.  No \"END_PHOTONMAP\""
+	      std::cerr << "Error reading photon map file.  No \"END_PHOTONMAP\""
 		   << " string found\n";
-	      cerr << beginString << " found instead\n";
+	      std::cerr << beginString << " found instead\n";
 	    }
 	  break;
 	default:
-	  cerr << "Unknown file type\n";
+	  std::cerr << "Unknown file type\n";
 	  break;
 	}
     }

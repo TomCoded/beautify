@@ -174,56 +174,56 @@ std::istream& SquareLight::in(std::istream& is) {
   char c;
   is >> c;
   if (c != '(') {
-    cerr << "Bad format for SquareLight" <<std::endl;
-    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
+    std::cerr << "Bad format for SquareLight" <<std::endl;
+    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> diffuse >> c;
   if (c != ',') {
-    cerr << "Bad format for SquareLight" <<std::endl;
-    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
+    std::cerr << "Bad format for SquareLight" <<std::endl;
+    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> position >> c;
   if (c != ',') {
-    cerr << "Bad format for SquareLight" <<std::endl;
-    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
+    std::cerr << "Bad format for SquareLight" <<std::endl;
+    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> specular >> c;
   if (c != ',') {
-    cerr << "Bad format for SquareLight" <<std::endl;
-    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
+    std::cerr << "Bad format for SquareLight" <<std::endl;
+    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> power >> c;
   if (c != ',') {
-    cerr << "Bad format for SquareLight" <<std::endl;
-    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
+    std::cerr << "Bad format for SquareLight" <<std::endl;
+    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> normal >> c;
   if (c!=',') {
-    cerr << "Bad format for normal; should be Point3Df\n";
-    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
+    std::cerr << "Bad format for normal; should be Point3Df\n";
+    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> dx >> c;
   if (c != ',') {
-    cerr << "Bad format for Squarelight" <<std::endl;
-    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
+    std::cerr << "Bad format for Squarelight" <<std::endl;
+    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> dy >> c;
   if (c != ',') {
-    cerr << "Bad format for Squarelight" <<std::endl;
-    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
+    std::cerr << "Bad format for Squarelight" <<std::endl;
+    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> dz >> c;
   if (c != ')') {
-    cerr << "Bad format for Squarelight" <<std::endl;
-    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
+    std::cerr << "Bad format for Squarelight" <<std::endl;
+    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
 

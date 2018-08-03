@@ -123,32 +123,32 @@ std::istream& Material::in(std::istream &in)
   in >> ch >> ambient;
   if(ch!='(')
     {
-      cerr << "Bad format for Material: '(' not found!\n";
+      std::cerr << "Bad format for Material: '(' not found!\n";
       exit(1);
     }
   in >> ch >> diffuse;
   if(ch!=',')
     {
-      cerr << "Bad format for Material: ',' not found!\n";
+      std::cerr << "Bad format for Material: ',' not found!\n";
       exit(1);
     }
   in >> ch >> specular;
   if(ch!=',')
     {
-      cerr << "Bad format for Material: ',' not found!\n";
+      std::cerr << "Bad format for Material: ',' not found!\n";
       exit(1);
     }
   in >> ch >> specCo;
   if(ch!=',')
     {
-      cerr << "Bad format for Material: ',' not found!\n";
+      std::cerr << "Bad format for Material: ',' not found!\n";
       exit(1);
     }
   in >> ch;
   if(ch!=')')
     {
-      cerr << "Bad format for Material: ')' not found!\n";
-      cerr << ch << "found instead\n";
+      std::cerr << "Bad format for Material: ')' not found!\n";
+      std::cerr << ch << "found instead\n";
       exit(1);
     }
   return in;

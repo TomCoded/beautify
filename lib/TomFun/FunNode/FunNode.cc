@@ -1,5 +1,6 @@
 #include "FunNode.h"
 #include <Funheaders.h>
+#include <stdlib.h>
 
 FunNode::FunNode() {}
 
@@ -77,7 +78,7 @@ FunNode * FunNode::operator /(const double scalar)
 
 FunNode * FunNode::in(std::istream& is)
 {
-  string s;
+  std::string s;
   is >> s;
   return parseString(s);
 };
@@ -100,7 +101,7 @@ std::ostream& operator<<(std::ostream& o,  FunNode& f)
   return f.out(o);
 }
 
-FunNode * FunNode::parseString(string szFunction)
+FunNode * FunNode::parseString(std::string szFunction)
 { //doesn't support - at beginning of string
   int nLen = szFunction.length();
   int nPlace=0;
@@ -222,7 +223,7 @@ FunNode * FunNode::parseString(string szFunction)
 	{ //sin function
 	  if(szFunction[nPlace+3]!='(')
 	    {
-	      cerr << "sin function must be written sin(...)\n";
+	      std::cerr << "sin function must be written sin(...)\n";
 	      exit(1);
 	    }
 	  rightNode =
@@ -233,7 +234,7 @@ FunNode * FunNode::parseString(string szFunction)
 	{ //cos function
 	  if(szFunction[nPlace+3]!='(')
 	    {
-	      cerr << "cos function must be written cos(...)\n";
+	      std::cerr << "cos function must be written cos(...)\n";
 	      exit(1);
 	    }
 	  rightNode =

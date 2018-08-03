@@ -16,6 +16,7 @@ class DivFunNode : public FunNode
   ~DivFunNode();
 
   double eval(double t);
+  double eval(int date, Stock *s);
 
   std::ostream& out(std::ostream&);
 

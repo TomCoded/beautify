@@ -260,7 +260,7 @@ void Scene::generateFiles(const char * filename,
 #ifdef PARALLEL	  
 	  if (!rank)	
 #endif
-	    cerr << "Photon Map of " << g_map->getSize() 
+	    std::cerr << "Photon Map of " << g_map->getSize() 
 		 << " photons Too Small to Render frame" << nFrame 
 		 << "; ";
 	  map_too_small=true;
@@ -1327,7 +1327,7 @@ void Scene::drawParallel() {
   } 
   if(!rank) {
     std::cout <<std::endl;
-    cerr << "Volumetric Photon Map is size " << myRenderer->getVolMap()->getSize() <<std::endl;
+    std::cerr << "Volumetric Photon Map is size " << myRenderer->getVolMap()->getSize() <<std::endl;
 
   }
   // Don't think we need this...

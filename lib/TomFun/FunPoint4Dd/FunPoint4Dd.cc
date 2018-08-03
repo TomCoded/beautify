@@ -57,9 +57,9 @@ FunPoint4Dd& FunPoint4Dd::operator=(const FunPoint4Dd& other)
 	  delete data[c];
 	}
 	data[c] = other.data[c]->clone();
-	//	  cerr << "Assigning " << r << ',' << c << ':';
+	//	  std::cerr << "Assigning " << r << ',' << c << ':';
 	//	  data[r][c]->out(cerr);
-	//	  cerr <<std::endl;
+	//	  std::cerr <<std::endl;
       }
     destroyOnDeath=true;
   }

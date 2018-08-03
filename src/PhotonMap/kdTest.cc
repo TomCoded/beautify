@@ -156,7 +156,7 @@ PhotonMap * loadMap()
   ifstream inFile(fileName.c_str());
   if(!inFile)
     {
-      cerr << "Could not open file to load.\n";
+      std::cerr << "Could not open file to load.\n";
       exit(1);
     }
   else
@@ -177,7 +177,7 @@ void saveMap(PhotonMap * pmap)
   ofstream outFile(fileName.c_str());
   if(!outFile)
     {
-      cerr << "Could not open file to save.\n";
+      std::cerr << "Could not open file to save.\n";
     }
   else
     {
