@@ -4,8 +4,11 @@
 //Holds interface for all function classes
 
 #include <FunDefs.h>
-#include <iostream.h>
+#include <iostream>
 #include <string>
+class Stock;
+
+using namespace std;
 
 class FunNode
 {
@@ -32,6 +35,7 @@ class FunNode
   FunNode * operator /(const double scalar);
 
   virtual double eval(double t)=0;
+  virtual double eval(int date, Stock *stock)=0;
   
   FunNode * in(istream& is);
   virtual ostream& out(ostream&);

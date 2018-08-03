@@ -73,7 +73,7 @@ DirLight& DirLight::operator=(const DirLight& other) {
 DirLight::~DirLight() {}
 
 //get Ray To light source from a given point
-Ray DirLight::getRayTo(Point3Dd& dest)
+Ray DirLight::getRayTo(const Point3Dd& dest) const
 {
   return Ray(dest, direction);
 }
@@ -84,14 +84,11 @@ void DirLight::addPhotonsToMap(int numPhotons,
 		     )
 {
   double x, y, z;
-  cout << "Power = " 
-       << power.x << ','
-       << power.y << ','
-       << power.z << ','
-       << endl;
-  float xPow = ( power.x / numPhotons );
-  float yPow = ( power.y / numPhotons );
-  float zPow = ( power.z / numPhotons );
+
+  double denom = diffuse.x+diffuse.y+diffuse.z;
+  float xPow = (power * (diffuse.x / denom)) / numPhotons;
+  float yPow = (power * (diffuse.y / denom)) / numPhotons;
+  float zPow = (power * (diffuse.z / denom)) / numPhotons;
   cout << "power/photon = " 
        << xPow << ','
        << yPow << ','
@@ -188,7 +185,7 @@ istream& DirLight::in(istream& is) {
   if(dx) mult=dx;
   if(dy) mult=mult*dy;
   if(dz) mult=mult*dz;
-  power = diffuse*mult;
+  power = diffuse.norm()*mult;
   return is;
 }
 

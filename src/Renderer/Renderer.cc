@@ -5,10 +5,27 @@
 #include <allIncludes.h>
 #include <PhotonMap/PhotonMap.h>
 
+//generate a bunch of stats
 //#define DEBUG_BUILD
+
+//only display direct interactions w/ volume photon map
+//#define VOLMAP_ONLY
+
+//disable specular lighting
+//#define NOSPECULAR
+
+//disable multiple scattering effect in participating media
+//#define SINGLESCATTER
 
 extern int antialias;
 extern int g_specModel;
+
+//default photon power
+Point3Dd g_photonPower;
+//no photons below this power used
+Point3Dd g_photonPowerLow;
+
+#define USEFUL(p) ((p.r>g_photonPowerLow.x)||(p.g>g_photonPowerLow.y)||(p.b>g_photonPowerLow.z))
 
 //default constructor
 Renderer::Renderer():
@@ -27,7 +44,7 @@ Renderer::Renderer(Renderer& other)
   pMap = other.pMap;
   seed=other.seed;
   pVolMap=other.pVolMap;
-}
+} 
 
 Renderer::Renderer(Scene * myScene):
   ambient(0.5,0.5,0.5), currentCamera(0), pMap(0),
@@ -51,8 +68,8 @@ void Renderer::setSeed(int s)
 //destructor
 Renderer::~Renderer()
 {
-  if(pMap) delete pMap;
-  if(pVolMap) delete pVolMap;
+  delete pMap;
+  delete pVolMap;
 }
 
 //Management functions
@@ -73,6 +90,7 @@ PhotonMap * Renderer::getVolMap()
 PhotonMap * Renderer::map(int nPhotons)
 {
 
+  static int light_pow_set=0;
 #ifdef PARALLEL
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
@@ -86,22 +104,17 @@ PhotonMap * Renderer::map(int nPhotons)
   pVolMap = new PhotonMap();
   pMap = new PhotonMap();
   
-
-  //cout << "Initializing Photon Maps...\n";
-  //  pVolMap->initialize(nPhotons);
-  //  pMap->initialize(MAPMULT*nPhotons);
   vector<Light *> * lights = myScene->getLights();
   vector<Light *>::iterator itLights = lights->begin();
   int nLights = lights->size();
   int nPhotonsForThisLight=0;
-  Point3Dd totalPower(0,0,0);
+  double totalPower=0.0;
+  double lightPower=0.0;
   for(;itLights!=lights->end(); itLights++)
     { //determine total power of lights in the scene
       totalPower+=(*itLights)->getPower();
     }
 
-  double dAvgTotalPower = (totalPower.x+totalPower.y+totalPower.z)/3;
-  double dAvgPower=0;
   //seed with non-random value to prevent massive variation in
   //re-rendering of same image over time.
   for(itLights=lights->begin();
@@ -109,7 +122,6 @@ PhotonMap * Renderer::map(int nPhotons)
       itLights++)
     { //for each light in the scene
       //calculate the number of photons needed
-      //don't need totalPower anymore
       srand48(seed);
 
 #ifdef DEBUG_BUILD
@@ -118,37 +130,46 @@ PhotonMap * Renderer::map(int nPhotons)
 #endif
       //      cout << "seed is " << seed << endl;
 #endif
-      totalPower=((*itLights)->getPower());
-      dAvgPower=(totalPower.x+totalPower.y+totalPower.z)/3;
-      nPhotonsForThisLight=nPhotons*(dAvgPower/dAvgTotalPower);
+      lightPower=((*itLights)->getPower());
+      nPhotonsForThisLight=(int)(nPhotons*(lightPower/totalPower));
 #ifdef PARALLEL
       if(g_parallel) {
+
 	int nodes;
 	MPI_Comm_size(MPI_COMM_WORLD, &nodes);
-	Point3Dd pow = (*itLights)->getPower();
-	pow.x /= nodes;
-	pow.y /= nodes;
-	pow.z /= nodes;
-	(*itLights)->setPower(pow);
+
+	if(!light_pow_set) {
+	  
+	  //We want each light to emit photons of power
+	  // (lightpower / numTotalPhotons)
+	  // so each process, since it only emits
+	  // (numTotalPhotons / nodes) photons,
+	  // Should actually use
+	  // (lightpower / nodes) / numTotalPhotons
+	  double pow = (*itLights)->getPower();
+	  pow /= nodes;
+	  (*itLights)->setPower(pow);
+
+	}
+	
+	nPhotonsForThisLight /= nodes;
       }
 #endif
-
       (*itLights)->addPhotonsToMap(nPhotonsForThisLight,
 				   pMap,
 				   this
 				   );
-#ifdef PARALLEL
-      if(g_parallel) {
-	int nodes;
-	MPI_Comm_size(MPI_COMM_WORLD, &nodes);
-	Point3Dd pow = (*itLights)->getPower();
-	pow.x *= nodes;
-	pow.y *= nodes;
-	pow.z *= nodes;
-	(*itLights)->setPower(pow);
-      }
-#endif
     }
+  
+  light_pow_set=1;
+  g_photonPowerLow = g_photonPower;
+  g_photonPowerLow.x /= 4.0;
+  g_photonPowerLow.y /= 4.0;
+  g_photonPowerLow.z /= 4.0;
+
+#ifdef PARALLEL
+  MPI_Barrier(MPI_COMM_WORLD);
+#endif
 
   return pMap;
 }
@@ -174,8 +195,12 @@ Point3Dd Renderer::getColor(
   Surface * closestSurface = 0;
   Surface * farthestSurface = 0;
   double tClose = 100000000; double tLast = tClose; double tFar=0;
+
+  cout << "Renderer::getColor()" << endl;
+
   if(recursionDepth>1) return Point3Dd(0,0,0);
   else recursionDepth++;
+
   for(itSurf = surfaces->begin(); itSurf != surfaces->end(); itSurf++)
     { //iterate through itSurf, to find the closest intersected
       //      surface.
@@ -228,7 +253,9 @@ Point3Dd Renderer::getColor(
 	Ray normal = //get normal in local coordinate system
 	  closestSurface->surShape->getNormal(localSampleRay);
 	//only use transLocalToWorldNormal for directional changes, when
-	  
+
+	cout << "huh1\n";
+
 	//and if they are necessary.
 	//normal source has to be translated differently
 	Point4Dd tempPoint(normal.src);
@@ -242,6 +269,8 @@ Point3Dd Renderer::getColor(
 	//the surface uses a reflective shader that needs to
 	//know the other surfaces to test the ray
 	//against
+	cout << "huh2\n";
+
 	itIntSurf=intersectedSurfaces.begin();
 	otherSurfaces = vector<Surface *>();
 	for(++itIntSurf;
@@ -255,6 +284,12 @@ Point3Dd Renderer::getColor(
 		Ray(*sampleRay),
 		tClose
 		);
+
+	//FIXME: Multiple Shaders not supported at this time
+	//this code is deprecated
+	cerr << "Assertion failed in Renderer.cc:267" << endl;
+	exit(1);
+	
 	color=
 	  (closestSurface->surShader->getColor(hit));
       } else {
@@ -409,12 +444,18 @@ vector<Light *> * Renderer::getVisibleLights(Point3Dd point)
  */
 //for when photons should not be added to the global photon map
 #define NULL_PHOTON p.r = p.g = p.b = 0
-Photon& Renderer::tracePhoton(Photon &p)
+Photon& Renderer::tracePhoton(Photon &p, int recurse=0)
 {
 #ifdef DEBUG_BUILD
   static int total=0; static int intersected=0;
   total++;
 #endif
+  //If we're beyond maxdepth, back out
+  if(recurse > maxdepth) {
+    NULL_PHOTON;
+    return p;
+  }
+
   //First scan through all surfaces for the closest one.
   double tClose, tCurrent;
   tClose = 1000000;
@@ -479,6 +520,16 @@ Photon& Renderer::tracePhoton(Photon &p)
 						    p.dy,
 						    p.dz
 						    );
+#ifdef DEBUG_BUILD
+      cout << "Normal from surface " << closestSurface << 
+	" is " << nPoint 
+	   << " for photon at "
+	   << p.x << ',' << p.y << ',' << p.z 
+	   << " w/ incident dir " 
+	   << p.dx << ',' << p.dy << ',' << p.dz
+	   << endl;
+#endif
+
       //nDoRoulette runs Russian roulette on the photon.
       //If it is reflected, it adjusts the power of the photon in 
       //each color band to account for the probability
@@ -488,30 +539,37 @@ Photon& Renderer::tracePhoton(Photon &p)
 	  switch(closestSurface->nDoRoulette(p))
 	    {
 	    case DIFFUSE_REFLECTION:
-	      Photon p2 = p;
-	      if((p2.r > 0.0)
-		 ||(p2.g>0.0)
-		 ||(p2.b>0.0)
+	      
+	      if((p.r > 0.0)
+		 ||(p.g>0.0)
+		 ||(p.b>0.0)
 		 )
 		{
-		  p2.x=iPoint.x;
-		  p2.y=iPoint.y;
-		  p2.z=iPoint.z;
-		  //just using lambertian model for now.
-		  //		  cout << "pre -BRDF p2 is " << p2 << endl;
-		  //		  closestSurface->DoBRDF(p2);
-		  //		  cout << "post-BRDF p2 is " << p2 << endl;
-		  p=p2;
-		  pMap->addPhoton(p2);
+		    
+		    Photon p2 = p;
+		    
+		    p2.x=iPoint.x;
+		    p2.y=iPoint.y;
+		    p2.z=iPoint.z;
+		    //just using lambertian model for now.
+		    //		  cout << "pre -BRDF p2 is " << p2 << endl;
+		    //		  closestSurface->DoBRDF(p2);
+		    //		  cout << "post-BRDF p2 is " << p2 << endl;
+		    p=p2;
+		    pMap->addPhoton(p2);
+
+		  
+		  resetIncidentDir(p,nPoint);
+
+		  
+		  return tracePhoton(p,++recurse);
 		}
-	      resetIncidentDir(p,nPoint);
-	      //want to adjust each color channel to take into account
-	      //the probability of the photon surviving.
+
 	      //first, de-allocate sample ray.
 	      delete sampleRay;
-	      return tracePhoton(p);
 	      break;
-	    case SPECULAR_REFLECTION:
+
+	case SPECULAR_REFLECTION:
 	      NULL_PHOTON;
 	      delete sampleRay;
 	      return p;
@@ -529,41 +587,14 @@ Photon& Renderer::tracePhoton(Photon &p)
       else
 	{ //volume participates; behave a little differently.
 	  //first, set hitpoint to be just *inside* the medium
+
 	  Point4Dd ip4 = sampleRay->GetPointAt(tClose+BUMPDISTANCE);
 	  p.x = ip4.x;
 	  p.y = ip4.y;
 	  p.z = ip4.z;
-#if 0
-	  cout << "Outer: ";
-	  cout << "Photon: " << p << ':';
-#endif
-	  switch(closestSurface->nDoPartRoulette(p))
-	    {
-	    case SPECULAR_REFLECTION:
-	    case DIFFUSE_REFLECTION:
-	      cerr << "Called non-volumetric nRoulette() on ";
-	      cerr << closestSurface << endl;
-	      exit(1);
-	    case SCATTER:
-	      //photon is scattered here; store it in the volume
-	      //photon map
-	      closestSurface->DoVolBRDF(p);
-	      pVolMap->addPhoton(p);
-	      break;
-	    case ABSORPTION:
-	      NULL_PHOTON;
-	      return p;
-	      break;
-	    case STEP:
-	      //photon not scattered here; march on.
-	      participantMarch(p,closestSurface);
-	      NULL_PHOTON;
-	      return p;
-	      break;
-	    default:
-	      cerr << "Error: unknown volumetric Russian Roulette result in Renderer.cc\n";
-	      exit(1);
-	    }
+
+	  //send photon inside medium
+	  participantMarch(p,closestSurface);
 	}
     }
   delete sampleRay;
@@ -573,67 +604,111 @@ Photon& Renderer::tracePhoton(Photon &p)
 #undef NULL_PHOTON
 
 void Renderer::participantMarch(Photon &p, 
-				Surface * medium
+				Surface * medium,
+				int single_scatter=0
 				)
 {
   //march participant through medium until reach boundary or scatter
   Point3Dd location(p.x, p.y, p.z);
   bool done=false;
-  //do uniform downscale of photon incident direction to make this ok
-  //  for non massive objects.
-  //  cout << "---\n";
-  p.dx = p.dx / 10.0;
-  p.dy = p.dy / 10.0;
-  p.dz = p.dz / 10.0;
-#if 1
-  static Point3Dd step(0.0,0.0,0.0);
-  static int count=0;
-  count++;
-  step.x += p.dx;
-  step.y += p.dy;
-  step.z += p.dz;
-  if(!(count%10000)) {
-    cout << "Average step size: " << step.norm()/(double)count << endl;
-  }
-#endif
-  while(!done)
+  double stepSize=0.0;
+  double randVal;
+  Point3Dd step(0.0,0.0,0.0);
+
+  //cache of the extinction coefficients of medium in current location
+  Point3Dd extinctCache;
+  //used to hold location where we're gathering extinction coefficient data
+  Point3Dd extinctLocCheck;
+  Point3Dd tempLoc;
+  double meanExtinct;
+  double divisor=1;
+
+  step.x = p.dx;
+  step.y = p.dy;
+  step.z = p.dz;
+
+  int cycle=0;
+
+  while((!done)&&USEFUL(p))
     {
-      //      cout << "Stepping " << p.dx << ',' << p.dy << ',' <<
-      //      p.dz << endl;
-      //      cout << "Now at " << p.x << ',' << p.y << ',' << p.z << endl;
-      location.x+=p.dx;
-      location.y+=p.dy;
-      location.z+=p.dz;
+      // determine step size
+      //FIXME: Is drand48() uniformly distributed?
+
+      //use ray marching heuristic to guesstimate mean extinction
+      //coefficient over non-homogenous media
+
+      //get first estimate
+      randVal = drand48();
+      static_cast<Participating*>(medium->surMat)->copyExtinctCo(extinctCache,p.x,p.y,p.z);
+      meanExtinct = extinctCache.x*extinctCache.y*extinctCache.z / 3;
+      stepSize = - ( log(randVal) ) / meanExtinct;
+      divisor=1;
+
+      //sample extinction coefficient halfway to other end
+      step.normalize();
+      step*=stepSize*0.5;
+      tempLoc = location+step;
+
+      if(medium->contains(tempLoc)) {
+	static_cast<Participating*>(medium->surMat)->copyExtinctCo(extinctLocCheck,tempLoc);
+	extinctCache+=extinctLocCheck;
+        ++divisor;
+      }
+      
+      //sample at other end
+      step.norm();
+      step*=stepSize;
+      tempLoc = location+step;
+      if(medium->contains(tempLoc)) {
+	static_cast<Participating*>(medium->surMat)->copyExtinctCo(extinctLocCheck,tempLoc);
+	extinctCache+=extinctLocCheck;
+	++divisor;
+      }
+
+      //take mean of our three sample points; rough approximation
+      extinctCache.x = extinctCache.x / divisor;
+      extinctCache.y = extinctCache.y / divisor;
+      extinctCache.z = extinctCache.z / divisor;
+      meanExtinct = (extinctCache.x+extinctCache.y+extinctCache.z)/3;
+
+      //using mean scatterring coefficient, reevaluate.
+      stepSize - ( log ( randVal) ) / (meanExtinct);
+
+      //LEGACY: homogenous media
+      //      stepSize = - ( log(drand48()) / ((static_cast<Participating *>(medium->surMat))->meanExtinct) );
+      step.norm();
+      step*=stepSize;
+
+      location.x+=step.x;
+      location.y+=step.y;
+      location.z+=step.z;
       p.x = location.x;
       p.y = location.y;
       p.z = location.z;
       if(!medium->contains(location)) done=true;
       else
 	{ //still in medium check for scattering event
-#if 0
-	  cout << "Inner: ";
-	  cout << "Photon: " << p << ':';
-#endif
 	  switch(medium->nDoPartRoulette(p))
 	    {
 	    case SCATTER:
 	      //photon is scattered here; store it in the volume
-	      //photon map.  It does not leave the medium.
-	      medium->DoVolBRDF(p);
-	      if(p.r||p.g||p.b)
+	      //photon map.
+	      if(!single_scatter) {
 		pVolMap->addPhoton(p);
-	      done=true;
-	      p.r=p.g=p.b=0.0;
+		++single_scatter;
+	      }
+	      //	      cerr << "P " << p;
+	      medium->DoVolBRDF(p);
+	      //	      cerr << " ==> " << p << endl;
+
 	      break;
 	    case ABSORPTION:
-	      p.r=0;
-	      p.g=0;
-	      p.b=0;
+	      if(!single_scatter) {
+		pVolMap->addPhoton(p);
+	      }
+
 	      done=true;
-	      break;
-	    case STEP:
-	      //photon not scattered here; march on.
-	      medium->DoVolBRDF(p);
+	      return;
 	      break;
 	    default:
 	      cerr << "Error: unknown volumetric Russian Roulette result in Renderer.cc\n";
@@ -641,10 +716,28 @@ void Renderer::participantMarch(Photon &p,
 	    }
 	}
     }
-  //we've passed through the medium.  Now trace the photon in the
-  //				regular way.
-  if(p.r||p.g||p.b)
+
+  if(USEFUL(p)) {
+  //If the photon was emitted from the medium, we should reset
+  // its outgoing position to be just outside the medium before
+  // continuing to trace it.
+    Ray sampleRay(p.x-step.x,p.y-step.y,p.z-step.z,
+		  step.x,step.y,step.z);
+
+    sampleRay.dir.normalize();
+    
+    double tVal = medium->closestIntersect(sampleRay);
+    
+    Point4Dd leaving = sampleRay.GetPointAt(tVal+BUMPDISTANCE);
+    
+    leaving.dehomogenize();
+    
+    p.x = leaving.x; p.y=leaving.y; p.z=leaving.z;
+    
+    //we've passed through the medium.  Now trace the photon in the
+    //				regular way.
     tracePhoton(p);
+  }
 }
 
 //resets the incident direction of a photon after collision with a
@@ -692,7 +785,8 @@ void Renderer::showMap(PhotonMap * map, int start, int pixels)
   int width = myScene->getWindowWidth();
   int height = myScene->getWindowHeight();
   int totalRays = width * height;
-  int lastRay=0;
+  int lastRay=0; int mapSearchable = map->isSearchable();
+
   currentCamera=myScene->getCamera();
   if(!currentCamera) 
     {
@@ -705,13 +799,21 @@ void Renderer::showMap(PhotonMap * map, int start, int pixels)
   //  int j = start % width;
   //  for(int i= start / width; i<top; i++)
   //    for(int j= start % width; j<right; j++)
+
       for(int place=start; place<start+pixels;place++)
       {
 	i = place / width;
 	j = place % width;
+
 	Ray sampleRay = currentCamera->getRay(i,j);
- 	Point3Dd color=mapGetColor(&sampleRay,map);
+	Point3Dd color(0,0,0);
+
+	if(mapSearchable)
+	  color=mapGetColor(&sampleRay,map);
+
+#ifndef NOSPECULAR
 	color+=getSpecularColor(&sampleRay);
+#endif
 	myScene->putPixel(j,
 			  i,
 			  color
@@ -741,7 +843,12 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
       //determine the t-Value of the closest intersect
       tCurrent = (*itSurfaces)->closestIntersect
 	(*sampleRay);
-      if((tCurrent!=-1)&&(tCurrent < tClose))
+      
+      if(
+	 (tCurrent!=-1)
+	 &&(tCurrent < tClose)
+	 &&(currentCamera->InViewVol(sampleRay->GetPointAt(tCurrent)))
+	 )
 	{
 	  tClose=tCurrent;
 	  closestSurface = *itSurfaces;
@@ -756,7 +863,7 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
 	 << total << endl;
 #endif;
   
-  if(closestSurface)
+  if(closestSurface&&(!closestSurface->participates()))
     {
 #ifdef DEBUG_BUILD
       intersected++;
@@ -774,6 +881,7 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
 	{ //for each light in the scene
 	  //get the ray back to the light
 	  //iterate through surfaces to see if it's blocked.
+	  double distToLight = (*itLights)->getDistance(hitPoint);
 	  Ray LightRay = (*itLights)->getRayTo(hitPoint);
 	  LightRay.dir.normalize();
 	  Ray toLight = Ray(hp4.x,
@@ -783,20 +891,26 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
 			    -LightRay.dir.y,
 			    -LightRay.dir.z
 			    );
+	  //FIXME: Is this used?
 	  double tDist;
 	  shadowed=false;
 	  for(itSurfaces=myScene->getSurfaces()->begin();
 	      itSurfaces!=myScene->getSurfaces()->end();
 	      itSurfaces++)
 	    {
-	      if((*itSurfaces)->closestIntersect(toLight)!=-1)
+	      if((tDist = (*itSurfaces)->closestIntersect(toLight))!=-1)
 		{
-		  if((*itSurfaces)!=closestSurface)
+		  //If the distance from the light to the current
+		  //surface is less than the distance from the light
+		  //to the surface we're seeing if is shadowed, the
+		  //surface is shadowed relative to that light.
+		  if( (toLight.GetPointAt(tDist)-toLight.src).norm() < distToLight )
 		    {
 		      shadowed=true;
 		    }
 		}
 	    }
+
 	  if(!shadowed)
 	    {
 	      Point3Dd lightDir(LightRay.dir.x,
@@ -814,18 +928,19 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
 		{
 		  Ray h(hp4,((LightRay.dir*-1)+(sampleRay->dir*-1)));
 		  Point3Dd hd(h.dir.x,h.dir.y,h.dir.z);
-		  /*
+
+#ifdef DEBUG_BUILD
 		  cout << "Light  = " << LightRay.dir*-1 << endl;
 		  cout << "v      = " << sampleRay->dir*-1 << endl;
 		  cout << "normal = " << normal << endl;
 		  cout << "halfway= " << hd << endl;
 		  cout << "hd.nrml= " << hd.dot(normal);
-		  cout << "cosf   = " << endl;
+		  cout << "cosf   = " ;
+		  cout << cosf << endl;
 		  cout << "---------\n";
-		  if(cosf > 0.3) cout << "cosf = " << cosf << endl;
-		  */
-		  //		  hd.dot(normal)/(hd.norm()*normal.norm()) << endl;
+#endif
 		  cosf=hd.dot(normal)/(hd.norm()*normal.norm());
+
 		}
 	      if(cosf>0)
 		{
@@ -864,12 +979,10 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
   return specPower;
 }
 
-//note: deletes the ray that it is passed
 Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
 {
   //If the photon map is too small, there is no illumination from it
   if(map->getSize() < MIN_MAP_SIZE) {
-    delete sampleRay;
     return Point3Dd(0.0,0.0,0.0);
   }
 
@@ -892,7 +1005,22 @@ Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
       //determine the t-Value of the closest intersect
       tCurrent = (*itSurfaces)->closestIntersect
 	(*sampleRay);
-      if((tCurrent!=-1)&&(tCurrent < tClose))
+
+#ifdef DEBUG_BUILD
+      if(!(total % 5000)) {
+	cout << " Surface " << *itSurfaces 
+	     << "tCurrent = " << tCurrent
+	     << "; tClose = " << tClose
+	     << "; InViewVol = " << currentCamera->InViewVol(sampleRay->GetPointAt(tCurrent))
+	     << endl;
+      }
+#endif      
+      
+      if(
+	 (tCurrent!=-1)
+	 &&(tCurrent < tClose)
+	 //	 &&(currentCamera->InViewVol(sampleRay->GetPointAt(tCurrent)))
+	 )
 	{
 	  tClose=tCurrent;
 	  closestSurface = *itSurfaces;
@@ -914,29 +1042,215 @@ Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
       intersected++;
 #endif
 
-  //we need to ask the photon map for luminance information
+      //we need to ask the photon map for luminance information
       //move hitpoint out a little
       Point4Dd hp4 = sampleRay->GetPointAt(tClose-BUMPDISTANCE); 
       Point3Dd hitPoint(hp4.x,hp4.y,hp4.z);
       Point3Dd normal = closestSurface->getNormalAt(*sampleRay);
       Point3Dd flux;
 
+#ifndef VOLMAP_ONLY	
       if(!closestSurface->participates())
 	flux = map->getFluxAt(hitPoint,normal);
       else 
-	{
-	  hp4 = sampleRay->GetPointAt(tClose+BUMPDISTANCE);
-	  hitPoint.x = hp4.x;
-	  hitPoint.y = hp4.y;
-	  hitPoint.z = hp4.z;
-	  flux = pVolMap->getLuminanceAt(hitPoint);
-	}
+#else
+	if(closestSurface->participates())
+#endif
+	  //The ray from the eye enters a participating media.
+	  //We want to compute the contribution to the radiance from
+	  //direct illumination (single scattering) by ray-marching
+	  //through the medium, at each point ray-marching back toward
+	  //each light source in the scene.
+	  // After, do multiple scattering with the photon map.  Not
+	  //yet implemented
+	
+	  { 
+	    hp4 = sampleRay->GetPointAt(tClose+BUMPDISTANCE);
+	    hitPoint.x = hp4.x;
+	    hitPoint.y = hp4.y;
+	    hitPoint.z = hp4.z;
+	    //FIXME: march depth?
+	    //FIXME: multiple scattering
+	    Point3Dd dir = Point3Dd(sampleRay->dir.x,sampleRay->dir.y,sampleRay->dir.z);
+	    
+	    flux=getIlluminationInMedium(hitPoint,dir,closestSurface,50);
+	    //	    flux = pVolMap->getLuminanceAt(hitPoint);
+	  }
       return flux;
     }
   return Point3Dd(0.0,0.0,0.0);
 }
 
+Point3Dd Renderer::getIlluminationInMedium(const Point3Dd &point, 
+					   const Point3Dd &dir, 
+					   const Surface * surface,
+					   const int marchsize) const {
+  //calculate distance for which ray is in medium
+  Ray sampleRay(point,dir);
+  
+  double tVal = surface->closestIntersect(sampleRay);
 
+  //find the participating medium
+  Participating * medium = (Participating *)surface->surMat;
+
+  //split into marchsize segments
+  double increment = tVal / (marchsize);
+  //value of last staggerred (to prevent aliasing) sample point
+  double lastRealVal = 0.0;
+  //value of last unstaggerred sample point
+  double lastVal = 0.0;
+  //tVal of current point
+  double curVal = 0.0;
+  //real distance in 3-space world coords from last sample point
+  double realDist = 0.0;
+
+  //extinction coefficient cache
+  Point3Dd extinctCo;
+
+  //scattering coefficient cache
+  Point3Dd scatCo;
+
+  //multiplier; e^(-extinctCo*change in position), or 1 to start
+  Point3Dd multiplier(1.0,1.0,1.0);
+
+  //Total Scattering
+  Point3Dd totalScat = Point3Dd(0.0,0.0,0.0);
+  Point3Dd scat;
+
+  for(int i=0; i<marchsize; i++) {
+    //pick a random location on the next segment; this reduces
+    //aliasing effects
+    curVal=lastVal+(increment*drand48());
+    realDist = (curVal - lastRealVal) * dir.norm();
+
+    //we only need to use 1, while we are using homogenous media
+    //FIXME
+
+    //getIlluminationAtPointInMedium returns sum of all direct incident light adjusted by phase
+    //function and for attenuation
+
+    //get scattering coefficient at current location
+    medium->copyScatCo(scatCo,point);
+
+    //multiplier, if left over as non-1 from previous loops, accounts
+    //for the sum of direct illumination that enters this segment
+    //through its back
+    scat = 
+      ((
+	//component from single scattering - direct computation via
+	//ray marching
+	getIlluminationAtPointInMedium(point, dir, surface, 1) * scatCo 
+	        +
+       //component from multiple scattering - from volume photon map
+	pVolMap->getLuminanceAt(point,dir,medium)
+	) * (realDist)
+       )
+      *
+      multiplier;
+
+    totalScat+=scat;
+    
+    //prepare for next loop
+    medium->copyExtinctCo(extinctCo,point);
+
+     //update multiplier
+     //account for product of all e^(-sig_t*delta(x))
+    multiplier.x *= exp(-extinctCo.x*realDist);
+    multiplier.y *= exp(-extinctCo.y*realDist);
+    multiplier.z *= exp(-extinctCo.z*realDist);
+
+     //next segment
+     lastRealVal = curVal;
+     lastVal+= increment;
+  }
+  
+  cerr << "totalScar " << totalScat << endl;
+  return totalScat;
+}
+
+//marchsize is the number of sample rays to use in integration to each
+//light source in the scene for single scattering
+Point3Dd Renderer::getIlluminationAtPointInMedium(const Point3Dd &point,
+						  const Point3Dd &dir, 
+						  const Surface * surface,
+						  const int marchsize) const {
+
+  //common code
+  vector<Light *> * lights = myScene->getLights();
+  vector<Light *>::iterator itLights;
+
+  //find the participating medium
+  Participating * medium = (Participating*)surface->surMat;
+
+  Ray sampleRay;
+
+  Point3Dd total(0.0,0.0,0.0);
+  //to check boundary conditions
+  Point3Dd temp;
+  Point3Dd extinctCo;
+
+  //single-scattering
+  
+  //The contribution from this point to the larger picture is
+  // The distance moved through the medium, 
+  // times the incident light in that dir from the light source, 
+  // times the phase function, 
+  // times sigma_s, the scatterring coefficient.
+
+  //Integrate contribution from each light source
+  //
+
+  for(itLights=lights->begin();itLights!=lights->end();itLights++) {
+    //get a ray from the point to the light
+    sampleRay = (*itLights)->getRayTo(point);
+    
+    //determine the distance inside the medium
+    double tVal = surface->closestIntersect(sampleRay);
+    
+    //marchsize rays
+    double increment = tVal / (double)marchsize;
+
+    //actual length of rays
+    double length = (sampleRay.dir*increment).norm();
+
+    //extinction coefficient
+    Point3Dd extinct;
+    
+    //homogenous media only
+    //initial light, minus distance through medium, times extinction coefficient
+    //times phase function from incident to current ray dir
+    Point3Dd sourceDir(sampleRay.dir.x,sampleRay.dir.y,sampleRay.dir.z);
+    sourceDir*=-1;
+
+    //    temp=( (*itLights)->diffuse - (extinct * length * marchsize) ) * (medium->phaseFunction(sourceDir,dir));
+
+    //for non-homogenous media
+    //initial light, minus, for each step during ray marching,
+    // dx * extinctCo(location)
+    Point3Dd incomingLight = (*itLights)->diffuse;
+    Point4Dd temp4d;
+
+    for(int step=0; step<marchsize; step++) {
+      temp4d = sampleRay.GetPointAt(tVal+increment*step);
+      temp4d.dehomogenize();
+      medium->copyExtinctCo(extinctCo,temp4d.x,temp4d.y,temp4d.z);
+      incomingLight -= ( extinctCo * length );
+    }
+
+    //Then multiply result by phase function for direction shift
+    //    cerr << "pre-phase: " << incomingLight;
+    temp = incomingLight * medium->phaseFunction(sourceDir,dir);
+    //    cerr << " post-phase: " << temp << endl;
+
+    if(temp.x < 0) temp.x=0;
+    if(temp.y < 0) temp.y=0;
+    if(temp.z < 0) temp.z=0;
+
+    total+=temp;
+  }
+
+  return total;
+}
 
 
 

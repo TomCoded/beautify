@@ -46,6 +46,10 @@ double PowFunNode::eval(double t)
   return pow(leftNode->eval(t),rightNode->eval(t));
 }
 
+double PowFunNode::eval(int day, Stock *s) {
+  return pow(leftNode->eval(day,s),rightNode->eval(day,s));
+}
+
 ostream& PowFunNode::out(ostream& o)
 {
   leftNode->out(o);

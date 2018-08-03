@@ -6,6 +6,7 @@
 #include <string>
 #include "Photon/Photon.h"
 #include "PhotonPriorityQueue/PhotonPriorityQueue.h"
+#include "Material/Participating/Participating.h"
 #include "vector.h"
 #include "list.h"
 
@@ -18,6 +19,12 @@
 //If a photon map is smaller than this size,
 //we consider it to have no valuable lighting info
 #define MIN_MAP_SIZE 10
+
+//If a Photon has negligible power (Less than P_THRESH when summed
+//over all color channels) We will not add it.
+#define P_THRESH 1e-40
+
+extern Point3Dd g_photonPowerLow;
 
 enum PHOTONMAP_STORAGE_TYPE { UNSORTED, KD_TREE };
 enum KD_DIM { X, Y, Z, CHILD, NULL_PHOTON, NOT_SET };
@@ -38,17 +45,27 @@ class PhotonMap {
 
   Point3Dd getFluxAt(Point3Dd &, Point3Dd& normal);
 
-  Point3Dd getLuminanceAt(Point3Dd &);
+  Point3Dd getLuminanceAt(const Point3Dd &loc, 
+			  const Point3Dd& dir, 
+			  Participating *medium);
 
-  int getSize();
+  //returns number of photons in the map
+  int getSize() const;
+  
+  //returns true if the map can be searched for
+  //flux or luminance estimates.
+  bool isSearchable() const;
 
   //set number of neighbors to use for radiance estimates.
-  void setNumNeighbors(int numNeighbors);
+  void setNumNeighbors(const int numNeighbors);
 
   //We will always check photons closer to location
   //than sqrt(minSearchSqr) when generating
   //radiance estimates.
-  void setMinSearch(double minSearchSqr);
+  void setMinSearch(const double minSearchSqr);
+
+  //Any photons further away than this will be discarded
+  void setMaxDist(const double maxDist);
 
   void outputTree(int nRoot);
 
@@ -57,7 +74,10 @@ class PhotonMap {
   void getArrMembers(Photon *mule);
 
 #ifdef PARALLEL
+  //distributes copy of KD-Tree to each child
   void distributeTree();
+  //gathers all unsorted photons from children
+  void gatherPhotons(int maxPhotons);
 #endif
 
   ostream& out(ostream&);
@@ -83,9 +103,9 @@ class PhotonMap {
 
   //luminance/flux helper functions
   //returns squared distance between photon and point
-  double inline distance(Photon *p, Point3Dd& l);
+  double inline distance(const Photon *p, const Point3Dd& l);
   //updates passed in-out queue with nearest neighbors, recursively
-  void findNearestNeighbors(int phLoc, Point3Dd &loc,PhotonPriorityQueue *Q);
+  void findNearestNeighbors(int phLoc, const Point3Dd &loc,PhotonPriorityQueue *Q);
   
   /* kdBalance and helper functions, for building the kdTree */
   int kdBalance(int nRoot);

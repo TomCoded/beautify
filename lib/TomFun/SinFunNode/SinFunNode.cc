@@ -2,6 +2,8 @@
 //SinFunNode.h (C) 2002 Tom White
 //does sin(childNode)
 
+#include <math.h>
+
 SinFunNode::SinFunNode():
   childNode(0)
 {}
@@ -33,6 +35,10 @@ SinFunNode::~SinFunNode()
 double SinFunNode::eval(double t) 
 {
   return sin(childNode->eval(t));
+}
+
+double SinFunNode::eval(int day, Stock *s) {
+  return sin(childNode->eval(day,s));
 }
 
 ostream& SinFunNode::out(ostream& o)

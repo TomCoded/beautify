@@ -42,6 +42,10 @@ double SumFunNode::eval(double t)
   return (leftNode->eval(t)+rightNode->eval(t));
 }
 
+double SumFunNode::eval(int date, Stock*stock) {
+  return (leftNode->eval(date,stock)+rightNode->eval(date,stock));
+}
+
 ostream& SumFunNode::out(ostream& o)
 {
   leftNode->out(o);

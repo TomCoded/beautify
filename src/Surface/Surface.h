@@ -126,6 +126,8 @@ class Surface
   //returns specular coefficient of the surface
   double getSpecCo(int nLightingModel);
 
+  Material * surMat;
+
  protected:
 
   bool timedependent;
@@ -148,8 +150,6 @@ class Surface
   Point3Dd localToWorldNormal(Point3Dd&) const;
   Point4Dd localToWorld(Point4Dd&) const;
   Point4Dd worldToLocal(Point4Dd&) const;
-
-  Material * surMat;
 
   int created; //if Shape* and Shader* were created by this object,
   //and should be destroyed by it when it exits.

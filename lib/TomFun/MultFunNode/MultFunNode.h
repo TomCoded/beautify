@@ -17,6 +17,7 @@ class MultFunNode : public FunNode
   ostream& out(ostream&);
 
   double eval(double t);
+  double eval(int date, Stock *stock);
  protected:
   FunNode * leftNode;
   FunNode * rightNode;

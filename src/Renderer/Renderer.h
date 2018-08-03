@@ -73,7 +73,7 @@ class Renderer
 		    );
 
   //Traces the course of a photon and returns its final location
-  Photon& tracePhoton(Photon &p);
+  Photon& tracePhoton(Photon &p, int recurse=0);
 
   //resets the incident direction of a photon after collision.
   //keeping this in a seperate function let's us preserve ability
@@ -90,22 +90,44 @@ class Renderer
   PhotonMap * pVolMap;
 
   void participantMarch(Photon &p, 
-			Surface * medium
+			Surface * medium,
+			int single_scatter=0
 			);
 
   int seed;
 
-  //public:
+  //returns the specular component of the light
+  //halfway method
   Point3Dd getSpecularColor(Ray * sampleRay);
 
+  //returns diffuse component of light
   Point3Dd mapGetColor(Ray * sampleRay,
 		       PhotonMap * map
 		       );
 
-  //protected:
+  //Returns the first component of the formula to calculate direct
+  //illuination for a point in a participating medium.  This is the
+  //contribution from the light sources directly, attenuated for the
+  //distance in the medium that the light has already travelled.
+  Point3Dd getIlluminationAtPointInMedium(const Point3Dd &point,
+					  const Point3Dd &dir,
+					  const Surface * surface,
+					  const int marchsize) const;
+
+  //Returns the sum of the illuination at a point in a participating
+  //medium due to single scatterring, invoking
+  //getIlluminationAtPointInMedium to determine direct info and
+  //ray-marching out the back of the segment.
+  Point3Dd getIlluminationInMedium(const Point3Dd& point,
+				   const Point3Dd& dir,
+				   const Surface * surface,
+				   const int marchsize) const;
+  
+
+  static const int maxdepth=10;
   int recursionDepth;
   Scene * myScene;
-  //public:
+
   Camera * currentCamera;
 protected:
   vector<Surface *> otherSurfaces;

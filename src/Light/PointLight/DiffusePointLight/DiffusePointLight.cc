@@ -2,7 +2,7 @@
 
 DiffusePointLight::DiffusePointLight()
 {
-  power=Point3Dd(0.5,0.5,0.5);
+  power=1e3;
   location=Point3Dd(0.0,0.0,0.0);
 }
 
@@ -13,6 +13,7 @@ DiffusePointLight::DiffusePointLight(DiffusePointLight &other)
       location=other.location;
       power=other.power;
       specular=other.specular;
+      diffuse=other.diffuse;
     }
 }
 
@@ -26,10 +27,18 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
 {
   //power per photon is power / number photons emitted
   float dx, dy, dz;
-  float xPow = power.x / numPhotons;
-  float yPow = power.y / numPhotons;
-  float zPow = power.z / numPhotons;
+  double denom = diffuse.x+diffuse.y+diffuse.z;
+  float xPow = (power * (diffuse.x / denom)) / numPhotons;
+  float yPow = (power * (diffuse.y / denom)) / numPhotons;
+  float zPow = (power * (diffuse.z / denom)) / numPhotons;
   Photon p;
+  
+  g_photonPower.x = xPow;
+  g_photonPower.y = yPow;
+  g_photonPower.z = zPow;
+
+  int priorPhotons=map->getSize();
+  
   for(int nEmitted=0;
       nEmitted < numPhotons;
       nEmitted++)
@@ -55,6 +64,7 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
       p.dx = dx;
       p.dy = dy;
       p.dz = dz;
+      
       //      cout << "__BEGIN_PHOTON_CHECK__\n";
       p = renderer->tracePhoton(p);
       //      cout << "__END_PHOTON_CHECK__\n";
@@ -63,39 +73,51 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
 	{
 	  //	  cout << "Photon has power.\n";
 	  map->addPhoton(p);
+	  //	  cout << "Added Photon " << p << endl;
 	}
     }
+  
+  cout << "Light " << (int)this << " adds " <<
+    map->getSize() - priorPhotons << " photons to map\n";
+
 }
 
 istream& DiffusePointLight::in(istream& is)
 {
   char c;
-  is >> c >> power;
+  is >> c >> location;
   if(c!='(')
     {
       cerr << "Badformat for DiffusePointLight\n";
-      cerr << "Format: (power,location,specular)\n";
+      cerr << "Format: (location,diffuse,specular,power)\n";
       exit(1);
     }
-  is >> c >> location;
+  is >> c >> diffuse;
   if(c!=',')
     {
       cerr << "Badformat for DiffusePointLight\n";
-      cerr << "Format: (power,location,specular)\n";
+      cerr << "Format: (location,diffuse,specular,power)\n";
       exit(1);
     }
   is >> c >> specular;
   if(c!=',')
     {
       cerr << "Badformat for DiffusePointLight\n";
-      cerr << "Format: (power,location,specular)\n";
+      cerr << "Format: (location,diffuse,specular,power)\n";
+      exit(1);
+    }
+  is >> c >> power;
+  if(c!=',')
+    {
+      cerr << "Badformat for DiffusePointLight\n";
+      cerr << "Format: (location,diffuse,specular,power)\n";
       exit(1);
     }
   is >> c;
   if(c!=')')
     {
       cerr << "Badformat for DiffusePointLight\n";
-      cerr << "Format: (power,location,specular)\n";
+      cerr << "Format: (location,diffuse,specular,power)\n";
       exit(1);
     }
   return is;
@@ -103,9 +125,15 @@ istream& DiffusePointLight::in(istream& is)
 
 ostream& DiffusePointLight::out(ostream& o)
 {
-  o << '(' << power << ','
-    << location << ',' 
-    << specular << ')';
+  o << '(' 
+    << location 
+    << ','
+    << diffuse
+    << ','
+    << specular 
+    << ',' 
+    << power 
+    << ')';
   return o;
 }
 

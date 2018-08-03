@@ -36,6 +36,10 @@ double CosFunNode::eval(double t)
   return cos(childNode->eval(t));
 }
 
+double CosFunNode::eval(int day, Stock *s) {
+  return cos(childNode->eval(day,s));
+}
+
 ostream & CosFunNode::out(ostream& o)
 {
   o << "cos(";

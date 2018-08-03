@@ -17,6 +17,7 @@ SquareLight::SquareLight() :
   //  cout << "Creating Square Light " << this << endl;
   specular = Point3Dd(1.0,1.0,1.0);
   diffuse = Point3Dd(1.0,1.0,1.0);
+  power=1e3;
   specularCo=1;
 }
 
@@ -28,6 +29,7 @@ SquareLight::SquareLight(const Point3Dd& dir, const Point3Dd& diff,
   specular=spec;
   diffuse = Point3Dd(diff),
   direction=direction.normalize();
+  power=1e3;
 }
 
 SquareLight::SquareLight(const Point3Dd& dir,
@@ -43,6 +45,7 @@ SquareLight::SquareLight(const Point3Dd& dir,
   specular=spec;
   diffuse=diff;
   direction=direction.normalize();
+  power=1e3;
 }
 
 SquareLight * SquareLight::transparent(double transparency)
@@ -56,6 +59,7 @@ SquareLight::SquareLight(const SquareLight& other) {
   diffuse = other.diffuse;
   specularCo = other.specularCo;
   direction = other.direction;
+  power = other.power;
 }
 
 SquareLight& SquareLight::operator=(const SquareLight& other) {
@@ -63,6 +67,7 @@ SquareLight& SquareLight::operator=(const SquareLight& other) {
     direction=other.direction;
     diffuse=other.diffuse;
     specular=other.specular;
+    power=other.power;
   }
   return *this;
 }
@@ -70,7 +75,7 @@ SquareLight& SquareLight::operator=(const SquareLight& other) {
 SquareLight::~SquareLight() {}
 
 //get Ray To light source from a given point
-Ray SquareLight::getRayTo(Point3Dd& dest)
+Ray SquareLight::getRayTo(const Point3Dd& dest) const
 {
   return Ray(dest, direction);
 }
@@ -82,20 +87,16 @@ void SquareLight::addPhotonsToMap(int numPhotons,
 {
   //  cout << "Processing Square Light " << this << endl;
   double x, y, z;
-  cout << "Power = " 
-       << power.x << ','
-       << power.y << ','
-       << power.z << ','
-       << endl;
-  float xPow = ( power.x / numPhotons );
-  float yPow = ( power.y / numPhotons );
-  float zPow = ( power.z / numPhotons );
-  cout << "power/photon = " 
-       << xPow << ','
-       << yPow << ','
-       << zPow << ','
-       << endl;
-  
+
+  double denom = diffuse.x+diffuse.y+diffuse.z;
+  float xPow = (power * (diffuse.x / denom)) / numPhotons;
+  float yPow = (power * (diffuse.y / denom)) / numPhotons;
+  float zPow = (power * (diffuse.z / denom)) / numPhotons;
+
+  g_photonPower.x = xPow;
+  g_photonPower.y = yPow;
+  g_photonPower.z = zPow;
+
   Photon p;
   Point3Dd pDir;
   for(int nEmitted=0;
@@ -110,14 +111,15 @@ void SquareLight::addPhotonsToMap(int numPhotons,
       //pick direction
       do
 	{
-	  pDir.x = (drand48())*normal.x;
-	  pDir.y = (drand48())*normal.y;
-	  pDir.z = (drand48())*normal.z;
+	  pDir.x = (drand48() - 0.5)*2;
+	  pDir.y = (drand48() - 0.5)*2;
+	  pDir.z = (drand48() - 0.5)*2;
 	}
-      while( 
+      while( ( pDir.dot(normal) < 0) ||
 	    (drand48() - (pDir.dot(normal) / pDir.norm() * pDir.norm()))
 	     < 0
 	     );
+
       //set photon power
       p.r = xPow;
       p.g = yPow;
@@ -130,23 +132,38 @@ void SquareLight::addPhotonsToMap(int numPhotons,
       p.x = position.x+x;
       p.y = position.y+y;
       p.z = position.z+z;
+
+      static int counter=0;
+      if(!counter++%50)
+	cout << p << endl;
+
       //trace photon
       p = renderer->tracePhoton(p);
-      if(!((p.r==p.g)&&(p.g==p.b)&&(p.g==0)))
+      if(!((p.r==p.g)&&(p.g==p.b)&&(p.g==0))) {
 	map->addPhoton(p);
+      }
     }
 }
 
 // append point to end of stream
 
 ostream& SquareLight::out(ostream& os) const {
-  os << "(" << diffuse 
-     << "," << specular
-     << ',' << position
-     << ',' << normal
-     << ',' << dx
-     << ',' << dy
-     << ',' << dz
+  os << '(' 
+     << position
+     << ',' 
+     << diffuse 
+     << ',' 
+     << specular
+     << ','
+     << power
+     << ','
+     << normal
+     << ',' 
+     << dx
+     << ',' 
+     << dy
+     << ',' 
+     << dz
      << ")";
   return os;
 }
@@ -157,50 +174,59 @@ istream& SquareLight::in(istream& is) {
   char c;
   is >> c;
   if (c != '(') {
-    cout << "Bad format for Point3Dd" << endl;
+    cerr << "Bad format for SquareLight" << endl;
+    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> diffuse >> c;
   if (c != ',') {
-    cout << "Bad format for Point3Df" << endl;
-    exit(1);
-  }
-  is >> specular >> c;
-  if (c != ',') {
-    cout << "Bad format for Point3Df" << endl;
+    cerr << "Bad format for SquareLight" << endl;
+    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> position >> c;
   if (c != ',') {
-    cout << "Bad format for Point3Df" << endl;
+    cerr << "Bad format for SquareLight" << endl;
+    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
+    exit(1);
+  }
+  is >> specular >> c;
+  if (c != ',') {
+    cerr << "Bad format for SquareLight" << endl;
+    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
+    exit(1);
+  }
+  is >> power >> c;
+  if (c != ',') {
+    cerr << "Bad format for SquareLight" << endl;
+    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> normal >> c;
   if (c!=',') {
-    cout << "Bad format for normal; should be Point3Df\n";
+    cerr << "Bad format for normal; should be Point3Df\n";
+    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> dx >> c;
   if (c != ',') {
-    cout << "Bad format for Point3Df" << endl;
+    cerr << "Bad format for Squarelight" << endl;
+    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> dy >> c;
   if (c != ',') {
-    cout << "Bad format for Point3Df" << endl;
+    cerr << "Bad format for Squarelight" << endl;
+    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
   is >> dz >> c;
   if (c != ')') {
-    cout << "Bad format for Point3Df" << endl;
+    cerr << "Bad format for Squarelight" << endl;
+    cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
     exit(1);
   }
-  //diffuse is power per cubic or square unit; compute total power
-  double mult=1;
-  if(dx) mult=dx;
-  if(dy) mult=mult*dy;
-  if(dz) mult=mult*dz;
-  power = diffuse*mult;
+
   return is;
 }
 

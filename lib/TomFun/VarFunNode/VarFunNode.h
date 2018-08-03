@@ -16,6 +16,7 @@ class VarFunNode : public FunNode
   ostream& out(ostream&);
 
   double eval(double t);
+  double eval(int date, Stock*s);
  protected:
 };
 

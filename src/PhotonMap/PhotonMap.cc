@@ -19,34 +19,58 @@ PhotonMap::PhotonMap(PhotonMap& other)
   exit(1);
 }
 
-PhotonMap::~PhotonMap(){
-}
+PhotonMap::~PhotonMap(){}
 /* end constructors and descructors */
 /* build/query interface */
 
+/* False if not enough photons for neighbor estimate,
+   Or if not in kd-tree format 
+*/
+bool PhotonMap::isSearchable() const {
+  if( (getSize() < numNeighbors)
+      ||
+      (storage != KD_TREE)
+      )
+    return false;
+  return true;
+}
+
 void PhotonMap::addPhoton(Photon &p){
-  //  cout << "PhotonMap at size " << getSize() << endl;
+  //if the photon has negligible power, return
+  if(p.r < g_photonPowerLow.x
+     && p.g < g_photonPowerLow.y
+     && p.b < g_photonPowerLow.z
+     )
+    return;
   p.offset = getSize();
   p.flag = NOT_SET;
   unsortedPhotons.push_back(p);
 }
 
 
-int PhotonMap::getSize() {
+int PhotonMap::getSize() const {
   return unsortedPhotons.size();
 }
 
-void PhotonMap::setNumNeighbors(int numNeighbors) {
+void PhotonMap::setNumNeighbors(const int numNeighbors) {
   this->numNeighbors = numNeighbors;
 }
 
-void PhotonMap::setMinSearch(double minSearchSqr) {
+void PhotonMap::setMinSearch(const double minSearchSqr) {
   this->minSearchSqr = minSearchSqr;
+}
+
+void PhotonMap::setMaxDist(const double maxDist) {
+  maxDistDefault=maxDist;
 }
 
 void PhotonMap::buildTree() {
   kdSize = unsortedPhotons.size()+1;
   kdTree = (Photon **) malloc(kdSize * 2 * sizeof(Photon *));
+
+  //save ourself from embarassment later
+  kdTree[0] = 0;
+
   for(int n=1; n<kdSize; n++) {
     kdTree[n]=&unsortedPhotons[n-1];
   }
@@ -176,18 +200,36 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
 
   delete close;
 
+  //  if(rval.x || rval.y || rval.z)
+  //    cout << "Flux is " << rval << endl;
   return rval;
 }
 
-Point3Dd PhotonMap::getLuminanceAt(Point3Dd &loc){
+Point3Dd PhotonMap::getLuminanceAt(const Point3Dd &loc, 
+				   const Point3Dd &dir, 
+				   Participating * medium
+				   ) {
   Photon ** close = new Photon *[numNeighbors];
   Point3Dd rval;
+
+#if 0
+  static int counter=0;
+#endif
+#if 0
+  if(!((++counter)%10000)) {
+    cout << "Getting luminance...";
+    cout << "based on "
+	 << numNeighbors
+	 << " out to a distance of " << maxDist
+	 << " from map of size " << getSize() << endl;
+  }
+#endif
 
   for(int n=0; n<numNeighbors; n++) {
     close[n]=0;
   }
 
-  // if photonmap really tiny, go to hell.
+  // if photonmap really tiny, return no local luminance
   if(getSize() < numNeighbors) return Point3Dd(0,0,0);
 
   double dist;
@@ -205,18 +247,28 @@ Point3Dd PhotonMap::getLuminanceAt(Point3Dd &loc){
 
   findNearestNeighbors(1,loc,&Q);
 
+#if 0 //warning: Can cause segfaulting!
+  static int queuetotal=0;
+  queuetotal+=Q.getSize();
+  if(!(counter%20000)) {
+    cout << "Queue Size about " << loc << " is " << Q.getSize() <<
+      " for a mean of " << (queuetotal / counter) <<
+      endl;
+  }
+#endif
+
   if(Q.getSize()) {
     //if there are any photons in the queue (near the point we're
     //    computing luminance)
     Point3Dd powSum(0,0,0);
     Point3Dd lDir;
     double myMult;
-    //    cout << "Priority Queue has " << Q.getSize() << " neighbors\n";
+
     while(Q.getSize()>numNeighbors)
       Q.pop();
-    //    cout << "Priority Queue set to " << Q.getSize() << " neighbors\n";
+
     maxDistSqr = distance(Q.top(),loc);
-    //    cout << "maxDistSqr is " << maxDistSqr << endl;
+
     //#ifdef flat_map
 #if 0
     static int totalQueued = 0;
@@ -243,16 +295,35 @@ Point3Dd PhotonMap::getLuminanceAt(Point3Dd &loc){
       return Point3Dd(0,0,0.5);
     return Point3Dd(0,0,0);
 #endif
+
     Photon * topPhoton;
+    Point3Dd pow;
+    Point3Dd phaseFunc;
     while(Q.getSize()) {
-      //add to the sum of power in the region an intesity
-      //proportional the cosine of the angle between the incident 
-      //direction of the photon and the angle to the eye
+
       topPhoton = Q.top();
-      powSum.x += (topPhoton->r);
-      powSum.y += (topPhoton->g);
-      powSum.z += (topPhoton->b);
-      //but for now apparently we ignore that.
+
+      //power of photon
+      pow.x = topPhoton->r;
+      pow.y = topPhoton->g;
+      pow.z = topPhoton->b;
+
+      //incident direction of photon; needed for phase function
+      Point3Dd pdir(topPhoton->dx, topPhoton->dy, topPhoton->dz);
+
+      //adjust for phase function of medium
+      medium->phaseFunction(pdir,dir);
+
+      //not an anti-photon!
+      if(pow.x<0) pow.x=0;
+      if(pow.y<0) pow.y=0;
+      if(pow.z<0) pow.z=0;
+
+      //Add contributions to total sum
+      powSum.x += pow.x;
+      powSum.y += pow.y;
+      powSum.z += pow.z;
+
       Q.pop();
     }
     //flux = intensity / area, area is on a surface so approximate
@@ -260,7 +331,8 @@ Point3Dd PhotonMap::getLuminanceAt(Point3Dd &loc){
     double con = 1/((4.0/3.0)*PI*maxDistSqr*sqrt(maxDistSqr));
     rval = powSum*con;
   }
-  else rval = Point3Dd(0,0,0);
+  //tag this to highlight image areas where we don't have enough photons
+  //  else rval = Point3Dd(0,0,3);
 
   delete close;
 
@@ -274,7 +346,7 @@ Point3Dd PhotonMap::getLuminanceAt(Point3Dd &loc){
 //a heap h with the nearest photons
 //phLoc is the location of the photon at the current place in the kdTree
 //loc is the location we're finding nearest neighbors of
-void PhotonMap::findNearestNeighbors(int phLoc, Point3Dd&loc,PhotonPriorityQueue * Q) {
+void PhotonMap::findNearestNeighbors(int phLoc, const Point3Dd &loc,PhotonPriorityQueue * Q) {
   double dist;
   if(!kdTree[phLoc]) return;
   if(2*phLoc < kdSize) {
@@ -354,6 +426,44 @@ void PhotonMap::findNearestNeighbors(int phLoc, Point3Dd&loc,PhotonPriorityQueue
 }
 
 #ifdef PARALLEL
+
+//send photons from child processes to master
+//maxPhotons used for max buffer size
+void PhotonMap::gatherPhotons(int maxPhotons) {
+  int rank, nodes;
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  MPI_Comm_size(MPI_COMM_WORLD,&nodes);
+
+  //FIXME: Dynamic buffer resizing?
+  
+  MPI_Barrier(MPI_COMM_WORLD);
+  if(rank) {
+    //slave processes
+    int sendsize = getSize();
+    Photon *tmp = (Photon *)malloc(maxPhotons * sizeof(Photon));
+    getArrMembers(tmp);
+    MPI_Send(tmp,sendsize,MPI_PHOTON,0,sendsize,MPI_COMM_WORLD);
+  } else {
+    //master process
+    int cnt = 0, totalsize = 0;
+    MPI_Status stat;
+    Photon *tmp = (Photon *)malloc(maxPhotons * (nodes - 1) * sizeof(Photon));
+#define TAG_HANDSHAKE 6000
+    for(int i=1; i < nodes; i++) {
+      do {
+	MPI_Probe(i,MPI_ANY_TAG,MPI_COMM_WORLD,&stat);
+	MPI_Get_count(&stat,MPI_PHOTON,&cnt);
+      } while (stat.MPI_TAG == TAG_HANDSHAKE);
+      MPI_Recv((tmp + totalsize),cnt,MPI_PHOTON,i,MPI_ANY_TAG,MPI_COMM_WORLD,&stat);
+      totalsize += cnt;
+    }
+    for(int i=0; i < totalsize; i++) 
+      addPhoton(*(tmp+i));
+    delete tmp;
+  }
+
+}
+
 //distribute tree to all processes
 void PhotonMap::distributeTree() {
   int rank;
@@ -661,6 +771,7 @@ void PhotonMap::fillDimSpreads(int rootNode,
   }
 }
 
+//dump unsorted array of photons into passed buffer
 void PhotonMap::getArrMembers(Photon *mule) {
   for(int i = 0; !(unsortedPhotons.empty()); unsortedPhotons.pop_back()) {
     *(mule + i) = unsortedPhotons.back();
@@ -673,7 +784,7 @@ void PhotonMap::getArrMembers(Photon *mule) {
 #ifndef SQR
 #define SQR(x) x * x
 #endif
-inline double PhotonMap::distance(Photon * p, Point3Dd& l) {
+inline double PhotonMap::distance(const Photon * p, const Point3Dd& l) {
   return SQR((p->x - l.x)) + SQR((p->y - l.y)) + SQR((p->z - l.z));
 }
 
@@ -706,8 +817,31 @@ ostream& PhotonMap::out(ostream& o){
       o << "BEGIN_PHOTONMAP ";
       o << FileType;
       o << ' ';
-      o << " END_PHOTONMAP";
+      o << storage
+	<< ' '
+	<< kdSize
+	<< ' '
+	<< minSearchSqr
+	<< ' '
+	<< numNeighbors
+	<< ' '
+	<< maxDist
+	<< ' '
+	<< maxDistSqr
+	<< ' '
+	<< maxDistDefault
+	<< " \n";
+
+      for(int i=1; i<kdSize; i++) {
+	if(kdTree[i]) 
+	  o << *kdTree[i] << '\n';
+	else
+	  o << '\n';
+      }
+      o << endl;
+      o << "END_PHOTONMAP";
       break;
+
     default:
       cerr << "unknown file type\n";
       break;

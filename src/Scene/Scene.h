@@ -79,7 +79,8 @@ public:
 		     double dfdt,
 		     int photons,
 		     int neighbors,
-		     double minDist
+		     double minDist,
+		     double maxDist
 		     );
   
   //renderer keeps its own copy; be sure to update
@@ -102,13 +103,13 @@ protected:
   void drawParallel();
 
   //variables
-  bool map_too_small; 
   double * localLogical;
   int localLogicalStart;
   int localLogicalSize;
   bool doingLocalPart;
 
 #endif
+  bool map_too_small; 
 
   Material * lastMaterial; //for readscene recursion
   //true if we're repainting a scene;

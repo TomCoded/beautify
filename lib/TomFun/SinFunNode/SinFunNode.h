@@ -15,6 +15,7 @@ class SinFunNode : public FunNode
   ~SinFunNode();
 
   double eval(double t);
+  double eval(int day, Stock *s);
 
   ostream& out(ostream&);
   

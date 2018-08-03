@@ -13,8 +13,7 @@ Material::Material():
   ambient(0.5,0.5,0.5),
   diffuse(0.8,0.8,0.8),
   specular(0.2,0.2,0.2),
-  specCo(0.2),
-  participating(false)
+  specCo(0.2)
 {}
 
 Material::Material(Material &other)
@@ -25,7 +24,6 @@ Material::Material(Material &other)
       specular=other.specular;
       diffuse=other.diffuse;
       specCo=other.specCo;
-      participating=other.participating;
     }
 }
 
@@ -34,9 +32,8 @@ CLONEMETHOD(Material)
 Material::~Material()
 {}
 
-bool Material::participates()
-{
-  return participating;
+bool Material::participates() const {
+  return false;
 }
 
 inline double Material::max(double r, double g, double b)

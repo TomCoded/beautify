@@ -10,13 +10,17 @@ istream& Light::in(istream&) {}
 
 ostream& Light::out(ostream&) const {}
 
-Point3Dd Light::getPower()
+double Light::getPower() const
 {
   return power;
 }
 
-Point3Dd Light::setPower(Point3Dd& pow) {
+void Light::setPower(const double pow) {
   power = pow;
+}
+
+double Light::getDistance(const Point3Dd& point) const {
+  return LIGHT_INF_DISTANCE;
 }
 
 void Light::addPhotonsToMap(int numPhotons,

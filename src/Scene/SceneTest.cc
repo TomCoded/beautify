@@ -20,11 +20,13 @@ MPI_Datatype MPI_PHOTON;
 extern Scene * g_Scene;
 extern PhotonMap * g_map;
 bool g_parallel;
+bool g_suppressGraphics;
 
 PhotonMap * loadMap(string fileName);
 void saveMap(PhotonMap *, string fileName);
 
 int main(int argc, char ** argv) {
+  return 0;
 
 #ifdef PARALLEL
   MPI_Init(&argc,&argv);
@@ -61,18 +63,20 @@ int main(int argc, char ** argv) {
   if(argc==0) help=1;
   int nPhotons=0;
   double dtdf;
-  bool mapExport, mapImport, suppressGraphics;
-  mapExport=mapImport=suppressGraphics=false;
+  bool mapExport, mapImport;
+  mapExport=mapImport=g_suppressGraphics=false;
   string mapOutName, mapInName;
   int neighbors=0;
   double minDist=1.0;
+  double maxDist=2.0;
 
-  while((optch = getopt(argc, argv, "s:n:N:d:f:F:M:m:t:r:pS?")) != -1) {
+  while((optch = getopt(argc, argv, "s:n:N:d:D:f:F:M:m:t:r:pS?")) != -1) {
     switch(optch) {
     case 's': sceneFile = optarg; break;
     case 'n': nPhotons = atoi(optarg); break;
     case 'N': neighbors = atoi(optarg); break;
     case 'd': minDist = atof(optarg); break;
+    case 'D': maxDist = atof(optarg); break;
     case 'f': frames = atoi(optarg); break;
     case 'r': startFrame = atoi(optarg); break;
     case 'F': fname = optarg; break;
@@ -82,7 +86,7 @@ int main(int argc, char ** argv) {
     case 'm': mapImport = true;
       mapInName = optarg; break;
     case 'p': g_parallel = true; break;
-    case 'S': suppressGraphics = true; break;
+    case 'S': g_suppressGraphics = true; break;
     case '?': help = 1; break;
     };
   };
@@ -99,6 +103,8 @@ int main(int argc, char ** argv) {
     cout << "  -d <minDist>       Photons within this radius of a\n";
     cout << "   given location will never be discarded when calculating flux,\n";
     cout << "   unless there are <neighbors> or it's default setting photons closer.\n";
+    cout << "  -D <maxDist>       Photons more distant than maxDist from a point will never\n";
+    cout << "   be included in the irradiance estimate for that point.\n";
     cout << "  -r <start frame>   The number of the frame to resume a job at.\n";
     cout << "  -f <frames>        The number of frames to output in batch mode.\n";
     cout << "  -F <framefilebase> The base name of frame output jpegs.\n";
@@ -116,14 +122,14 @@ int main(int argc, char ** argv) {
   int rank;
   if (g_parallel) {
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-    //    cout << "Initializing rank..\n";
-    if(!rank) glutInit(&argc,argv);
+    if(!(rank||g_suppressGraphics)) glutInit(&argc,argv);
   }
 #else
-  glutInit(&argc,argv);
+  if(!g_suppressGraphics)
+    glutInit(&argc,argv);
 #endif
 
-	
+#if 0	
   int i,j;
   char c='\x00';
   Scene * sc=0;
@@ -150,10 +156,11 @@ int main(int argc, char ** argv) {
 			     dtdf,
 			     nPhotons,
 			     neighbors,
-			     minDist
+			     minDist,
+			     maxDist
 			     );
     } else {
-      if(!suppressGraphics) {
+      if(!g_suppressGraphics) {
 	//output to screen
 	sc->ReadFile(sceneFile);
 #ifdef PARALLEL
@@ -220,13 +227,15 @@ int main(int argc, char ** argv) {
 	  sc->draw();
           if(!rank) {
 	    cout << "Photon Map Size: " << g_map->getSize() << endl;
-	    glutMainLoop();
+	    if(!g_suppressGraphics)	    
+	      glutMainLoop();
           } 
         }
 	else {
 #endif
 	sc->draw();
-	glutMainLoop();
+	if(!g_suppressGraphics)
+	  glutMainLoop();
 #ifdef PARALLEL
 	}
 #endif
@@ -248,6 +257,7 @@ int main(int argc, char ** argv) {
   return (g_parallel) ? MPI_Finalize() : 0;
 #else
   return 0;
+#endif
 #endif
 }
 

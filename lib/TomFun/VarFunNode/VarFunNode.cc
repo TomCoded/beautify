@@ -15,6 +15,11 @@ double VarFunNode::eval(double t)
   return t;
 }
 
+double VarFunNode::eval(int day, Stock*s)
+{
+  UNIMPLEMENTED("VarFunNode::eval()");
+}
+
 ostream& VarFunNode::out(ostream &o)
 {
   o << 't';

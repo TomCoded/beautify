@@ -13,6 +13,11 @@ double FunNode::eval(double t)
   return 0;
 }
 
+double FunNode::eval(int date, Stock * stock) {
+  UNIMPLEMENTED("FunNode::eval");
+  return 0;
+}
+
 //operator overloading:
   //assignment operator
   FunNode * FunNode::operator=(FunNode& other)
@@ -225,10 +230,10 @@ FunNode * FunNode::parseString(string szFunction)
 	  return new SinFunNode(rightNode);
 	}
       if(szFunction[nPlace]=='c')
-	{ //sin function
+	{ //cos function
 	  if(szFunction[nPlace+3]!='(')
 	    {
-	      cerr << "cos function must be written sin(...)\n";
+	      cerr << "cos function must be written cos(...)\n";
 	      exit(1);
 	    }
 	  rightNode =

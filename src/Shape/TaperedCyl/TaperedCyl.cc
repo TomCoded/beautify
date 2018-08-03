@@ -18,7 +18,7 @@ TaperedCyl::TaperedCyl()
 {}
 
 TaperedCyl::TaperedCyl(double s):
-  radius(s)
+  center(0,0,0), radius(s)
 {
 }
 
@@ -163,8 +163,9 @@ double TaperedCyl::closestIntersect(Ray& r) const
       lastNormal.y=0;
       lastNormal.z=1;
     }
-  if(t < 0)
+  if(t < 0) {
     t = -1;
+  }
   return t;
 }
 

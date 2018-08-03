@@ -5,12 +5,15 @@ ostream& operator<<(ostream& o, Photon& p)
   o << p.x << ' '
     << p.y << ' '
     << p.z << ' '
+
     << p.r << ' '
     << p.g << ' '
     << p.b << ' '
+
     << p.dx << ' '
     << p.dy << ' '
     << p.dz << ' '
+
     << p.flag << ' '
     << p.offset;
   return o;
@@ -22,12 +25,15 @@ istream& operator>>(istream& is, Photon& p)
   is >> p.x 
      >> p.y 
      >> p.z 
+
      >> p.r 
      >> p.g 
      >> p.b 
+
      >> p.dx 
      >> p.dy 
      >> p.dz
+
      >> p.flag
      >> p.offset;
   return is;

@@ -137,10 +137,10 @@ FunNode * FunParser::parseString(string szFunction)
 	  return new SinFunNode(rightNode);
 	}
       if(szFunction[nPlace]=='c')
-	{ //sin function
+	{ //cos function
 	  if(szFunction[nPlace+3]!='(')
 	    {
-	      cerr << "cos function must be written sin(...)\n";
+	      cerr << "cos function must be written cos(...)\n";
 	      exit(1);
 	    }
 	  rightNode =

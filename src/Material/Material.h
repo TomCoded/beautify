@@ -19,10 +19,10 @@ class Material
   Material * clone();
   ~Material();
 
-  bool participates();
+  virtual bool participates() const;
 
   int nRoulette(Photon &p);
-  void DoBRDF(Photon &p);
+  virtual void DoBRDF(Photon &p);
   Point3Dd DoSpecBRDF(Point3Dd& incident,
 		      Point3Dd& reflected
 		      );
@@ -32,7 +32,6 @@ class Material
   ostream& out(ostream &);
 
  protected:
-  bool participating;
   Point3Dd ambient;
   Point3Dd specular;
   Point3Dd diffuse;

@@ -37,6 +37,10 @@ double MultFunNode::eval(double t)
   return (leftNode->eval(t)*rightNode->eval(t));
 }
 
+double MultFunNode::eval(int date, Stock *s) {
+  return (leftNode->eval(date,s)*rightNode->eval(date,s));
+}
+
 ostream& MultFunNode::out(ostream& o)
 {
   leftNode->out(o);

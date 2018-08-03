@@ -248,8 +248,9 @@ Point3Dd Surface::getNormalAt(Ray &r) const
 {
   Ray localRay = worldToLocal(r);
   Ray rv = surShape->getNormal(localRay);
-  Point4Dd rv4 = localToWorldNormal(rv.dir);
+  Point4Dd rv4 = localToWorldNormal(rv.dir); 
 #if 0
+  cout << "Normal in Shape Coords: " << rv.dir << endl;
   cout << "Normal in World Coords: " << rv4 << endl;
   cout << "Matrix was " << tLocalToWorldNormal << endl;
   cout << "---------------------------------------\n";

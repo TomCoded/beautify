@@ -16,7 +16,8 @@
 PointLight::PointLight():
   location(0.0,1.0,0.0)
 {
-  power=Point3Dd(0,0,0);
+  //1 Kilowatt default
+  power=1000;
   specular = Point3Dd(1.0,1.0,1.0);
   diffuse = Point3Dd(1.0,1.0,1.0);
   specularCo=1;
@@ -27,7 +28,7 @@ PointLight::PointLight(const Point3Dd& loc, const Point3Dd& diff,
 	     const Point3Dd& spec):
   location(loc)
 {
-  power=Point3Dd(0,0,0);
+  power=1000;
   specular=spec;
   diffuse = Point3Dd(diff);
 }
@@ -55,11 +56,15 @@ PointLight& PointLight::operator=(const PointLight& other) {
 PointLight::~PointLight() {}
 
 //get Ray To light source from a given point
-Ray PointLight::getRayTo(Point3Dd& dest)
+Ray PointLight::getRayTo(const Point3Dd& dest) const
 {
   //  Point3Dd dir = location-dest;
   Point3Dd dir = dest-location;
   return Ray(dest, dir.normalize());
+}
+
+double PointLight::getDistance(const Point3Dd& p) const {
+  return (p-location).norm();
 }
 
 // append point to end of stream

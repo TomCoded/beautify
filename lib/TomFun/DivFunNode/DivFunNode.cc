@@ -17,6 +17,7 @@ DivFunNode::DivFunNode(FunNode * leftNode, FunNode * rightNode):
 CLONEMETHOD(DivFunNode)
 
 //using this guy is a bad idea
+//FIXME?  Why's it bad...?
 DivFunNode::DivFunNode(DivFunNode &other)
 {
   if(this!=&other)
@@ -47,6 +48,12 @@ double DivFunNode::eval(double t)
   double temp = rightNode->eval(t);
   if(temp==0) temp = 0.00001;
   return (leftNode->eval(t)/temp);
+}
+
+double DivFunNode::eval(int day, Stock*s) {
+  double temp = rightNode->eval(day,s);
+  if(temp==0) temp=0.00001;
+  return (leftNode->eval(day,s)/temp);
 }
 
 ostream& DivFunNode::out(ostream& o)

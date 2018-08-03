@@ -21,6 +21,11 @@ double NumFunNode::eval(double t)
   return myVal;
 }
 
+double NumFunNode::eval(int date, Stock*s)
+{
+  return myVal;
+}
+
 ostream& NumFunNode::out(ostream& o)
 {
   o << myVal;
