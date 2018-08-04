@@ -1,7 +1,7 @@
 #ifndef DEFS_H_
 #define DEFS_H_
 
-#define DEBUG_BUILD
+//#define DEBUG_BUILD
 //#define USE_FUNCTIONS
 
 //how much larger to make the map than number of emitted photons

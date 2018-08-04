@@ -100,6 +100,11 @@ void display()
     glClear(GL_COLOR_BUFFER_BIT);
   
   curTime+=g_Scene->dtdf;
+
+#ifdef DEBUG_BUILD
+  std::cout << "dtdf is " << g_Scene->dtdf << std::endl;
+  std::cout << "frame time is " << curTime << std::endl;
+#endif
   
   if(g_Scene->myRenderer) 
     {
@@ -137,34 +142,41 @@ void keyboard(unsigned char c, int, int)
 {
   switch(c)
     {
+    case 'n':
+      if(g_Scene->hasImage)
+        {
+          std::cout << "Advancing to (n)ext frame...\n";
+          glutPostRedisplay();
+        }
+      break;
     case 's':
       if(g_Scene->hasImage)
-	{
-	  std::cout << "Image file name: ";
-	  string fileName;
-	  std::cin >> fileName;
-	  g_Scene->writeImage(fileName.c_str());
-	}
+        {
+          std::cout << "Image file name: ";
+          string fileName;
+          std::cin >> fileName;
+          g_Scene->writeImage(fileName.c_str());
+        }
       break;
     case 'r':
       if(g_Scene->hasImage)
-	{
-	  std::cout << "Redisplaying Image\n";
-	  g_Scene->repaint();
-	}
+        {
+          std::cout << "Redisplaying Image\n";
+          g_Scene->repaint();
+        }
       break;
     case 't':
       if(g_Scene->hasImage)
-	{
-	  std::cout << "Smoothing Image\n";
-	  g_Scene->smoothLogicalImage();
-	  g_Scene->repaint();
-	}
+        {
+          std::cout << "Smoothing Image\n";
+          g_Scene->smoothLogicalImage();
+          g_Scene->repaint();
+        }
       break;
     case 'q': 
 #ifdef PARALLEL
       if(g_parallel) 
-	MPI_Finalize();
+        MPI_Finalize();
 #endif
       exit(0);
       break;
