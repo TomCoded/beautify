@@ -16,12 +16,12 @@ SinFunNode::SinFunNode(FunNode * childNode):
 CLONEMETHOD(SinFunNode)
 
 //using this guy is a bad idea
-SinFunNode::SinFunNode(SinFunNode &other)
+SinFunNode::SinFunNode(SinFunNode &other):
+childNode(0)
 {
   if(this!=&other)
     {
-      if(childNode)
-	delete childNode;
+      if(childNode)	delete childNode;
       childNode=other.childNode->clone();
     }
 }

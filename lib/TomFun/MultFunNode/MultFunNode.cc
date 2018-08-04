@@ -15,7 +15,9 @@ MultFunNode::MultFunNode(FunNode * leftNode, FunNode * rightNode):
 
 CLONEMETHOD(MultFunNode)
 
-MultFunNode::MultFunNode(MultFunNode &other)
+MultFunNode::MultFunNode(MultFunNode &other):
+  leftNode(0),
+  rightNode(0)
 {
   if(this!=&other)
     {

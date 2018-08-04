@@ -2,6 +2,6 @@
 prefix=/usr/local
 MAKE=gmake
 CC=g++
-OPTFLAGS=-O3 -std=c++03 -fomit-frame-pointer -finline-functions
+OPTFLAGS=-g -std=c++03
 LDFLAGS=
-CCFLAGS=-O3 -std=c++03 -fomit-frame-pointer -finline-functions  -Wno-endif-labels
+CCFLAGS=-g -std=c++03  -Wno-endif-labels

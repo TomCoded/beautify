@@ -128,7 +128,7 @@ int main(int argc, char ** argv) {
     glutInit(&argc,argv);
 #endif
 
-#if 0	
+#if 1	
   int i,j;
   char c='\x00';
   Scene * sc=0;

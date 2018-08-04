@@ -16,7 +16,9 @@ PowFunNode::PowFunNode(FunNode * leftNode, FunNode * rightNode):
 {}
 
 //using this guy is a bad idea
-PowFunNode::PowFunNode(PowFunNode &other)
+PowFunNode::PowFunNode(PowFunNode &other):
+  leftNode(0),
+  rightNode(0)
 {
   if(this!=&other)
     {

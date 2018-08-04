@@ -379,6 +379,7 @@ Scene::Scene():
   height(300),
   hasImage(0),
   dtdf(0),
+  logicalImage(0),
   logicalRender(false),
   paintingFromLogical(false)
 {

@@ -15,13 +15,15 @@ CosFunNode::CosFunNode(FunNode * childNode):
 
 CLONEMETHOD(CosFunNode)
 
-CosFunNode::CosFunNode(CosFunNode &other)
+CosFunNode::CosFunNode(CosFunNode &other):
+  childNode(0)
 {
   if(this!=&other)
     {
       if(childNode)
-	delete childNode;
-      childNode=other.childNode->clone();
+        delete childNode;
+      if(other.childNode) 
+        childNode=other.childNode->clone();
     }
 }
 

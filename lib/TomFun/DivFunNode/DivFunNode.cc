@@ -18,7 +18,8 @@ CLONEMETHOD(DivFunNode)
 
 //using this guy is a bad idea
 //FIXME?  Why's it bad...?
-DivFunNode::DivFunNode(DivFunNode &other)
+DivFunNode::DivFunNode(DivFunNode &other):
+leftNode(0),rightNode(0)
 {
   if(this!=&other)
     {
