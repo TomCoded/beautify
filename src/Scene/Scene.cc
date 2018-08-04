@@ -243,7 +243,6 @@ void Scene::setTime(double t) {
 void Scene::generateFiles(const char * filename, 
                           int startFrame,
                           int numFrames, 
-                          double dfdt,
                           int photons,
                           int neighbors,
                           double minDist,
@@ -257,7 +256,7 @@ void Scene::generateFiles(const char * filename,
   int nBaseLen = strlen(filename);
   char * nTail = &szFile[nBaseLen];
 
-  setTime(startFrame*dfdt);
+  setTime(startFrame*dtdf);
 
 #ifdef PARALLEL
   int rank, nodes;
@@ -369,7 +368,7 @@ void Scene::generateFiles(const char * filename,
         strncpy(nTail,szTail,strlen(szTail)+1);
         writeImage(szFile);
       }
-      setTime(curTime+dfdt);
+      setTime(curTime+dtdf);
       //why was this here?
       //	logicalRender=false;
 
@@ -380,17 +379,17 @@ void Scene::generateFiles(const char * filename,
         std::cout << "Frame " << nFrame << " Done in " <<
           frame_stop - frame_start << " seconds.\n";
 #else
-      std::cout << "Rendering frame " << nFrame <<std::endl;
+      std::cout << "Rendering frame on single machine " << nFrame <<std::endl;
       //FIXME: Use a better algorithm for numneighbors
       g_map->setNumNeighbors(g_map->getSize()/15);
-
+      g_map->buildTree();
       myRenderer->showMap(g_map);
 
       sprintf(szTail,"%d.jpg\x00",nFrame);
       strncpy(nTail,szTail,strlen(szTail)+1);
       writeImage(szFile);
 
-      setTime(curTime+dfdt);
+      setTime(curTime+dtdf);
 
       logicalRender=false;
 #endif

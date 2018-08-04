@@ -152,7 +152,6 @@ int main(int argc, char ** argv) {
       g_Scene->generateFiles(fname.c_str(),
 			     startFrame,
 			     frames,
-			     dtdf,
 			     nPhotons,
 			     neighbors,
 			     minDist,

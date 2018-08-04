@@ -6,3 +6,6 @@ beautify -s spheres5.dat -n 8000 -N 5
 beautify -s spheres6.dat -n 16000
 beautify -s scene1.dat -n 8000
 beautify -s scene3.dat -n 8000
+beautify -s scene4.dat -n 8000
+beautify -s scene5.dat -n 8000
+beautify -s largescene1.dat -n 15000 -N 15

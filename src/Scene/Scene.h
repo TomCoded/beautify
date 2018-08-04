@@ -76,7 +76,6 @@ public:
   void generateFiles(const char * filename, 
 		     int startFrame,
 		     int numFrames, 
-		     double dfdt,
 		     int photons,
 		     int neighbors,
 		     double minDist,
