@@ -77,7 +77,7 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
 	}
     }
   
-  std::cout << "Light " << *((int*)this) << " adds " <<
+  std::cout << "Light " << &(*this) << " adds " <<
     map->getSize() - priorPhotons << " photons to map\n";
 
 }
