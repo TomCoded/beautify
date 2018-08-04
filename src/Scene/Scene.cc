@@ -7,6 +7,7 @@
 #include <allIncludes.h>
 #include <iostream>
 #include <string>
+#include <chrono>
 #include <string.h>
 #include <GL/glut.h>
 #include <Magick++.h>
@@ -85,6 +86,8 @@ bool g_regenerate;
 
 char outbuffer[80];
 
+vector<long> frameTimes;
+
 ////////////////////
 // class Scene //
 ////////////////////
@@ -101,6 +104,17 @@ void display()
   
   curTime+=g_Scene->dtdf;
 
+  long actualTime=
+    std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+  frameTimes.push_back(actualTime);
+  int frameCount = frameTimes.size();
+  int frameTimesToAvg = 5>frameTimes.size() ? frameTimes.size() : 5;
+  double frameRateRecentAverage =
+    (frameTimes[frameTimes.size()-1]
+     -frameTimes[frameTimes.size()-frameTimesToAvg]
+     ) / frameTimesToAvg;
+  std::cout << frameRateRecentAverage/1000.0 << " fps." << std::endl;
+  
 #ifdef DEBUG_BUILD
   std::cout << "dtdf is " << g_Scene->dtdf << std::endl;
   std::cout << "frame time is " << curTime << std::endl;
@@ -129,6 +143,7 @@ void display()
                 }
               g_Scene->myRenderer->map();
               g_map->setNumNeighbors(g_map->getSize()/15);
+              g_map->buildTree();
               g_Scene->myRenderer->showMap(g_map);
             }
         }

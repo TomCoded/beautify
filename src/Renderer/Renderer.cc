@@ -159,8 +159,6 @@ PhotonMap * Renderer::map(int nPhotons)
 	nPhotonsForThisLight /= nodes;
       }
 #endif
-      std::cout << "calling light->addPhotonsToMap for "
-                << nPhotonsForThisLight << std::endl;
       (*itLights)->addPhotonsToMap(nPhotonsForThisLight,
 				   pMap,
 				   this
@@ -503,13 +501,11 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
     { //we hit something
 #ifdef DEBUG_BUILD
       intersected++;
-#endif
-#ifdef DEBUG_BUILD
       std::cout << "tClose = " << tClose <<std::endl;
       if (tClose < 0) 
-	std::cout << "NEGTCLOSE\n";
+        std::cout << "NEGTCLOSE\n";
       std::cout << "point at tClose = " << sampleRay->GetPointAt(tClose) <<
-	endl;
+        std::endl;
       std::cout << "BUMPDISTANCE = " << BUMPDISTANCE <<std::endl;
       std::cout << "point at tClose - BUMPDISTANCE = " <<
 	sampleRay->GetPointAt(tClose-BUMPDISTANCE) <<std::endl;
@@ -1061,7 +1057,7 @@ Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
 
 #ifndef VOLMAP_ONLY	
       if(!closestSurface->participates())
-	flux = map->getFluxAt(hitPoint,normal);
+        flux = map->getFluxAt(hitPoint,normal);
       else 
 #else
 	if(closestSurface->participates())
@@ -1086,6 +1082,7 @@ Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
 	    flux=getIlluminationInMedium(hitPoint,dir,closestSurface,50);
 	    //	    flux = pVolMap->getLuminanceAt(hitPoint);
 	  }
+
       #ifdef DEBUG_BUILD
       std::cout << "image has pt with flux " << flux << std::endl;
       #endif
