@@ -98,33 +98,35 @@ void display()
 {
   if(!g_suppressGraphics)
     glClear(GL_COLOR_BUFFER_BIT);
+  
   curTime+=g_Scene->dtdf;
+  
   if(g_Scene->myRenderer) 
     {
       if(photonMap)
-	{
-	  if(lastTime==curTime)
-	    {
-	      if(g_Scene->hasImage)
-		{
-		  g_Scene->repaint();
-		}
-	      else
-		g_Scene->myRenderer->showMap(g_map);
-	    }
-	  else
-	    {
-	      vector<Surface *> * surfaces = g_Scene->getSurfaces();
-	      vector<Surface *>::iterator itSurf = surfaces->begin();
-	      for(;itSurf!=surfaces->end(); itSurf++)
-		{
-		  (*itSurf)->setTime(curTime);
-		}
-	      g_Scene->myRenderer->showMap(g_map);
-	    }
-	}
+        {
+          if(lastTime==curTime)
+            {
+              if(g_Scene->hasImage)
+                {
+                  g_Scene->repaint();
+                }
+              else
+                g_Scene->myRenderer->showMap(g_map);
+            }
+          else
+            {
+              vector<Surface *> * surfaces = g_Scene->getSurfaces();
+              vector<Surface *>::iterator itSurf = surfaces->begin();
+              for(;itSurf!=surfaces->end(); itSurf++)
+                {
+                  (*itSurf)->setTime(curTime);
+                }
+              g_Scene->myRenderer->showMap(g_map);
+            }
+        }
       else if(rayTrace)
-	g_Scene->myRenderer->run();
+        g_Scene->myRenderer->run();
     }
   if(!g_suppressGraphics)
     glFlush();
