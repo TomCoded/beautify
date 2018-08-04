@@ -26,8 +26,6 @@ void saveMap(PhotonMap * pmap, string fileName);
 int g_nFrame;
 #endif
 
-using namespace Magick;
-
 #ifdef DIFFUSE
 #undef DIFFUSE
 #endif
@@ -1084,7 +1082,7 @@ void Scene::writeImage(const char * fileName)
       {
 	img.pixelColor(x,
 		       y,
-		       ColorRGB(logicalImage[nPos],
+                 Magick::ColorRGB(logicalImage[nPos],
 				logicalImage[nPos+1],
 				logicalImage[nPos+2]
 				)
@@ -1094,11 +1092,11 @@ void Scene::writeImage(const char * fileName)
 
   //This keeps ffmpeg from freezing on blank frames
   //in videos we later create
-  img.pixelColor(0,0,ColorRGB(1.0,1.0,5.0));
-  img.pixelColor(1,1,ColorRGB(1.0,1.0,5.0));
-  img.pixelColor(2,1,ColorRGB(1.0,1.0,5.0));
-  img.pixelColor(1,2,ColorRGB(1.0,1.0,5.0));
-  img.pixelColor(2,2,ColorRGB(1.0,1.0,5.0));
+  img.pixelColor(0,0,Magick::ColorRGB(1.0,1.0,5.0));
+  img.pixelColor(1,1,Magick::ColorRGB(1.0,1.0,5.0));
+  img.pixelColor(2,1,Magick::ColorRGB(1.0,1.0,5.0));
+  img.pixelColor(1,2,Magick::ColorRGB(1.0,1.0,5.0));
+  img.pixelColor(2,2,Magick::ColorRGB(1.0,1.0,5.0));
 
   img.flip();
   img.write(fileName);
