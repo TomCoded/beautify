@@ -1,8 +1,12 @@
 //A simple scene file
 windowDims (200,200)
 
-camera ((0.0,0.0,6.0),(0,0,0),(0,1,0),1,1,1,100) // note: near and far are positive
-DiffusePointLight ((5,5,5),(2,1,5.0),(0,0,0),0.5)
+sceneAmbient((0.1,0.1,0.1))
+
+// note: near and far are positive
+camera ((0.0,0.0,6.0),(0,0,0),(0,1,0),.7,1.0,1.0,400.0)
+DiffusePointLight ((3,3,3),(2.0,1.0,7.0),(0,0,0),400.0)
+DiffusePointLight ((-3,-3,3),(2.0,1.0,7.0),(0,0,0),400.0)
 //DiffusePointLight ((5e2,5e2,5e2),(2,-1,5.0),(0.4,0.4,0.4))
 //bronze:
 //Participating ((0.329412,0.223529,0.027451),(0.780392,0.568627,0.113725),(0.992157,0.941176,0.807843),27.8974,0.001)
@@ -11,18 +15,21 @@ DiffusePointLight ((5,5,5),(2,1,5.0),(0,0,0),0.5)
 //include mat/Brass.mat
 
 Material ((0.329412,0.223529,0.027451),(0.780392,0.568627,0.113725),(0.992157,0.941176,0.807843),27.8974)
-identity
+//identity
 //scale (6,6,6)
 //yRotate -0.78
 //funTransform (1/6)+cos(t) 0-sin(t) 0 0 sin(t) (1/6)+cos(t) 0 0 0 0 1/6 0 0 0 0 1
 //funTransformInverse 6+cos(0-t) 0-sin(0-t) 0 0 sin(0-t) 6+cos(0-t) 0 0 0 0 6 0 0 0 0 1
 //funTransform 6+cos(t) 0-sin(t) 0 0 sin(t) 6 0 0 0 0 6 0 0 0 0 1
 //funTransformInverse (cos(t))/6 0-sin(0-t) 0 0 sin(0-t) 1/6 0 0 0 0 1/6 0 0 0 0 1
-funTransform cos(t) 0-sin(t) 0 0 sin(t) cos(t) 0 0 0 0 1 0 0 0 0 1
-funTransformInverse (cos(t)) 0-sin(0-t) 0 0 sin(0-t) cos(0-t) 0 0 0 0 1 0 0 0 0 1
-funTransform 6 0 0 0 0 6 0 0 0 0 6 0 0 0 0 1
-funTransformInverse 1/6 0 0 0 0 1/6 0 0 0 0 1/6 0 0 0 0 1
-plane
+
+//funTransform cos(t) 0-sin(t) 0 0 sin(t) cos(t) 0 0 0 0 1 0 0 0 0 1
+//funTransformInverse (cos(t)) 0-sin(0-t) 0 0 sin(0-t) cos(0-t) 0 0 0 0 1 0 0 0 0 1
+//funTransform 6 0 0 0 0 6 0 0 0 0 6 0 0 0 0 1
+//funTransformInverse 1/6 0 0 0 0 1/6 0 0 0 0 1/6 0 0 0 0 1
+
+ellipsoid
+//plane
 
 //identity
 //ellipsoid
