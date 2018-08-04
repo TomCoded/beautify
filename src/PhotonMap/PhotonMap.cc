@@ -6,7 +6,8 @@ extern bool g_parallel;
 PhotonMap::PhotonMap():
   numNeighbors(200),
   maxDistDefault(2.0),
-  minSearchSqr(1.0)
+  minSearchSqr(1.0),
+  kdSize(0)
 {}
 
 /* do not use */
@@ -20,7 +21,7 @@ PhotonMap::PhotonMap(PhotonMap& other)
 }
 
 PhotonMap::~PhotonMap(){}
-/* end constructors and descructors */
+
 /* build/query interface */
 
 /* False if not enough photons for neighbor estimate,
@@ -85,11 +86,13 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
   Photon ** close = new Photon *[numNeighbors];
   Point3Dd rval;
 
+  std::cout << "PhotonMap::getFluxAt() called\n";
+  
   for(int n=0; n<numNeighbors; n++) {
     close[n]=0;
   }
 
-  // if photonmap really tiny, go to hell.
+  // if photonmap is too small to generate the image, reject as blank
   if(getSize() < numNeighbors) {
     std::cerr << "PhotonMap not large enough; require at least " <<
       numNeighbors << " photons.\n";
@@ -110,6 +113,9 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
   PhotonPriorityQueue Q(loc);
 
   findNearestNeighbors(1,loc,&Q);
+  std::cout << "PhotonMap::getFluxAt() ran findNearestNeighbors\n";
+  std::cout << " found " << Q.getSize()
+            << std::endl;
 
   if(Q.getSize()) {
     //if there are any photons in the queue (near the point we're
@@ -130,7 +136,7 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
     totalQueued+=Q.getSize();
     static double totalMaxDist = 0;
     totalMaxDist+= distance(Q.top(),loc);
-    if(!(passes%1000)) 
+    //if(!(passes%1000)) 
     std::cout << "Q.getSize() = " << Q.getSize() << "; avg Q size so far "
 	 << (double)totalQueued / (double)passes 
 	 << "; maxDist = " << distance(Q.top(),loc) 
@@ -356,50 +362,50 @@ void PhotonMap::findNearestNeighbors(int phLoc, const Point3Dd &loc,PhotonPriori
       //compute distance to plane from current photon
       switch(kdTree[phLoc]->flag) {
       case X:
-	dist = loc.x - kdTree[phLoc]->x;
-	break;
+        dist = loc.x - kdTree[phLoc]->x;
+        break;
       case Y:
-	dist = loc.y - kdTree[phLoc]->y;
-	break;
+        dist = loc.y - kdTree[phLoc]->y;
+        break;
       case Z:
-	dist = loc.z - kdTree[phLoc]->z;
-	break;
+        dist = loc.z - kdTree[phLoc]->z;
+        break;
       default:
-	std::cerr << "Photon "
-	     << *kdTree[phLoc]
-	     << " at position "
-	     << phLoc
-	     << " is not part of kd tree\n";
-	std::cerr << "Pretending is of dimension x...\n";
-	dist = loc.x - kdTree[phLoc]->x;
-	break;
+        std::cerr << "Photon "
+                  << *kdTree[phLoc]
+                  << " at position "
+                  << phLoc
+                  << " is not part of kd tree\n";
+        std::cerr << "Pretending is of dimension x...\n";
+        dist = loc.x - kdTree[phLoc]->x;
+        break;
       }
       if(dist < 0) {
-	//loc is to the left of the splitting plane
-	//search left subtree
-	findNearestNeighbors(2*phLoc,loc,Q);
+        //loc is to the left of the splitting plane
+        //search left subtree
+        findNearestNeighbors(2*phLoc,loc,Q);
 
-	//if the distance to the splitting plane from the location
-	//is less than the maximum distance we'll consider photons to
-	//be neighbors at, go ahead and search the right subtree too.
-	if( dist*dist < maxDistSqr ) {
-	  if((phLoc*2+1 < kdSize)&&(kdTree[phLoc*2+1])) {
-	    findNearestNeighbors(2*phLoc+1,loc,Q);
-	  }
-	}
+        //if the distance to the splitting plane from the location
+        //is less than the maximum distance we'll consider photons to
+        //be neighbors at, go ahead and search the right subtree too.
+        if( dist*dist < maxDistSqr ) {
+          if((phLoc*2+1 < kdSize)&&(kdTree[phLoc*2+1])) {
+            findNearestNeighbors(2*phLoc+1,loc,Q);
+          }
+        }
       } else {
-	//we are to the right of the splitting plane
-	//search right subtree
-	if((phLoc*2+1 < kdSize)&&(kdTree[phLoc*2+1])) {
-	  findNearestNeighbors(2*phLoc+1,loc,Q);
-	}
-	//if we're close enough to the splitting plane for it to
-	//matter, search left subtree too.
-	if (dist * dist < maxDistSqr) {
-	  if((phLoc*2 < kdSize)&&(kdTree[phLoc*2])) {
-	    findNearestNeighbors(2*phLoc,loc,Q);
-	  }
-	}
+        //we are to the right of the splitting plane
+        //search right subtree
+        if((phLoc*2+1 < kdSize)&&(kdTree[phLoc*2+1])) {
+          findNearestNeighbors(2*phLoc+1,loc,Q);
+        }
+        //if we're close enough to the splitting plane for it to
+        //matter, search left subtree too.
+        if (dist * dist < maxDistSqr) {
+          if((phLoc*2 < kdSize)&&(kdTree[phLoc*2])) {
+            findNearestNeighbors(2*phLoc,loc,Q);
+          }
+        }
       }
     }
   }
