@@ -77,7 +77,8 @@ Renderer::~Renderer()
 //map() calls the photon mapper with default nPhotons
 PhotonMap * Renderer::map()
 {
-  map(DEFAULT_PHOTONS);
+  int photons = photonsEmittedCount || DEFAULT_PHOTONS;
+  map(photons);
 }
 
 PhotonMap * Renderer::getVolMap()
@@ -89,7 +90,7 @@ PhotonMap * Renderer::getVolMap()
 //nPhotons is the number of photons to create from lights, total.
 PhotonMap * Renderer::map(int nPhotons)
 {
-
+  photonsEmittedCount=nPhotons;
   static int light_pow_set=0;
 #ifdef PARALLEL
   int rank;

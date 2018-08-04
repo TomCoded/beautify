@@ -13,15 +13,17 @@ DiffusePointLight ((-3,-3,3),(2.0,1.0,7.0),(0,0,0),400.0)
 //bronze:
 Material ((0.329412,0.223529,0.027451),(0.780392,0.568627,0.113725),(0.992157,0.941176,0.807843),27.8974)
 
+scale (0.4,0.4,0.4)
+
 //sphere:
-//ellipsoid
+ellipsoid
 
 //sphere 2
 //translate (3.0,1.0,1.0)
 //ellipsoid
 
 //sphere 3
-dtdf 0.0314
+dtdf 0.0628
 identity
 
 //funTransform cos(t) 0 0 0  0 sin(t) 0 0  0 0 1 0  0 0 0 1

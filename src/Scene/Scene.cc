@@ -127,14 +127,17 @@ void display()
                 {
                   (*itSurf)->setTime(curTime);
                 }
+              //g_Scene->myRenderer->map();
               g_Scene->myRenderer->showMap(g_map);
             }
         }
       else if(rayTrace)
         g_Scene->myRenderer->run();
     }
-  if(!g_suppressGraphics)
+  if(!g_suppressGraphics) {
     glFlush();
+    glutPostRedisplay();
+  }
 }
 
 //glut keyboard function

@@ -88,7 +88,8 @@ class Renderer
 
   PhotonMap * pMap;
   PhotonMap * pVolMap;
-
+  int photonsEmittedCount;
+  
   void participantMarch(Photon &p, 
 			Surface * medium,
 			int single_scatter=0
