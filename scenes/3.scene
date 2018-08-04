@@ -1,0 +1,7 @@
+numSurfaces 1
+numLights 1
+windowDims (200,200)
+sceneAmbient(0.5,0.5)
+antialias 0
+camera ((0,0,0),(0,0,1),(0,1,0),0.7,1,0.5,1.5)
+Material 

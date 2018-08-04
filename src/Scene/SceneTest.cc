@@ -26,7 +26,6 @@ PhotonMap * loadMap(string fileName);
 void saveMap(PhotonMap *, string fileName);
 
 int main(int argc, char ** argv) {
-  return 0;
 
 #ifdef PARALLEL
   MPI_Init(&argc,&argv);

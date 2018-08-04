@@ -1,0 +1,67 @@
+include <ifile>
+numSurfaces <int>
+numLights <int>
+windowDims (<int height>,<int width>)
+#camera's inputs take a Point3Dd and append 1 to make a point4Dd vector
+sceneAmbient <Point3Dd>
+antialias <int antialias>
+camera (<Point3Dd eye>, <Point3Dd lookAt>, <Point3Dd up>, <double viewAngle>, <double aspectRatio>, <double near>, <double far>)
+funcam (<FunPoint4Dd eye>, <FunPoint4Dd lookAt>, <FunPoint4Dd up>, <SumFunNode viewAngle>, <SumFunNode aspectRatio>, <SunFunNode near>, <SumFunNode far>)
+DiffusePointLight <DiffusePointLight>
+DirLight <DirLight>
+SquareLight <SquareLight>
+Material <Material>
+Participating <Participating>
+
+########################
+#matrix transformations
+
+#removes/resets transforms for future shapes
+identity
+
+#translations that are fixed over time
+translate <Point3Dd>
+scale <Point3Dd>
+xRotate <double angle>
+yRotate <double angle>
+zRotate <double angle>
+#rotate around arbitrary axis
+rotate (<double>,<Point3Dd>)
+
+#Custom Transformations
+#custom transformations should have forward, backward, and for-normals matrixes inputted
+
+#custom fixed transformations
+transform <Transform4Dd>
+invtransform <Transform4Dd>
+invtransformNormals <Transform4Dd>
+
+#FunTransforms are transformations that are (or can be) functions of time.
+funTransform <FunTransform4Dd>
+funTransformInverse <FunTransform4Dd>
+funTransformNormals <FunTransform4Dd>
+
+#sets change in time per frame to be outputted
+dtdf <double>
+
+#############################
+# Surfaces
+
+ellipsoid
+plane
+taperedCyl <double>
+
+TEMPORARILY REMOVED SHADERS
+ambient
+lambert
+phong
+phongS
+phongSR
+phongST
+phongSRT
+phongSRF
+
+DISABLED:
+pointLight <pointLight>
+spotLight <spotLight>
+fast <fast>
