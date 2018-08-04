@@ -113,7 +113,7 @@ void display()
     (frameTimes[frameTimes.size()-1]
      -frameTimes[frameTimes.size()-frameTimesToAvg]
      ) / frameTimesToAvg;
-  std::cout << frameRateRecentAverage/1000.0 << " fps." << std::endl;
+  std::cout << 1/(frameRateRecentAverage/1000.0) << " fps." << std::endl;
   
 #ifdef DEBUG_BUILD
   std::cout << "dtdf is " << g_Scene->dtdf << std::endl;
