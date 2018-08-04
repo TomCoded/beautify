@@ -979,6 +979,59 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
   return specPower;
 }
 
+Surface * Renderer::closestSurfaceAlongRay(Ray * sampleRay, double &tClose) {
+  double tCurrent;
+  tClose = 50000;
+  
+  vector<Surface *>::iterator itSurfaces;
+  itSurfaces = myScene->getSurfaces()->begin();  
+  Surface * lastSurface = *(myScene->getSurfaces()->end());
+  Surface * closestSurface = NULL;
+
+#ifdef DEBUG_BUILD
+  static int total=0; static int intersected=0;
+  total++;
+#endif
+  
+  while((*itSurfaces)!=lastSurface)
+    { //for all surfaces in scene
+      //determine the t-Value of the closest intersect
+      tCurrent = (*itSurfaces)->closestIntersect
+        (*sampleRay);
+      
+#ifdef DEBUG_BUILD
+      if(!(total % 5000)) {
+        std::cout << " Surface " << *itSurfaces 
+                  << "tCurrent = " << tCurrent
+                  << "; tClose = " << tClose
+                  << "; InViewVol = " << currentCamera->InViewVol(sampleRay->GetPointAt(tCurrent))
+                  <<std::endl;
+      }
+#endif      
+      
+      if(
+         (tCurrent!=-1)
+         &&(tCurrent < tClose)
+         //	 &&(currentCamera->InViewVol(sampleRay->GetPointAt(tCurrent)))
+         )
+        {
+          tClose=tCurrent;
+          closestSurface = *itSurfaces;
+        }
+      itSurfaces++;
+    }
+  //Now the closest surface, if it exists, is in closestSurface
+
+#ifdef DEBUG_BUILD
+  if(!(total % 20000))
+    std::cout << "Trace pass ratio of Hits/Misses: " << intersected << '/'
+              << total <<std::endl;
+  if(closestSurface) { intersected++; }
+#endif
+
+  return closestSurface;
+}
+
 Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
 {
   //If the photon map is too small, there is no illumination from it
@@ -987,60 +1040,11 @@ Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
   }
 
   //First scan through all surfaces for the closest one.
-
-#ifdef DEBUG_BUILD
-  static int total=0; static int intersected=0;
-  total++;
-#endif
-
-  double tClose, tCurrent;
-  tClose = 50000;
-  vector<Surface *>::iterator itSurfaces;
-  itSurfaces = myScene->getSurfaces()->begin();  
-  Surface * lastSurface = *(myScene->getSurfaces()->end());
-  Surface * closestSurface = NULL;
-
-  while((*itSurfaces)!=lastSurface)
-    { //for all surfaces in scene
-      //determine the t-Value of the closest intersect
-      tCurrent = (*itSurfaces)->closestIntersect
-	(*sampleRay);
-
-#ifdef DEBUG_BUILD
-      if(!(total % 5000)) {
-	std::cout << " Surface " << *itSurfaces 
-	     << "tCurrent = " << tCurrent
-	     << "; tClose = " << tClose
-	     << "; InViewVol = " << currentCamera->InViewVol(sampleRay->GetPointAt(tCurrent))
-	     <<std::endl;
-      }
-#endif      
-      
-      if(
-	 (tCurrent!=-1)
-	 &&(tCurrent < tClose)
-	 //	 &&(currentCamera->InViewVol(sampleRay->GetPointAt(tCurrent)))
-	 )
-	{
-	  tClose=tCurrent;
-	  closestSurface = *itSurfaces;
-	}
-      itSurfaces++;
-    }
-  //Now the closest surface, if it exists, is in closestSurface
-
-#ifdef DEBUG_BUILD
-      if(!(total % 20000))
-	std::cout << "Trace pass ratio of Hits/Misses: " << intersected << '/'
-	     << total <<std::endl;
-#endif
-
+  double tClose; //tClose is outparam
+  Surface * closestSurface = closestSurfaceAlongRay(sampleRay, tClose);
+  
   if(closestSurface)
     { //we hit something
-
-#ifdef DEBUG_BUILD
-      intersected++;
-#endif
 
       //we need to ask the photon map for luminance information
       //move hitpoint out a little
@@ -1076,8 +1080,13 @@ Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
 	    flux=getIlluminationInMedium(hitPoint,dir,closestSurface,50);
 	    //	    flux = pVolMap->getLuminanceAt(hitPoint);
 	  }
+      #ifdef DEBUG_BUILD
+      std::cout << "image has pt with flux " << flux << std::endl;
+      #endif
       return flux;
     }
+
+  //we did not hit something
   return Point3Dd(0.0,0.0,0.0);
 }
 

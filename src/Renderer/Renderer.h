@@ -122,7 +122,9 @@ class Renderer
 				   const Point3Dd& dir,
 				   const Surface * surface,
 				   const int marchsize) const;
-  
+
+  Surface * closestSurfaceAlongRay(Ray * sampleRay,
+                                   double &tClose);
 
   static const int maxdepth=10;
   int recursionDepth;
