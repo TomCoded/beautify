@@ -60,9 +60,9 @@ int g_nFrame;
 #define scaleDefaultInv scaleDefault
 #define IDENTITY MakeTranslation(0,0,0);
 
-#define MACROcreateShader(s) createShader(s,\
-matAmbient, matDiffuse, matSpecular,matSpecExp,matReflection,\
-matTransparent)
+#define MACROcreateShader(s) createShader(s,                            \
+                                          matAmbient, matDiffuse, matSpecular,matSpecExp,matReflection, \
+                                          matTransparent)
 
 #define shaderDefault MACROcreateShader(LAMBERT);
 
@@ -225,14 +225,14 @@ void Scene::setTime(double t) {
 
 // batch video file generator 
 void Scene::generateFiles(const char * filename, 
-			  int startFrame,
-			  int numFrames, 
-			  double dfdt,
-			  int photons,
-			  int neighbors,
-			  double minDist,
-			  double maxDist
-			  )
+                          int startFrame,
+                          int numFrames, 
+                          double dfdt,
+                          int photons,
+                          int neighbors,
+                          double minDist,
+                          double maxDist
+                          )
 {
   logicalRender=true;
   char szFile[63];
@@ -271,87 +271,87 @@ void Scene::generateFiles(const char * filename,
 
 
       if(g_dynamicMap || (nFrame == startFrame) ) {
-	while( (g_map = g_Scene->myRenderer->map(photons) )->getSize() < 10) {
-	  //give it a blank image
+        while( (g_map = g_Scene->myRenderer->map(photons) )->getSize() < 10) {
+          //give it a blank image
 #ifdef PARALLEL	  
-	  if (!rank)	
+          if (!rank)	
 #endif
-	    std::cerr << "Photon Map of " << g_map->getSize() 
-		 << " photons Too Small to Render frame" << nFrame 
-		 << "; ";
-	  map_too_small=true;
-	  break;
-	  //	      MPI_Abort(MPI_COMM_WORLD,1);
-	}
+            std::cerr << "Photon Map of " << g_map->getSize() 
+                      << " photons Too Small to Render frame" << nFrame 
+                      << "; ";
+          map_too_small=true;
+          break;
+          //	      MPI_Abort(MPI_COMM_WORLD,1);
+        }
       }
 
 #ifdef PARALLEL
       double frame_start = MPI_Wtime();
       if (g_parallel) {
-	double start = MPI_Wtime();
+        double start = MPI_Wtime();
 
-	if(g_dynamicMap || (nFrame == startFrame) ) {
-	  if(!map_too_small) {
-	    g_regenerate = true;
+        if(g_dynamicMap || (nFrame == startFrame) ) {
+          if(!map_too_small) {
+            g_regenerate = true;
 	    
-	    g_map->gatherPhotons(photons);
-	    MPI_Barrier(MPI_COMM_WORLD);
-	    //	  myRenderer->getVolMap()->gatherPhotons(photons);
-	    int bufSize = myRenderer->getVolMap()->getSize()*(nodes+2);
-	    myRenderer->getVolMap()->gatherPhotons(bufSize > photons ? bufSize : photons);
+            g_map->gatherPhotons(photons);
+            MPI_Barrier(MPI_COMM_WORLD);
+            //	  myRenderer->getVolMap()->gatherPhotons(photons);
+            int bufSize = myRenderer->getVolMap()->getSize()*(nodes+2);
+            myRenderer->getVolMap()->gatherPhotons(bufSize > photons ? bufSize : photons);
 #define TAG_HANDSHAKE 6000
 
-	    double stop = MPI_Wtime();
+            double stop = MPI_Wtime();
 
-	    if(!rank) {
-	      sprintf(outbuffer,"%5d  %4d  %5d %9d  %9f %6f  ",
-		      g_nFrame, rank, nodes, g_map->getSize(),
-		      0.0, 0.0, 
-		      stop-start);
-	      //	    std::cout << "Took " << stop - start << " seconds to create photon map.\n";
-	      start = MPI_Wtime();
+            if(!rank) {
+              sprintf(outbuffer,"%5d  %4d  %5d %9d  %9f %6f  ",
+                      g_nFrame, rank, nodes, g_map->getSize(),
+                      0.0, 0.0, 
+                      stop-start);
+              //	    std::cout << "Took " << stop - start << " seconds to create photon map.\n";
+              start = MPI_Wtime();
 
-	      g_map->buildTree();
-	      myRenderer->getVolMap()->buildTree();
+              g_map->buildTree();
+              myRenderer->getVolMap()->buildTree();
 
-	      stop = MPI_Wtime();
-	      sprintf(outbuffer + strlen(outbuffer),"%6f",stop-start);
-	      printf("%s\n",outbuffer);
-	      //	    std::cout << "Took " << stop - start << " seconds to build kdTree.\n";
-	      if(minDist) {
-		g_map->setMinSearch(minDist);
-		myRenderer->getVolMap()->setMinSearch(minDist);
-	      }
-	      if(maxDist) {
-		g_map->setMaxDist(maxDist);
-		myRenderer->getVolMap()->setMaxDist(maxDist);
-	      }
-	      if(neighbors) {
-		g_map->setNumNeighbors(neighbors);
-		myRenderer->getVolMap()->setNumNeighbors(neighbors);
-	      }
-	      else {
-		g_map->setNumNeighbors(g_map->getSize()/15);
-		myRenderer->getVolMap()->setNumNeighbors(g_map->getSize()/15);
-	      }
-	    }
-	  } 
-	} else {
-	  g_regenerate = false;
-	}
-	start = MPI_Wtime();
+              stop = MPI_Wtime();
+              sprintf(outbuffer + strlen(outbuffer),"%6f",stop-start);
+              printf("%s\n",outbuffer);
+              //	    std::cout << "Took " << stop - start << " seconds to build kdTree.\n";
+              if(minDist) {
+                g_map->setMinSearch(minDist);
+                myRenderer->getVolMap()->setMinSearch(minDist);
+              }
+              if(maxDist) {
+                g_map->setMaxDist(maxDist);
+                myRenderer->getVolMap()->setMaxDist(maxDist);
+              }
+              if(neighbors) {
+                g_map->setNumNeighbors(neighbors);
+                myRenderer->getVolMap()->setNumNeighbors(neighbors);
+              }
+              else {
+                g_map->setNumNeighbors(g_map->getSize()/15);
+                myRenderer->getVolMap()->setNumNeighbors(g_map->getSize()/15);
+              }
+            }
+          } 
+        } else {
+          g_regenerate = false;
+        }
+        start = MPI_Wtime();
 	
-	draw();
+        draw();
 
-	double stop = MPI_Wtime();
-	//	if(!rank)
-	//	  std::cout << "Took " << stop - start << " seconds to render image.\n";
+        double stop = MPI_Wtime();
+        //	if(!rank)
+        //	  std::cout << "Took " << stop - start << " seconds to render image.\n";
       }
       
       if(!rank) {
-	sprintf(szTail,"%d.jpg\x00",nFrame);
-	strncpy(nTail,szTail,strlen(szTail)+1);
-	  writeImage(szFile);
+        sprintf(szTail,"%d.jpg\x00",nFrame);
+        strncpy(nTail,szTail,strlen(szTail)+1);
+        writeImage(szFile);
       }
       setTime(curTime+dfdt);
       //why was this here?
@@ -361,8 +361,8 @@ void Scene::generateFiles(const char * filename,
       MPI_Barrier(MPI_COMM_WORLD);
       double frame_stop = MPI_Wtime();
       if(!rank)
-	std::cout << "Frame " << nFrame << " Done in " <<
-	  frame_stop - frame_start << " seconds.\n";
+        std::cout << "Frame " << nFrame << " Done in " <<
+          frame_stop - frame_start << " seconds.\n";
 #else
       std::cout << "Rendering frame " << nFrame <<std::endl;
       //FIXME: Use a better algorithm for numneighbors
@@ -417,8 +417,8 @@ Scene::Scene():
 
       glMatrixMode(GL_MODELVIEW);
       gluLookAt(0.5,0.5,1.0, //eye
-		0.5,0.5,0, //lookAt
-		0,1.0,0); //up
+                0.5,0.5,0, //lookAt
+                0,1.0,0); //up
 
       glClearColor(0.0,1.0,0.0, 0.0f); //Green Background
       glColor3f(1.0f,0.0f,0.0f); //drawing color
@@ -435,8 +435,8 @@ Scene::Scene():
 
     glMatrixMode(GL_MODELVIEW);
     gluLookAt(0.5,0.5,1.0, //eye
-	      0.5,0.5,0, //lookAt
-	      0,1.0,0); //up
+              0.5,0.5,0, //lookAt
+              0,1.0,0); //up
 
     glClearColor(0.0,1.0,0.0, 0.0f); //Green Background
     glColor3f(1.0f,0.0f,0.0f); //drawing color
@@ -499,38 +499,38 @@ void Scene::ReadFile(string fileName) {
   double totalYRotate;
   double totalZRotate;
   Transform4Dd currentTranslation=transDefault
-  Transform4Dd currentTranslationInverse=transDefaultInv
-  Transform4Dd currentScale=scaleDefault
-  Transform4Dd currentScaleInverse=scaleDefaultInv
-  Transform4Dd currentXRotate=IDENTITY
-  Transform4Dd currentYRotate=IDENTITY
-  Transform4Dd currentZRotate=IDENTITY
-  Transform4Dd userTransform=IDENTITY
-  Transform4Dd userTransformInverse=IDENTITY
-  Transform4Dd rotTransform=IDENTITY
-  Transform4Dd rotTransformInverse=IDENTITY
-  Transform4Dd currentWTLTransform=IDENTITY
-  Transform4Dd currentLTWTransform=IDENTITY
-  Transform4Dd currentLTWNTransform=IDENTITY
+    Transform4Dd currentTranslationInverse=transDefaultInv
+    Transform4Dd currentScale=scaleDefault
+    Transform4Dd currentScaleInverse=scaleDefaultInv
+    Transform4Dd currentXRotate=IDENTITY
+    Transform4Dd currentYRotate=IDENTITY
+    Transform4Dd currentZRotate=IDENTITY
+    Transform4Dd userTransform=IDENTITY
+    Transform4Dd userTransformInverse=IDENTITY
+    Transform4Dd rotTransform=IDENTITY
+    Transform4Dd rotTransformInverse=IDENTITY
+    Transform4Dd currentWTLTransform=IDENTITY
+    Transform4Dd currentLTWTransform=IDENTITY
+    Transform4Dd currentLTWNTransform=IDENTITY
 
-  FunTransform4Dd * ftCurrentWTLTransform
+    FunTransform4Dd * ftCurrentWTLTransform
     = new FunTransform4Dd(1,0,0,0,
-			  0,1,0,0,
-			  0,0,1,0,
-			  0,0,0.0,1
-			  );
+                          0,1,0,0,
+                          0,0,1,0,
+                          0,0,0.0,1
+                          );
   FunTransform4Dd * ftCurrentLTWTransform
     = new FunTransform4Dd(1,0.0,0,0,
-			  0,1,0,0,
-			  0,0,1,0,
-			  0,0,0,1
-			  );
+                          0,1,0,0,
+                          0,0,1,0,
+                          0,0,0,1
+                          );
   FunTransform4Dd * ftCurrentLTWNTransform
     = new FunTransform4Dd(1.0,0,0,0,
-			  0,1,0,0,
-			  0,0,1,0,
-			  0,0,0,1
-			  );
+                          0,1,0,0,
+                          0,0,1,0,
+                          0,0,0,1
+                          );
 
   bool usingFunTransform=false;
   
@@ -581,13 +581,13 @@ void Scene::ReadFile(string fileName) {
     else if(keyword == "windowDims") {
       inFile >> c;
       if(c!='(') BADFORMAT("( not in windowDims (,)")
-      inFile >> height;
+                   inFile >> height;
       inFile >> c;
       if(c!=',') BADFORMAT(", not in windowDims (,)")
-      inFile >> width;
+                   inFile >> width;
       inFile >> c;
       if(c!=')') BADFORMAT(") not in windowDims (,)")
-    }
+                   }
     else if(keyword == "sceneAmbient") {
       inFile >> ambient;
     }
@@ -598,11 +598,11 @@ void Scene::ReadFile(string fileName) {
       //      std::cout << "antialias = " << antiAlias <<std::endl;
     }
     /*
-    else if(keyword == "fast") {
+      else if(keyword == "fast") {
       int fast;
       inFile >> fast;
       // std::cout << "fast = " << fast <<std::endl;
-    }
+      }
     */
     else if(keyword == "camera") {
       Camera * cam = new Camera();
@@ -629,9 +629,9 @@ void Scene::ReadFile(string fileName) {
     else if(keyword == "DiffusePointLight")
       {
         DiffusePointLight * dpLight
-	  = new DiffusePointLight();
-	inFile >> (*dpLight);
-	addLight(dpLight);
+          = new DiffusePointLight();
+        inFile >> (*dpLight);
+        addLight(dpLight);
       }
     else if(keyword == "DirLight") {
       DirLight * tempDirLight = new DirLight();
@@ -640,25 +640,25 @@ void Scene::ReadFile(string fileName) {
     }
     else if(keyword == "SquareLight") {
       SquareLight * mySquareLight 
-	= new SquareLight();
+        = new SquareLight();
       inFile >> (*mySquareLight);
       addLight(mySquareLight);
     }
     else if(keyword == "Material")
       {
-	Material * myMat
-	  = new Material();
-	inFile >> (*myMat);
-	addMaterial(myMat);
-	lastMaterial = myMat;
+        Material * myMat
+          = new Material();
+        inFile >> (*myMat);
+        addMaterial(myMat);
+        lastMaterial = myMat;
       }
     else if(keyword == "Participating")
       { //for the money, folks.
-	Participating * myPart
-	  = new Participating();
-	myPart->in(inFile);
-	addMaterial(myPart);
-	lastMaterial = myPart;
+        Participating * myPart
+          = new Participating();
+        myPart->in(inFile);
+        addMaterial(myPart);
+        lastMaterial = myPart;
       }
     //temporarily remove shaders
 #if 0 
@@ -695,39 +695,39 @@ void Scene::ReadFile(string fileName) {
     else if(keyword == "identity") {
       // make identity transform
       userTransform = IDENTITY
-      userTransformInverse = IDENTITY
-	//non-legacy stuff
+        userTransformInverse = IDENTITY
+        //non-legacy stuff
 
-	usingFunTransform=false;
+        usingFunTransform=false;
 
       rotTransform = IDENTITY
-      rotTransformInverse = IDENTITY
+        rotTransformInverse = IDENTITY
 
-	currentWTLTransform=IDENTITY
-	currentLTWTransform=IDENTITY
-	currentLTWNTransform=IDENTITY
+        currentWTLTransform=IDENTITY
+        currentLTWTransform=IDENTITY
+        currentLTWNTransform=IDENTITY
 
-	//      FunTransform4Dd * ftCurrentWTLTransform
-	ftCurrentWTLTransform
-	= new FunTransform4Dd(1.0,0,0,0,
-			      0,1,0,0,
-			      0,0,1,0,
-			      0,0,0,1
-			      );
+        //      FunTransform4Dd * ftCurrentWTLTransform
+        ftCurrentWTLTransform
+        = new FunTransform4Dd(1.0,0,0,0,
+                              0,1,0,0,
+                              0,0,1,0,
+                              0,0,0,1
+                              );
       //      FunTransform4Dd * ftCurrentLTWTransform
       ftCurrentLTWTransform
-	= new FunTransform4Dd(1.0,0,0,0,
-			      0,1,0,0,
-			      0,0,1,0,
-			      0,0,0,1
-			      );
+        = new FunTransform4Dd(1.0,0,0,0,
+                              0,1,0,0,
+                              0,0,1,0,
+                              0,0,0,1
+                              );
       //      FunTransform4Dd * ftCurrentLTWNTransform
       ftCurrentLTWNTransform
-	= new FunTransform4Dd(1.0,0,0,0,
-			      0,1,0,0,
-			      0,0,1,0,
-			      0,0,0,1
-			      );
+        = new FunTransform4Dd(1.0,0,0,0,
+                              0,1,0,0,
+                              0,0,1,0,
+                              0,0,0,1
+                              );
     }
     else if(keyword == "translate") {
       Point3Dd trans;
@@ -735,10 +735,10 @@ void Scene::ReadFile(string fileName) {
 
       //set total transforms
       currentLTWTransform=
-	MakeTranslation(trans)*currentLTWTransform;
+        MakeTranslation(trans)*currentLTWTransform;
 
       currentWTLTransform=
-	currentWTLTransform*MakeTranslation(trans*-1);
+        currentWTLTransform*MakeTranslation(trans*-1);
 
       //normals are not transformed under translation.
 
@@ -746,10 +746,10 @@ void Scene::ReadFile(string fileName) {
 
       totalTranslation+=trans;
       currentTranslation =
-	MakeTranslation(totalTranslation);
+        MakeTranslation(totalTranslation);
 	
       currentTranslationInverse = 
-	MakeTranslation(totalTranslation*-1);
+        MakeTranslation(totalTranslation*-1);
     }
     else if(keyword == "scale") {
       Point3Dd scale;
@@ -757,16 +757,16 @@ void Scene::ReadFile(string fileName) {
 
       //set total transforms
       currentLTWTransform=
-	MakeScale(scale)*currentLTWTransform;
+        MakeScale(scale)*currentLTWTransform;
 
       currentWTLTransform=
-	currentWTLTransform*MakeScale(1/scale.x,
-				      1/scale.y,
-				      1/scale.z
-				      );
+        currentWTLTransform*MakeScale(1/scale.x,
+                                      1/scale.y,
+                                      1/scale.z
+                                      );
 
       currentLTWNTransform=
-	MakeScale(scale)*currentLTWTransform;
+        MakeScale(scale)*currentLTWTransform;
     }
     else if(keyword == "xRotate") {
       double angle;
@@ -774,13 +774,13 @@ void Scene::ReadFile(string fileName) {
 
       //set total transforms
       currentLTWTransform=
-	MakeXRotation(angle)*currentLTWTransform;
+        MakeXRotation(angle)*currentLTWTransform;
       
       currentWTLTransform=
-	currentWTLTransform*MakeXRotation(-angle);
+        currentWTLTransform*MakeXRotation(-angle);
 
       currentLTWNTransform=
-	MakeXRotation(angle)*currentLTWNTransform;
+        MakeXRotation(angle)*currentLTWNTransform;
 
     }
     else if(keyword == "yRotate") {
@@ -788,26 +788,26 @@ void Scene::ReadFile(string fileName) {
       inFile >> angle;
       //set total transforms
       currentLTWTransform=
-	MakeYRotation(angle)*currentLTWTransform;
+        MakeYRotation(angle)*currentLTWTransform;
       
       currentWTLTransform=
-	currentWTLTransform*MakeYRotation(-angle);
+        currentWTLTransform*MakeYRotation(-angle);
 
       currentLTWNTransform=
-	MakeYRotation(angle)*currentLTWNTransform;
+        MakeYRotation(angle)*currentLTWNTransform;
     }
     else if(keyword == "zRotate") {
       double angle;
       inFile >> angle;
       //set total transforms
       currentLTWTransform=
-	MakeZRotation(angle)*currentLTWTransform;
+        MakeZRotation(angle)*currentLTWTransform;
       
       currentWTLTransform=
-	currentWTLTransform*MakeZRotation(-angle);
+        currentWTLTransform*MakeZRotation(-angle);
 
       currentLTWNTransform=
-	MakeZRotation(angle)*currentLTWNTransform;
+        MakeZRotation(angle)*currentLTWNTransform;
     }
     else if(keyword == "rotate") {
       char ch; double a; Point3Dd d;
@@ -815,81 +815,81 @@ void Scene::ReadFile(string fileName) {
       inFile >> ch;
       FORMATTEST(c,'(',formatErr)
 
-      inFile >> a;
+        inFile >> a;
       inFile >> ch;
       if(ch!=',')
-      FORMATTEST(c,',',formatErr)
+        FORMATTEST(c,',',formatErr)
 
-      inFile >> d;
+          inFile >> d;
       inFile >> ch;
       FORMATTEST(c,')',formatErr)
 
-      double c = cos(a);
+        double c = cos(a);
       double s = sin(a);
       rotTransform =
-	Transform4Dd(c + d.x*d.x*(1-c)  , (1-c)*d.y*d.x-s*d.z,
-		     (1-c)*d.z*d.x + s*d.y, 0                  ,
-		     (1-c)*d.x*d.y+s*d.z  , c+(1-c)*d.y*d.y    ,
-		     (1-c)*d.z*d.y-s*d.x  , 0                  ,
-		     (1-c)*d.x*d.z-s*d.y  , (1-c)*d.y*d.z+s*d.x,
-		     c+(1-c)*d.z*d.z      , 0                  ,
-		     0, 0, 0, 1
-		     );
+        Transform4Dd(c + d.x*d.x*(1-c)  , (1-c)*d.y*d.x-s*d.z,
+                     (1-c)*d.z*d.x + s*d.y, 0                  ,
+                     (1-c)*d.x*d.y+s*d.z  , c+(1-c)*d.y*d.y    ,
+                     (1-c)*d.z*d.y-s*d.x  , 0                  ,
+                     (1-c)*d.x*d.z-s*d.y  , (1-c)*d.y*d.z+s*d.x,
+                     c+(1-c)*d.z*d.z      , 0                  ,
+                     0, 0, 0, 1
+                     );
       d = d*-1;
       a = -a;
       c = cos(a);
       s = sin(a);
       rotTransformInverse =
-	Transform4Dd(c + (1 - c)*d.x*d.x  , (1-c)*d.y*d.x-s*d.z,
-		     (1-c)*d.z*d.x + s*d.y, 0                  ,
-		     (1-c)*d.x*d.y+s*d.z  , c+(1-c)*d.y*d.y    ,
-		     (1-c)*d.z*d.y-s*d.x  , 0                  ,
-		     (1-c)*d.x*d.z-s*d.y  , (1-c)*d.y*d.z+s*d.x,
-		     c+(1-c)*d.z*d.z      , 0                  ,
-		     0, 0, 0, 1
-		     );
+        Transform4Dd(c + (1 - c)*d.x*d.x  , (1-c)*d.y*d.x-s*d.z,
+                     (1-c)*d.z*d.x + s*d.y, 0                  ,
+                     (1-c)*d.x*d.y+s*d.z  , c+(1-c)*d.y*d.y    ,
+                     (1-c)*d.z*d.y-s*d.x  , 0                  ,
+                     (1-c)*d.x*d.z-s*d.y  , (1-c)*d.y*d.z+s*d.x,
+                     c+(1-c)*d.z*d.z      , 0                  ,
+                     0, 0, 0, 1
+                     );
       // make a transform from angle and direction
       currentLTWTransform=
-	rotTransform*currentLTWTransform;
+        rotTransform*currentLTWTransform;
 
       currentWTLTransform=
-	currentWTLTransform*rotTransform;
+        currentWTLTransform*rotTransform;
 
       currentLTWNTransform=
-	rotTransform*currentLTWNTransform;
+        rotTransform*currentLTWNTransform;
     }
     else if(keyword =="dtdf"){
       inFile >> dtdf;
     }
     else if(keyword =="funTransform") {
       FunTransform4Dd * lFunTransform
-	= new FunTransform4Dd;
+        = new FunTransform4Dd;
       inFile >> *lFunTransform;
       //ftCurrentLTWTransform = lFunTransform;
       (*ftCurrentLTWTransform)
-	*=
+        *=
       	(*lFunTransform);
       usingFunTransform=true;
       g_dynamicMap=true;
     }
     else if(keyword =="funTransformInverse") {
       FunTransform4Dd * lFunTransform
-	= new FunTransform4Dd();
+        = new FunTransform4Dd();
       FunTransform4Dd * old = ftCurrentWTLTransform;
       inFile >> *lFunTransform;
       ftCurrentWTLTransform=lFunTransform;
-            (*ftCurrentWTLTransform)
-	*=
-            (*old);
+      (*ftCurrentWTLTransform)
+        *=
+        (*old);
       usingFunTransform=true;
       g_dynamicMap=true;
     }
     else if(keyword =="funTransformNormals") {
       FunTransform4Dd * lFunTransform
-	= new FunTransform4Dd();
+        = new FunTransform4Dd();
       inFile >> *lFunTransform;
       ftCurrentLTWNTransform=
-	lFunTransform;
+        lFunTransform;
       usingFunTransform=true;
       g_dynamicMap=true;
     }
@@ -897,75 +897,75 @@ void Scene::ReadFile(string fileName) {
       Transform4Dd lUserTransform;
       inFile >> lUserTransform;
       currentLTWTransform=
-	lUserTransform*currentLTWTransform;
+        lUserTransform*currentLTWTransform;
     }
     else if(keyword == "invtransform") {
       Transform4Dd lUserTransform;
       std::cin >> lUserTransform;
       currentWTLTransform=
-	lUserTransform*currentWTLTransform;
+        lUserTransform*currentWTLTransform;
     }
     else if(keyword == "invtransformNormals") {
       Transform4Dd lUserTransform;
       std::cin >> lUserTransform;
       currentLTWNTransform=
-	lUserTransform*currentLTWNTransform;
+        lUserTransform*currentLTWNTransform;
     }
     else if(keyword == "ellipsoid") {
       if(usingFunTransform)
-	addSurface(new Surface(new Sphere(),
-			       lastMaterial,
-			       ftCurrentLTWTransform,
-			       ftCurrentWTLTransform,
-			       ftCurrentLTWNTransform
-			       )
-		   );
+        addSurface(new Surface(new Sphere(),
+                               lastMaterial,
+                               ftCurrentLTWTransform,
+                               ftCurrentWTLTransform,
+                               ftCurrentLTWNTransform
+                               )
+                   );
       else
-	addSurface(new Surface(new Sphere(),
-			       lastMaterial,
-			       currentLTWTransform,
-			       currentWTLTransform,
-			       currentLTWNTransform
-			       )
-		   );
+        addSurface(new Surface(new Sphere(),
+                               lastMaterial,
+                               currentLTWTransform,
+                               currentWTLTransform,
+                               currentLTWNTransform
+                               )
+                   );
     }
     else if(keyword == "plane") {
       if(usingFunTransform)
-	addSurface(new Surface(new Plane(),
-			       lastMaterial,
-			       ftCurrentLTWTransform,
-			       ftCurrentWTLTransform,
-			       ftCurrentLTWNTransform
-			       )
-		   );
+        addSurface(new Surface(new Plane(),
+                               lastMaterial,
+                               ftCurrentLTWTransform,
+                               ftCurrentWTLTransform,
+                               ftCurrentLTWNTransform
+                               )
+                   );
       else
-	addSurface(new Surface(new Plane(),
-			       lastMaterial,
-			       currentLTWTransform,
-			       currentWTLTransform,
-			       currentLTWNTransform
-			       )
-		   );
+        addSurface(new Surface(new Plane(),
+                               lastMaterial,
+                               currentLTWTransform,
+                               currentWTLTransform,
+                               currentLTWNTransform
+                               )
+                   );
     }
     else if(keyword == "taperedCyl") {
       double s;
       inFile >> s;
       if(usingFunTransform)
-	addSurface(new Surface(new TaperedCyl(s),
-			       lastMaterial,
-			       ftCurrentLTWTransform,
-			       ftCurrentWTLTransform,
-			       ftCurrentLTWNTransform
-			       )
-		   );
+        addSurface(new Surface(new TaperedCyl(s),
+                               lastMaterial,
+                               ftCurrentLTWTransform,
+                               ftCurrentWTLTransform,
+                               ftCurrentLTWNTransform
+                               )
+                   );
       else
-	addSurface(new Surface(new TaperedCyl(s),
-			       lastMaterial,
-			       currentWTLTransform,
-			       currentLTWTransform,
-			       currentLTWNTransform
-			       )
-		   );
+        addSurface(new Surface(new TaperedCyl(s),
+                               lastMaterial,
+                               currentWTLTransform,
+                               currentLTWTransform,
+                               currentLTWNTransform
+                               )
+                   );
     }
     else if(keyword.substr(0,2) == "//" ||
             keyword.substr(0,1) == "#") { 
@@ -988,12 +988,12 @@ void Scene::ReadFile(string fileName) {
 #endif
     {
       if(logicalImage)
-	delete logicalImage;
+        delete logicalImage;
       logicalImage = new double[3*(height*width)];
       for(int i=0; i<3*height*width;) {
-	logicalImage[i++]=1.0;
-	logicalImage[i++]=0.0;
-	logicalImage[i++]=0.0;
+        logicalImage[i++]=1.0;
+        logicalImage[i++]=0.0;
+        logicalImage[i++]=0.0;
       }
     }
 }
@@ -1013,25 +1013,25 @@ void Scene::putPixel(int x, int y, double r, double g, double b)
 #ifdef PARALLEL
   if(!doingLocalPart) {
 #endif
-  if(logicalImage&&!paintingFromLogical)
-    {
-      int nPlace = (y*width+x)*3;
-      logicalImage[nPlace++]=r;
-      logicalImage[nPlace++]=g;
-      logicalImage[nPlace]=b;
-      hasImage=true;
-    }
-  //if we're rendering to the screen
-  if(!logicalRender)
-    {
-      glPointSize(1.5);
-      double dx = (x/(double)width);
-      double dy = (y/(double)height);
-      glColor3f(r,g,b);
-      glBegin(GL_POINTS);
-      glVertex3d(dx,dy,0.0);
-      glEnd();
-    }
+    if(logicalImage&&!paintingFromLogical)
+      {
+        int nPlace = (y*width+x)*3;
+        logicalImage[nPlace++]=r;
+        logicalImage[nPlace++]=g;
+        logicalImage[nPlace]=b;
+        hasImage=true;
+      }
+    //if we're rendering to the screen
+    if(!logicalRender)
+      {
+        glPointSize(1.5);
+        double dx = (x/(double)width);
+        double dy = (y/(double)height);
+        glColor3f(r,g,b);
+        glBegin(GL_POINTS);
+        glVertex3d(dx,dy,0.0);
+        glEnd();
+      }
 #ifdef PARALLEL
   }
   else {
@@ -1051,16 +1051,16 @@ void Scene::repaint()
       int nPos=0;
       paintingFromLogical=true;
       for(int y=0; y<height; y++)
-	for(int x=0; x<width; x++)
-	  {
-	    putPixel(x,
-		     y,
-		     logicalImage[nPos],
-		     logicalImage[nPos+1],
-		     logicalImage[nPos+2]
-		     );
-	    nPos+=3;
-	  }
+        for(int x=0; x<width; x++)
+          {
+            putPixel(x,
+                     y,
+                     logicalImage[nPos],
+                     logicalImage[nPos+1],
+                     logicalImage[nPos+2]
+                     );
+            nPos+=3;
+          }
     }
 }
 
@@ -1072,18 +1072,18 @@ void Scene::smoothLogicalImage()
     paintingFromLogical=true;
     for(int y=1; y<height-1; y++)
       for(int x=1; x<width-1; x++)
-	{
-	  for(int n=0; n<3; n++) {
-	    logicalImage[nPos] = 
-	      logicalImage[nPos]*2 +
-	      logicalImage[nPos + 3] +
-	      logicalImage[nPos - 3] +
-	      logicalImage[nPos - (width * 3)] +
-	      logicalImage[nPos + (width * 3)];
-	    logicalImage[nPos] = logicalImage[nPos] / 6.0;
-	    nPos++;
-	  }
-	}
+        {
+          for(int n=0; n<3; n++) {
+            logicalImage[nPos] = 
+              logicalImage[nPos]*2 +
+              logicalImage[nPos + 3] +
+              logicalImage[nPos - 3] +
+              logicalImage[nPos - (width * 3)] +
+              logicalImage[nPos + (width * 3)];
+            logicalImage[nPos] = logicalImage[nPos] / 6.0;
+            nPos++;
+          }
+        }
   }
 }
 
@@ -1098,14 +1098,14 @@ void Scene::writeImage(const char * fileName)
   for(int y=0; y<height; y++)
     for(int x=0; x<width; x++)
       {
-	img.pixelColor(x,
-		       y,
-                 Magick::ColorRGB(logicalImage[nPos],
-				logicalImage[nPos+1],
-				logicalImage[nPos+2]
-				)
-		       );
-	nPos+=3;
+        img.pixelColor(x,
+                       y,
+                       Magick::ColorRGB(logicalImage[nPos],
+                                        logicalImage[nPos+1],
+                                        logicalImage[nPos+2]
+                                        )
+                       );
+        nPos+=3;
       }
 
   //This keeps ffmpeg from freezing on blank frames
@@ -1171,7 +1171,7 @@ void Scene::drawParallel() {
   //allocate space for a row of pixels.
   localLogicalSize = getWindowWidth();
   //totalSize / nodes;
-    //each process starts off with row equal to its rank
+  //each process starts off with row equal to its rank
   localLogicalStart = rank * localLogicalSize;
   localLogical = new double[3*localLogicalSize];
   doingLocalPart = true;
@@ -1187,7 +1187,7 @@ void Scene::drawParallel() {
       myRenderer->getVolMap()->distributeTree();
 #ifdef SAVE_VOLMAP
       if(!rank) {
-	saveMap(myRenderer->getVolMap(),"volmap.map");
+        saveMap(myRenderer->getVolMap(),"volmap.map");
       }
 #endif
     }
@@ -1195,9 +1195,9 @@ void Scene::drawParallel() {
     stop = MPI_Wtime();
     //    printf("%s",outbuffer);
     sprintf(outbuffer,"%5d  %4d  %5d %9d  %9f ",
-	   g_nFrame, rank, nodes, g_map->getSize(),
-	   stop - start
-	   );
+            g_nFrame, rank, nodes, g_map->getSize(),
+            stop - start
+            );
 
     //now actually render
     start = MPI_Wtime();
@@ -1206,30 +1206,30 @@ void Scene::drawParallel() {
 
     if(rank) {
       while(!done) {
-	//we are a child process.  Have default task.  Run task.
+        //we are a child process.  Have default task.  Run task.
 	
-	//now render results
-	myRenderer->showMap(g_map,
-			    localLogicalStart,
-			    localLogicalSize
-			    );
+        //now render results
+        myRenderer->showMap(g_map,
+                            localLogicalStart,
+                            localLogicalSize
+                            );
 
-	//now send data to master
-	MPI_Send(localLogical,localLogicalSize*3,MPI_DOUBLE,
-		 0, task, MPI_COMM_WORLD);
+        //now send data to master
+        MPI_Send(localLogical,localLogicalSize*3,MPI_DOUBLE,
+                 0, task, MPI_COMM_WORLD);
 
-	//query master to see if there are jobs left
-	int jobs;
-	MPI_Send(&jobs,1,MPI_INT,0,TAG_HANDSHAKE,MPI_COMM_WORLD);
-	MPI_Recv(&task,1,MPI_INT,
-		 0,MPI_ANY_TAG,
-		 MPI_COMM_WORLD,&status);
-	if(task==-1) {
-	  done=true;
-	}
-	else {
-	  localLogicalStart = task*localLogicalSize;
-	}
+        //query master to see if there are jobs left
+        int jobs;
+        MPI_Send(&jobs,1,MPI_INT,0,TAG_HANDSHAKE,MPI_COMM_WORLD);
+        MPI_Recv(&task,1,MPI_INT,
+                 0,MPI_ANY_TAG,
+                 MPI_COMM_WORLD,&status);
+        if(task==-1) {
+          done=true;
+        }
+        else {
+          localLogicalStart = task*localLogicalSize;
+        }
       }
       MPI_Barrier(MPI_COMM_WORLD);
     } else {
@@ -1247,90 +1247,90 @@ void Scene::drawParallel() {
       int taskPlace=localLogicalStart;
       bool done2 = false;
       while((doneProcs != nodes)||(!done2)||(bagReturned<(getWindowHeight()-1))) {
-	static int lastBag=0;
-	static int progressMeter=0;
-	if(lastBag!=bagReturned) {
-	  lastBag = bagReturned;
-	}
-	MPI_Iprobe(MPI_ANY_SOURCE,
-		   MPI_ANY_TAG,
-		   MPI_COMM_WORLD,
-		   &flag,
-		   &status
-		   );
-	//handle request from child process
-	if(flag) {
-	  int tag = status.MPI_TAG;
-	  int child = status.MPI_SOURCE;
-	  if(tag==TAG_HANDSHAKE) {
-	    //request for data from child
-	    int size;
-	    //	    std::cout << "Receiving request from " << child << " for new task.\n";
-	    int junk;
-	    MPI_Recv(&junk,1,MPI_INT,child,TAG_HANDSHAKE,MPI_COMM_WORLD,&status);
-	    //	    std::cout << "Received request...\n";
-	    junk=-1;
-	    if(bag>=(getWindowHeight()-1)) {
-	      done=true;
-	    }
-	    if(!done) {
-	      bag++;
-	      MPI_Send(&bag,1,MPI_INT,child,0,MPI_COMM_WORLD);
-	    } else {
-	      int junk=-1;
-	      MPI_Send(&junk,1,MPI_INT,child,0,MPI_COMM_WORLD);
-	      doneProcs++;
-	    }
-	  } else {
-	    //child sent data; dump it into buffer
-	    progressMeter++;
-	    if(!(progressMeter % (height/20)))
-	      std::cout << "|" << flush;
-	    MPI_Recv(&logicalImage[tag*3*getWindowWidth()],
-		     localLogicalSize*3, MPI_DOUBLE,
-		     child,tag,MPI_COMM_WORLD,&status);
-	    bagReturned++;
-	    //child will poll for new task; next MPI_Iprobe will
-	    //	detect it
-	  }
-	} else {
-	  //run a portion of our own task.
-	  if(!done2) {
-	    //	    std::cout << "Master process doing pixel " << taskPlace
-	    //	    <<std::endl;
-	    myRenderer->showMap(g_map,
-				taskPlace++,
-				1
-				);
-	    if(taskPlace%width == 0) {
-	      //	      std::cout << "taskplace is " << taskPlace <<std::endl;
-	      //	      std::cout << "task " << task << " finished by master\n";
-	      //now copy stuff over to logicalImage from local
-	      //	      int done = task*3*width+localLogicalSize*3;
-	      progressMeter++;
-	      if(!(progressMeter % (height/20)))
-		std::cout << "|" << flush;
+        static int lastBag=0;
+        static int progressMeter=0;
+        if(lastBag!=bagReturned) {
+          lastBag = bagReturned;
+        }
+        MPI_Iprobe(MPI_ANY_SOURCE,
+                   MPI_ANY_TAG,
+                   MPI_COMM_WORLD,
+                   &flag,
+                   &status
+                   );
+        //handle request from child process
+        if(flag) {
+          int tag = status.MPI_TAG;
+          int child = status.MPI_SOURCE;
+          if(tag==TAG_HANDSHAKE) {
+            //request for data from child
+            int size;
+            //	    std::cout << "Receiving request from " << child << " for new task.\n";
+            int junk;
+            MPI_Recv(&junk,1,MPI_INT,child,TAG_HANDSHAKE,MPI_COMM_WORLD,&status);
+            //	    std::cout << "Received request...\n";
+            junk=-1;
+            if(bag>=(getWindowHeight()-1)) {
+              done=true;
+            }
+            if(!done) {
+              bag++;
+              MPI_Send(&bag,1,MPI_INT,child,0,MPI_COMM_WORLD);
+            } else {
+              int junk=-1;
+              MPI_Send(&junk,1,MPI_INT,child,0,MPI_COMM_WORLD);
+              doneProcs++;
+            }
+          } else {
+            //child sent data; dump it into buffer
+            progressMeter++;
+            if(!(progressMeter % (height/20)))
+              std::cout << "|" << flush;
+            MPI_Recv(&logicalImage[tag*3*getWindowWidth()],
+                     localLogicalSize*3, MPI_DOUBLE,
+                     child,tag,MPI_COMM_WORLD,&status);
+            bagReturned++;
+            //child will poll for new task; next MPI_Iprobe will
+            //	detect it
+          }
+        } else {
+          //run a portion of our own task.
+          if(!done2) {
+            //	    std::cout << "Master process doing pixel " << taskPlace
+            //	    <<std::endl;
+            myRenderer->showMap(g_map,
+                                taskPlace++,
+                                1
+                                );
+            if(taskPlace%width == 0) {
+              //	      std::cout << "taskplace is " << taskPlace <<std::endl;
+              //	      std::cout << "task " << task << " finished by master\n";
+              //now copy stuff over to logicalImage from local
+              //	      int done = task*3*width+localLogicalSize*3;
+              progressMeter++;
+              if(!(progressMeter % (height/20)))
+                std::cout << "|" << flush;
 
-	      for(int i=0; i<localLogicalSize*3; i++) {
-		logicalImage[i+localLogicalStart*3]
-		  = localLogical[i];
-	      }
-	      bag++;
-	      task=bag;
-	      bagReturned++;
-	      if(bag>=(getWindowHeight()-1)) {
-		done=true;
-		done2=true;
-		doneProcs++;
-	      }
-	      else {
-		//		std::cout << "task " << task << " to be worked on by master\n";
-		localLogicalStart = task * localLogicalSize;
-		taskPlace = getWindowWidth()*task+1;
-	      }
-	    }
-	  }
-	}
+              for(int i=0; i<localLogicalSize*3; i++) {
+                logicalImage[i+localLogicalStart*3]
+                  = localLogical[i];
+              }
+              bag++;
+              task=bag;
+              bagReturned++;
+              if(bag>=(getWindowHeight()-1)) {
+                done=true;
+                done2=true;
+                doneProcs++;
+              }
+              else {
+                //		std::cout << "task " << task << " to be worked on by master\n";
+                localLogicalStart = task * localLogicalSize;
+                taskPlace = getWindowWidth()*task+1;
+              }
+            }
+          }
+        }
       }
       MPI_Barrier(MPI_COMM_WORLD);
       flag=0;
@@ -1358,7 +1358,7 @@ void Scene::drawParallel() {
   stop = MPI_Wtime();
   if(!rank)
     printf("%d %d %d Gather Required: %f s\n",g_nFrame,rank,nodes,stop-start);
-    //      std::cout << "Took " << stop - start << " seconds to gather pixels.\n";
+  //      std::cout << "Took " << stop - start << " seconds to gather pixels.\n";
   hasImage = true;
 
 }
@@ -1412,78 +1412,78 @@ inline void Scene::addMaterial(Material * mat)
 
 //Creates a shader of type shaderType
 Shader * Scene::createShader(int shaderType, 
-		      Point3Dd matAmbient,
-		      Point3Dd matDiffuse,
-		      Point3Dd matSpecular,
-		      double matSpecExp,
-		      double matReflection,
-		      double matTransparent
-		      )
+                             Point3Dd matAmbient,
+                             Point3Dd matDiffuse,
+                             Point3Dd matSpecular,
+                             double matSpecExp,
+                             double matReflection,
+                             double matTransparent
+                             )
 {
   Shader * rv;
   switch(shaderType)
     {
     case AMBIENT: 
       rv = new LambertShader(matAmbient,
-			     Point3Dd(0,0,0),
-			     matTransparent,
-			     myRenderer
-			     );
+                             Point3Dd(0,0,0),
+                             matTransparent,
+                             myRenderer
+                             );
       break;
     case LAMBERT:
       rv = new LambertShader(matAmbient,
-			     matDiffuse,
-			     matTransparent,
-			     myRenderer
-			     );
+                             matDiffuse,
+                             matTransparent,
+                             myRenderer
+                             );
       break;
 #if 0
     case PHONG:
       rv = new PhongShader(matAmbient,
-			   matDiffuse,
-			   matSpecular,
-			   matSpecExp,
-			   matTransparent,
-			   myRenderer);
+                           matDiffuse,
+                           matSpecular,
+                           matSpecExp,
+                           matTransparent,
+                           myRenderer);
       break;
     case PHONGS:
       rv = new PhongSShader(matAmbient,
-			   matDiffuse,
-			   matSpecular,
-			   matSpecExp,
-			   matTransparent,
-			   myRenderer);
+                            matDiffuse,
+                            matSpecular,
+                            matSpecExp,
+                            matTransparent,
+                            myRenderer);
       break;
     case PHONGST:
       rv = new PhongSTShader(matAmbient,
-			   matDiffuse,
-			   matSpecular,
-			   matSpecExp,
-			   matTransparent,
-			   myRenderer);
+                             matDiffuse,
+                             matSpecular,
+                             matSpecExp,
+                             matTransparent,
+                             myRenderer);
       break;
     case PHONGSR:
       rv = new PhongSRShader(matAmbient,
-			     matDiffuse,
-			     matSpecular,
-			     matSpecExp,
-			     matTransparent,
-			     matReflection,
-			     myRenderer);
+                             matDiffuse,
+                             matSpecular,
+                             matSpecExp,
+                             matTransparent,
+                             matReflection,
+                             myRenderer);
       break;
     case PHONGSRT:
       rv = new PhongSRTShader(matAmbient,
-			      matDiffuse,
-			      matSpecular,
-			      matSpecExp,
-			      matTransparent,
-			      matReflection,
-			      myRenderer);
+                              matDiffuse,
+                              matSpecular,
+                              matSpecExp,
+                              matTransparent,
+                              matReflection,
+                              myRenderer);
       break;
 #endif
     default:
       UNIMPLEMENTED("Scene::createShader passed evil shader.\n")
-    }
+        }
   return rv;
 }
 
@@ -1501,17 +1501,17 @@ ifstream& Scene::skipDescription(ifstream& ifFile) {
     if(input == '(') {
       int  count = 1;
       while(!ifFile.eof() && count > 0) {
-	ifFile >> input;
-	switch(input) {
-	case '(' :
-	  count++;
-	  break;
-	case ')' :
-	  count--;
-	  break;
-	default :
-	  break;
-	}
+        ifFile >> input;
+        switch(input) {
+        case '(' :
+          count++;
+          break;
+        case ')' :
+          count--;
+          break;
+        default :
+          break;
+        }
       }
     }
     // ..or it consists of a single string
@@ -1529,20 +1529,20 @@ void Scene::normalizeChannels()
   for(int n=0; n<max;)
     {
       if(logicalImage[n++] > maxChannels.x)
-	{
-	  maxChannels.x += logicalImage[n-1];
-	  countHigh.x++;
-	}
+        {
+          maxChannels.x += logicalImage[n-1];
+          countHigh.x++;
+        }
       if(logicalImage[n++] > maxChannels.y)
-	{
-	  maxChannels.y += logicalImage[n-1];
-	  countHigh.y++;
-	}
+        {
+          maxChannels.y += logicalImage[n-1];
+          countHigh.y++;
+        }
       if(logicalImage[n++] > maxChannels.z)
-	{
-	  maxChannels.z += logicalImage[n-1];
-	  countHigh.z++;
-	}
+        {
+          maxChannels.z += logicalImage[n-1];
+          countHigh.z++;
+        }
     }
   maxChannels.x = maxChannels.x / countHigh.x;
   maxChannels.y = maxChannels.y / countHigh.y;
@@ -1554,15 +1554,15 @@ void Scene::normalizeChannels()
      )
     {
       std::cout << "Normalizing color channels; scaling over "
-	   << maxChannels <<std::endl;
+                << maxChannels <<std::endl;
       for(int n=0; n<max;)
-	{
-	  logicalImage[n]=logicalImage[n]/maxChannels.x;
-	  n++;
-	  logicalImage[n]=logicalImage[n]/maxChannels.y;
-	  n++;
-	  logicalImage[n]=logicalImage[n]/maxChannels.z;
-	  n++;
-	}
+        {
+          logicalImage[n]=logicalImage[n]/maxChannels.x;
+          n++;
+          logicalImage[n]=logicalImage[n]/maxChannels.y;
+          n++;
+          logicalImage[n]=logicalImage[n]/maxChannels.z;
+          n++;
+        }
     }
 }
