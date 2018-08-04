@@ -86,8 +86,6 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
   Photon ** close = new Photon *[numNeighbors];
   Point3Dd rval;
 
-  std::cout << "PhotonMap::getFluxAt() called\n";
-  
   for(int n=0; n<numNeighbors; n++) {
     close[n]=0;
   }
@@ -113,9 +111,6 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
   PhotonPriorityQueue Q(loc);
 
   findNearestNeighbors(1,loc,&Q);
-  std::cout << "PhotonMap::getFluxAt() ran findNearestNeighbors\n";
-  std::cout << " found " << Q.getSize()
-            << std::endl;
 
   if(Q.getSize()) {
     //if there are any photons in the queue (near the point we're
@@ -381,8 +376,9 @@ void PhotonMap::findNearestNeighbors(int phLoc, const Point3Dd &loc,PhotonPriori
         break;
       }
       if(dist < 0) {
-        //loc is to the left of the splitting plane
-        //search left subtree
+        //loc is to the left of the splitting plane of the photon
+        //indicated by phLoc.
+        //So search left subtree.
         findNearestNeighbors(2*phLoc,loc,Q);
 
         //if the distance to the splitting plane from the location
