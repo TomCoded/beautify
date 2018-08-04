@@ -5,6 +5,7 @@
 // (C) Anonymous1 2002
 
 #include <cmath>
+#include "Defs.h"
 #include "Camera.h"
 #include "Point3Dd.h"
 #include "../TransformMaker/TransformMaker.h"
@@ -235,51 +236,28 @@ std::ostream& Camera::out(std::ostream& os) const {
 std::istream& Camera::in(std::istream& is) {
   char c;
   Point3Dd inputPt;
+  string formatErr("Bad Camera Format");
   is >> c;
-  if (c != '(') {
-    std::cout << "Bad format for Camera" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,'(',formatErr)
   is >> inputPt >> c;
   eye = Point4Dd(inputPt,1);
-  if (c != ',') {
-    std::cout << "Bad format for Camera" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> inputPt >> c;
   lookAt = Point4Dd(inputPt,1);
-  if (c != ',') {
-    std::cout << "Bad format for Camera" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> inputPt >> c;
   up = Point4Dd(inputPt,1);
-  if (c != ',') {
-    std::cout << "Bad format for Camera" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> viewAngle >> c;
-  if (c != ',') {
-    std::cout << "Bad format for Camera" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> aspectRatio >> c;
-  if (c != ',') {
-    std::cout << "Bad format for Camera" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> near >> c;
   near*=-1;
-  if (c != ',') {
-    std::cout << "Bad format for Camera" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> far >> c;
   far*=-1;
-  if (c != ')') {
-    std::cout << "Bad format for Camera" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,')',formatErr)
   setCameraCoordSys();
   origEye=eye;
   return is;
@@ -299,59 +277,30 @@ std::istream& Camera::funIn(std::istream& is) {
     funLookAt = new FunPoint4Dd();
   }
 
+  string formatErr("Bad format for Camera.");
   is >> c;
-  if (c != '(') {
-    std::cout << "Bad format for Camera: no leading Paren" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,'(',formatErr)
   is >> *funEye >> c;
-
-  if (c != ',') {
-    std::cout << "Bad format for Camera: no comma" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> *funLookAt >> c;
-  if (c != ',') {
-    std::cout << "Bad format for Camera" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> *funUp >> c;
   up = Point4Dd(inputPt,1);
-
-  if (c != ',') {
-    std::cout << "Bad format for Camera" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   funViewAngle = parser.in(is);
   is >> c;
-
-  if (c != ',') {
-    std::cout << "Bad format for Camera" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   funAspectRatio = parser.in(is);
   is >> c;
-
-  if (c != ',') {
-    std::cout << "Bad format for Camera" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   funNear = new MultFunNode(new NumFunNode(-1.0),
 			    parser.in(is));
   is >> c;
-  
-  if (c != ',') {
-    std::cout << "Bad format for Camera" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   funFar = new MultFunNode(new NumFunNode(-1.0),
 			   parser.in(is));
   is >> c;
-
-  if (c != ')') {
-    std::cout << "Bad format for Camera: no close paren" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,')',formatErr)
   setTime(0);
   origEye=eye;
   return is;

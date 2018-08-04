@@ -547,10 +547,10 @@ void Scene::ReadFile(string fileName) {
 
   // read in contents
   string keyword;
-  //  std::cout << fileName <<std::endl;
+
   while(!inFile.eof()) {
     inFile >> keyword;
-    //    std::cout << keyword <<std::endl;
+
     if(keyword == "include") {
       string ifile;
       inFile >> ifile;
@@ -795,26 +795,18 @@ void Scene::ReadFile(string fileName) {
     }
     else if(keyword == "rotate") {
       char ch; double a; Point3Dd d;
+      string formatErr("Bad format for rotation");
       inFile >> ch;
-      if(ch!='(')
-	{
-	  std::cout << "bad format for rotation: !(\n";
-	  break;
-	}
+      FORMATTEST(c,'(',formatErr)
+
       inFile >> a;
       inFile >> ch;
       if(ch!=',')
-	{
-	  std::cout << "Bad format for rotation: !,\n";
-	  break;
-	}
+      FORMATTEST(c,',',formatErr)
+
       inFile >> d;
       inFile >> ch;
-      if(ch!=')')
-	{
-	  std::cout << "Bad format for rotation: !)\n";
-	  break;
-	}
+      FORMATTEST(c,')',formatErr)
 
       double c = cos(a);
       double s = sin(a);

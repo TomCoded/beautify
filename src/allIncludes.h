@@ -46,5 +46,7 @@
 #include <Renderer/Renderer.h>
 #include <FunTransform4Dd.h>
 
+#include <Defs.h>
+
 #endif
 

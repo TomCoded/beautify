@@ -35,6 +35,10 @@ std::cerr << "Input file syntax error: " << s <<std::endl;\
 exit(1); \
 }
 
+#define FORMATTEST(value,shouldBe,errString) { \
+    if (value != shouldBe) { BADFORMAT(errString + ":" + value + " found instead of " + shouldBe) } \
+    }
+
 #ifndef CLONEMETHOD 
 #define CLONEMETHOD(s) s * s::clone() { return new s(*this); } 
 #endif

@@ -4,6 +4,7 @@
 
 // (C) 2002 Anonymous1
 
+#include "Defs.h"
 #include "Ray/Ray.h"
 #include "Point3Dd.h"
 
@@ -64,22 +65,14 @@ std::istream & Ray::in(std::istream& is)
   Point3Dd inputPt;
 
   is >> c;
-  if (c != '(') {
-    std::cout << "Bad format for Ray" <<std::endl;
-    exit(1);
-  }
+  string formatErr("Bad format for Ray");
+  FORMATTEST(c,'(',formatErr)
   is >> inputPt >> c;
   src = Point4Dd(inputPt,1);
-  if (c != ',') {
-    std::cout << "Bad format for Ray" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> inputPt >> c;
   dir = Point4Dd(inputPt,0);
-  if (c != ')') {
-    std::cout << "Bad format for Ray" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,')',formatErr)
   return is;
 }
   

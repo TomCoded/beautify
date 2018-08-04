@@ -79,25 +79,14 @@ std::ostream& PointLight::out(std::ostream& os) const {
 std::istream& PointLight::in(std::istream& is) {
   char c;
   is >> c;
-  if (c != '(') {
-    std::cout << "Bad format for Point3Dd" <<std::endl;
-    exit(1);
-  }
+  string formatErr = "Bad format for PointLight";
+  FORMATTEST(c,'(',formatErr)
   is >> location >> c;
-  if (c != ',') {
-    std::cout << "Bad format for Point3Df" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> diffuse >> c;
-  if (c != ',') {
-    std::cout << "Bad format for Point3Df" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> specular >> c;
-  if (c != ')') {
-    std::cout << "Bad format for Point3Df" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,')',formatErr)
   return is;
 }
 

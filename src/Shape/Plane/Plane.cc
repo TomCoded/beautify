@@ -129,20 +129,12 @@ std::istream & Plane::in(std::istream& is)
   char c;
   
   is >> c;
-  if (c != '(') {
-    std::cout << "Bad format for Plane" <<std::endl;
-    exit(1);
-  }
+  string formatErr="Bad format for Plane";
+  FORMATTEST(c,'(',formatErr)
   is >> point >> c;
-  if (c != ',') {
-    std::cout << "Bad format for Plane" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> normal >> c;
-  if (c != ')') {
-    std::cout << "Bad format for Plane" <<std::endl;
-    exit(1);
-  }
+  FORMATTEST(c,')',formatErr)
   return is;
 }
 

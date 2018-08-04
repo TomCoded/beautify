@@ -238,45 +238,30 @@ void Participating::copyExtinctCo(Point3Dd &outparam,
 
 std::istream& Participating::in(std::istream &is)
 {
-  char ch;
-  is >> ch;
+  char c;
+  string formatErr("Bad format for Participating");
+  is >> c;
 
   SumFunNode parser;
+  FORMATTEST(c,'(',formatErr)
 
-  if(ch!='(')
-    {
-      std::cerr << "Bad format for Participating: '(' not found!\n";
-      exit(1);
-    }
   scatX = parser.in(is);
   scatY = parser.in(is);
   scatZ = parser.in(is);
 
-  is >> ch;
-  if(ch!=',')
-    {
-      std::cerr << "Bad format for Participating: ',' not found!\n";
-      exit(1);
-    }
+  is >> c;
+  FORMATTEST(c,',',formatErr)
 
   absX = parser.in(is);
   absY = parser.in(is);
   absZ = parser.in(is);
 
-  is >> ch;
-  if(ch!=',')
-    {
-      std::cerr << "Bad format for Participating: ',' not found!\n";
-      exit(1);
-    }
+  is >> c;
+  FORMATTEST(c,',',formatErr)
+
   is >> greenK;
-  is >> ch;
-  if(ch!=')')
-    {
-      std::cerr << "Bad format for Participating: ')' not found!\n";
-      std::cerr << ch << "found instead\n";
-      exit(1);
-    }
+  is >> c;
+  FORMATTEST(c,')',formatErr)
 
   left = (1 - greenK*greenK) / (4 * PI);
 

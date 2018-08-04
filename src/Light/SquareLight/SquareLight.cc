@@ -173,59 +173,24 @@ std::ostream& SquareLight::out(std::ostream& os) const {
 std::istream& SquareLight::in(std::istream& is) {
   char c;
   is >> c;
-  if (c != '(') {
-    std::cerr << "Bad format for SquareLight" <<std::endl;
-    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
-    exit(1);
-  }
+  string formatErr = "Bad format for SquareLight\n Format: (position,diffuse,specular,power,normal,dx,dy,dz)";
+  FORMATTEST(c,'(',formatErr)
   is >> diffuse >> c;
-  if (c != ',') {
-    std::cerr << "Bad format for SquareLight" <<std::endl;
-    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> position >> c;
-  if (c != ',') {
-    std::cerr << "Bad format for SquareLight" <<std::endl;
-    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> specular >> c;
-  if (c != ',') {
-    std::cerr << "Bad format for SquareLight" <<std::endl;
-    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> power >> c;
-  if (c != ',') {
-    std::cerr << "Bad format for SquareLight" <<std::endl;
-    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> normal >> c;
-  if (c!=',') {
-    std::cerr << "Bad format for normal; should be Point3Df\n";
-    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> dx >> c;
-  if (c != ',') {
-    std::cerr << "Bad format for Squarelight" <<std::endl;
-    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> dy >> c;
-  if (c != ',') {
-    std::cerr << "Bad format for Squarelight" <<std::endl;
-    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
-    exit(1);
-  }
+  FORMATTEST(c,',',formatErr)
   is >> dz >> c;
-  if (c != ')') {
-    std::cerr << "Bad format for Squarelight" <<std::endl;
-    std::cerr << "Format: (position,diffuse,specular,power,normal,dx,dy,dz)\n";
-    exit(1);
-  }
+  FORMATTEST(c,')',formatErr)
 
   return is;
 }

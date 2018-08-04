@@ -119,38 +119,20 @@ double Material::getSpecCo(int nLightingModel)
 
 std::istream& Material::in(std::istream &in)
 {
-  char ch;
-  in >> ch >> ambient;
-  if(ch!='(')
-    {
-      std::cerr << "Bad format for Material: '(' not found!\n";
-      exit(1);
-    }
-  in >> ch >> diffuse;
-  if(ch!=',')
-    {
-      std::cerr << "Bad format for Material: ',' not found!\n";
-      exit(1);
-    }
-  in >> ch >> specular;
-  if(ch!=',')
-    {
-      std::cerr << "Bad format for Material: ',' not found!\n";
-      exit(1);
-    }
-  in >> ch >> specCo;
-  if(ch!=',')
-    {
-      std::cerr << "Bad format for Material: ',' not found!\n";
-      exit(1);
-    }
-  in >> ch;
-  if(ch!=')')
-    {
-      std::cerr << "Bad format for Material: ')' not found!\n";
-      std::cerr << ch << "found instead\n";
-      exit(1);
-    }
+  char c;
+  string formatErr("Bad format for Material");
+
+  in >> c >> ambient;
+  FORMATTEST(c,'(',formatErr)
+  in >> c >> diffuse;
+  FORMATTEST(c,',',formatErr)
+  in >> c >> specular;
+  FORMATTEST(c,',',formatErr)
+  in >> c >> specCo;
+  FORMATTEST(c,',',formatErr)
+  in >> c;
+  FORMATTEST(c,')',formatErr)
+
   return in;
 }
 

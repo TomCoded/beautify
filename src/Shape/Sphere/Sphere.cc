@@ -122,22 +122,13 @@ std::istream & Sphere::in(std::istream& is)
   char c;
 
   is >> c;
-  if (c != '(') {
-    std::cout << "Bad format for Sphere" <<std::endl;
-    exit(1);
-  }
-  else {
-    is >> center >> c;
-    if (c != ',') {
-      std::cout << "Bad format for Sphere" <<std::endl;
-      exit(1);
-    }
-    is >> radius >> c;
-    if (c != ')') {
-      std::cout << "Bad format for Sphere" <<std::endl;
-      exit(1);
-    }
-  }
+  string formatErr = "Bad format for Sphere";
+  FORMATTEST(c,'(',formatErr)
+  is >> center >> c;
+  FORMATTEST(c,',',formatErr)
+  is >> radius >> c;
+  FORMATTEST(c,')',formatErr)
+  
   return is;
 }
   
