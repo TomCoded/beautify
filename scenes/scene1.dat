@@ -1,0 +1,64 @@
+//Simple unit sphere, untransformed
+windowDims (200,200)
+
+sceneAmbient (0.1,0.1,0.1)
+
+camera ((0.0,0.0,12.0),(0,0,0),(0,1,0),.7,1.0,1.0,400.0)
+DiffusePointLight ((3,3,3),(1.0,1.0,1.0),(0,0,0),400.0)
+DiffusePointLight ((-3,-3,3),(1.0,1.0,1.0),(0,0,0),400.0)
+
+include mat/Chrome.mat
+
+//bronze:
+//Material ((0.329412,0.223529,0.027451),(0.780392,0.568627,0.113725),(0.992157,0.941176,0.807843),27.8974)
+
+scale (0.4,0.4,0.4)
+
+//sphere:
+ellipsoid
+
+//sphere 2
+include mat/Bronze.mat
+identity
+translate (1.0,1.0,1.0)
+ellipsoid
+
+//sphere 3
+include mat/Brass.mat
+dtdf 0.31415
+identity
+
+//funTransform cos(t) 0 0 0  0 sin(t) 0 0  0 0 1 0  0 0 0 1
+//funTransformInverse 1/cos(t) 0 0 0  0 1/sin(t) 0 0  0 0 1 0  0 0 0 1
+//transpose of the inverse
+//funTransformNormals 1/cos(t) 0 0 0  0 1/sin(t) 0 0  0 0 1 0  0 0 0 1
+
+funTransform 1.5 0 0 2*cos(t)  0 1.5 0 1.2*sin(t)  0 0 1.5 0  0 0 0 1
+funTransformInverse 0.6666 0 0 0-(2*cos(t))  0 0.6666 0 0-(1.2*sin(t))  0 0 0.6666 0  0 0 0 1
+//transpose of the inverse
+funTransformNormals 0.6666 0 0 0  0 0.6666 0 0  0 0 0.6666 0  0-(2*cos(t)) 0-(1.2*sin(t)) 0 1
+
+ellipsoid
+
+//plane 1
+identity
+include mat/Brass.mat
+translate (0.0,0.0,-3.0)
+scale (7.0,7.0,1.0)
+plane
+
+//plane 2
+identity
+include mat/Chrome.mat
+scale (6,6,1)
+yRotate 0.3
+translate (-4.0,0,0)
+plane
+
+//plane 3
+identity
+include mat/Chrome.mat
+scale (6,6,1)
+yRotate -0.3
+translate (4.0,0,0)
+plane
