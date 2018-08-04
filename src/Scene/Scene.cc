@@ -388,6 +388,7 @@ Scene::Scene():
   g_specModel=HALFWAY;
   myRenderer = new Renderer(this);
   g_Scene=this;
+  Magick::InitializeMagick("/usr/lib");
 #ifdef PARALLEL
   if (g_parallel) {
     int rank;
