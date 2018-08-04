@@ -77,7 +77,9 @@ Renderer::~Renderer()
 //map() calls the photon mapper with default nPhotons
 PhotonMap * Renderer::map()
 {
-  int photons = photonsEmittedCount || DEFAULT_PHOTONS;
+  int photons = photonsEmittedCount ?
+    photonsEmittedCount :
+    DEFAULT_PHOTONS;
   map(photons);
 }
 
@@ -133,6 +135,7 @@ PhotonMap * Renderer::map(int nPhotons)
 #endif
       lightPower=((*itLights)->getPower());
       nPhotonsForThisLight=(int)(nPhotons*(lightPower/totalPower));
+
 #ifdef PARALLEL
       if(g_parallel) {
 
@@ -156,6 +159,8 @@ PhotonMap * Renderer::map(int nPhotons)
 	nPhotonsForThisLight /= nodes;
       }
 #endif
+      std::cout << "calling light->addPhotonsToMap for "
+                << nPhotonsForThisLight << std::endl;
       (*itLights)->addPhotonsToMap(nPhotonsForThisLight,
 				   pMap,
 				   this

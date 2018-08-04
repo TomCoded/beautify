@@ -127,7 +127,8 @@ void display()
                 {
                   (*itSurf)->setTime(curTime);
                 }
-              //g_Scene->myRenderer->map();
+              g_Scene->myRenderer->map();
+              g_map->setNumNeighbors(g_map->getSize()/15);
               g_Scene->myRenderer->showMap(g_map);
             }
         }
@@ -366,7 +367,7 @@ void Scene::generateFiles(const char * filename,
 #else
       std::cout << "Rendering frame " << nFrame <<std::endl;
       //FIXME: Use a better algorithm for numneighbors
-      g_map->setNumNeighbors(g_map->getSize()/10);
+      g_map->setNumNeighbors(g_map->getSize()/15);
 
       myRenderer->showMap(g_map);
 
