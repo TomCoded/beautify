@@ -142,7 +142,8 @@ void display()
                   (*itSurf)->setTime(curTime);
                 }
               g_Scene->myRenderer->map();
-              g_map->setNumNeighbors(g_map->getSize()/15);
+              //g_map->setNumNeighbors(g_map->getSize()/15);
+              g_Scene->setNumNeighbors();
               g_map->buildTree();
               g_Scene->myRenderer->showMap(g_map);
             }
@@ -346,7 +347,7 @@ void Scene::generateFiles(const char * filename,
                 myRenderer->getVolMap()->setNumNeighbors(neighbors);
               }
               else {
-                g_map->setNumNeighbors(g_map->getSize()/15);
+                setNumNeighbors();
                 myRenderer->getVolMap()->setNumNeighbors(g_map->getSize()/15);
               }
             }
@@ -381,7 +382,7 @@ void Scene::generateFiles(const char * filename,
 #else
       std::cout << "Rendering frame on single machine " << nFrame <<std::endl;
       //FIXME: Use a better algorithm for numneighbors
-      g_map->setNumNeighbors(g_map->getSize()/15);
+      setNumNeighbors();
       g_map->buildTree();
       myRenderer->showMap(g_map);
 
@@ -1580,4 +1581,11 @@ void Scene::normalizeChannels()
           n++;
         }
     }
+}
+
+#define NEIGHBORHOODS_PER_SURFACE 10
+void Scene::setNumNeighbors() {
+  g_map->setNumNeighbors(surfaces->size(),
+                         NEIGHBORHOODS_PER_SURFACE
+                         );
 }

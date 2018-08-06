@@ -7,7 +7,8 @@ PhotonMap::PhotonMap():
   numNeighbors(200),
   maxDistDefault(2.0),
   minSearchSqr(1.0),
-  kdSize(0)
+  kdSize(0),
+  numNeighborsSetManually(false)
 {}
 
 /* do not use */
@@ -54,7 +55,18 @@ int PhotonMap::getSize() const {
 }
 
 void PhotonMap::setNumNeighbors(const int numNeighbors) {
+  numNeighborsSetManually=true;
   this->numNeighbors = numNeighbors;
+}
+
+void PhotonMap::setNumNeighbors(int numShapesInScene,
+                                int neighborhoodsPerSurface) {
+  if(numNeighborsSetManually) {
+    return;
+  }
+  int photonsInMap = getSize();
+  int photonsPerSurface = photonsInMap / numShapesInScene;
+  this->numNeighbors = photonsPerSurface / neighborhoodsPerSurface;
 }
 
 void PhotonMap::setMinSearch(const double minSearchSqr) {

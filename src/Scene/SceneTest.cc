@@ -208,7 +208,7 @@ int main(int argc, char ** argv) {
 	  if(neighbors)
 	    g_map->setNumNeighbors(neighbors);
 	  else
-	    g_map->setNumNeighbors(g_map->getSize()/10);
+	    setNumNeighbors();
 	}
 #else
 	g_map->buildTree();
@@ -216,7 +216,7 @@ int main(int argc, char ** argv) {
 	if(neighbors)
 	  g_map->setNumNeighbors(neighbors);
 	else
-	  g_map->setNumNeighbors(g_map->getSize()/10);
+    g_Scene->setNumNeighbors();
 #endif
 #ifdef PARALLEL
         if (g_parallel) {

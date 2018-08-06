@@ -59,6 +59,8 @@ class PhotonMap {
 
   //set number of neighbors to use for radiance estimates.
   void setNumNeighbors(const int numNeighbors);
+  void setNumNeighbors(const int numShapesInScene,
+                       const int neighborhoodsPerSurface);
 
   //We will always check photons closer to location
   //than std::sqrt(minSearchSqr) when generating
@@ -93,7 +95,7 @@ class PhotonMap {
 
   //number of neighbors to use at most in nearest neighbor search
   int numNeighbors;
-
+  bool numNeighborsSetManually;
 
   //maximum range to search for photons
   double maxDist;
