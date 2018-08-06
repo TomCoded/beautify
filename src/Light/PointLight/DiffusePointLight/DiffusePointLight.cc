@@ -69,7 +69,6 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
 
       // generate random seed for next loop
       seed = (long)(drand48() * 1000000000);
-      std::cout << "Next seed: " << seed << std::endl;
       
       //      std::cout << "__BEGIN_PHOTON_CHECK__\n";
       p = renderer->tracePhoton(p);
@@ -77,9 +76,7 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
       //add returned photon to map.
       if(!((p.r==p.g)&&(p.g==p.b)&&(p.g==0))) //if the photon has any power
 	{
-	  //	  std::cout << "Photon has power.\n";
 	  map->addPhoton(p);
-	  //	  std::cout << "Added Photon " << p <<std::endl;
 	}
     }
   
