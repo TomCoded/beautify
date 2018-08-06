@@ -13,6 +13,8 @@
 #include <PhotonMap/PhotonMap.h>
 #include <Renderer/Renderer.h>
 
+#define SEED 22
+
 extern Point3Dd g_photonPower;
 
 class Light {

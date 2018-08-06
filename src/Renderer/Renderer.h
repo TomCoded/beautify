@@ -23,8 +23,6 @@ class Renderer
   Renderer(Scene * myScene);
 
   void setScene(Scene * myScene);
-  //sets random number seed for light sources
-  void setSeed(int s);
 
   //destructor:
   ~Renderer();
@@ -94,8 +92,6 @@ class Renderer
 			Surface * medium,
 			int single_scatter=0
 			);
-
-  int seed;
 
   //returns the specular component of the light
   //halfway method

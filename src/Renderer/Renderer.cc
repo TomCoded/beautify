@@ -30,8 +30,7 @@ Point3Dd g_photonPowerLow;
 //default constructor
 Renderer::Renderer():
   myScene(0), ambient(0.5,0.5,0.5), currentCamera(0), pMap(0), 
-  seed(21), pVolMap(0)
-  //21 decent seed (based on spotty visual evidence)
+  pVolMap(0)
 {}
 
 //copy constructor
@@ -42,13 +41,12 @@ Renderer::Renderer(Renderer& other)
   ambient = other.ambient;
   otherSurfaces = other.otherSurfaces;
   pMap = other.pMap;
-  seed=other.seed;
   pVolMap=other.pVolMap;
 } 
 
 Renderer::Renderer(Scene * myScene):
   ambient(0.5,0.5,0.5), currentCamera(0), pMap(0),
-  seed(21), pVolMap(0)
+  pVolMap(0)
 {
   setScene(myScene);
 }
@@ -58,11 +56,6 @@ void Renderer::setScene(Scene * myScene)
   this->myScene = myScene;
   ambient = myScene->ambient;
   currentCamera = myScene->getCamera();
-}
-
-void Renderer::setSeed(int s)
-{
-  seed=s;
 }
 
 //destructor
@@ -118,20 +111,16 @@ PhotonMap * Renderer::map(int nPhotons)
       totalPower+=(*itLights)->getPower();
     }
 
-  //seed with non-random value to prevent massive variation in
-  //re-rendering of same image over time.
   for(itLights=lights->begin();
       itLights!=lights->end();
       itLights++)
     { //for each light in the scene
       //calculate the number of photons needed
-      srand48(seed);
 
 #ifdef DEBUG_BUILD
 #ifdef PARALLEL
       std::cout << rank << ':';
 #endif
-      //      std::cout << "seed is " << seed <<std::endl;
 #endif
       lightPower=((*itLights)->getPower());
       nPhotonsForThisLight=(int)(nPhotons*(lightPower/totalPower));

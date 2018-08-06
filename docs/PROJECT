@@ -54,15 +54,19 @@ change the state of the scene, if the surface's transforms are not
 static over time.
 	Frame consistency over time required seeding the random number
 system rand48() used to produce photon emissions from light sources
-consistantly.  The Renderer class takes care of that, and can have its
-seed value reset by another class if one wants to try that.  A default
+consistantly.  In an earlier version, the renderer class would do this,
+setting the seed before each light emitted its photons. A default
 seed value of 21 was picked, because it looked pretty.  Different seed
-values for the photon mapper produce *radically* different images,
-with patches, lines, spots, and or patterns.  It's almost like texture
-mapping for free, and some of the images in /stills were generated
-that way.  The rand_ series in particular are all the same scene - a
-bronze plane in its default coordinate system - with different seeds
-for the random number system.
+values for the photon mapper produced *radically* different images,
+with patches, lines, spots, and or patterns. A more recent version
+fixes this problem. Because the scene composition
+varies over time (i.e. between frames), different physical interactions
+occur and the RNG was called a variable number of times between photons,
+resulting in different light patterns. Because we are not truly emitting
+the number of photons that exist IRL, we want a consistent pattern. This
+is achieved by storing a seed for the next photon after each photon is
+generated at the light but before it is traced into the (time-varying)
+image.
 
  - To allow for reflective, refractive, and translucent objects.
     	No tests have been done to demonstrate reflection, although it

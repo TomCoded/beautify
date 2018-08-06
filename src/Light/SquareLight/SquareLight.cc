@@ -92,7 +92,8 @@ void SquareLight::addPhotonsToMap(int numPhotons,
   float xPow = (power * (diffuse.x / denom)) / numPhotons;
   float yPow = (power * (diffuse.y / denom)) / numPhotons;
   float zPow = (power * (diffuse.z / denom)) / numPhotons;
-
+  long seed=SEED;
+  
   g_photonPower.x = xPow;
   g_photonPower.y = yPow;
   g_photonPower.z = zPow;
@@ -103,6 +104,7 @@ void SquareLight::addPhotonsToMap(int numPhotons,
       nEmitted < numPhotons;
       nEmitted++)
     {
+      srand48(seed);
       //pick random part of plane
       x = (drand48() - 0.5)*dx;
       y = (drand48() - 0.5)*dy;
@@ -136,6 +138,9 @@ void SquareLight::addPhotonsToMap(int numPhotons,
       static int counter=0;
       if(!counter++%50)
 	std::cout << p <<std::endl;
+
+      //preserve same randomness for next frame's next photon
+      seed = (long)(drand48() * (1<<30));
 
       //trace photon
       p = renderer->tracePhoton(p);

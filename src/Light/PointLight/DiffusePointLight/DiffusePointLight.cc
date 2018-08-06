@@ -32,6 +32,7 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
   float yPow = (power * (diffuse.y / denom)) / numPhotons;
   float zPow = (power * (diffuse.z / denom)) / numPhotons;
   Photon p;
+  long seed=SEED;
   
   g_photonPower.x = xPow;
   g_photonPower.y = yPow;
@@ -43,6 +44,7 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
       nEmitted < numPhotons;
       nEmitted++)
     {
+      srand48(seed);
       do 
 	{
 	  dx = (drand48() - 0.5)*2;
@@ -64,6 +66,10 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
       p.dx = dx;
       p.dy = dy;
       p.dz = dz;
+
+      // generate random seed for next loop
+      seed = (long)(drand48() * 1000000000);
+      std::cout << "Next seed: " << seed << std::endl;
       
       //      std::cout << "__BEGIN_PHOTON_CHECK__\n";
       p = renderer->tracePhoton(p);

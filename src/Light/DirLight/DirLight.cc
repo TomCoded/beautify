@@ -96,11 +96,13 @@ void DirLight::addPhotonsToMap(int numPhotons,
        <<std::endl;
   Point3Dd normal=Point3Dd(-direction.x,-direction.y,-direction.z);
   Point3Dd point = direction * tInfinite;
-  Photon p;
+  Photon p; long seed=SEED;
   for(int nEmitted=0;
       nEmitted < numPhotons;
       nEmitted++)
     {
+      //seed random generator
+      srand48(seed);
       //pick random part of plane
       x = (drand48() - 0.5)*dx;
       y = (drand48() - 0.5)*dy;
@@ -117,6 +119,13 @@ void DirLight::addPhotonsToMap(int numPhotons,
       p.x = point.x+x;
       p.y = point.y+y;
       p.z = point.z+z;
+      //generate random seed for next loop.
+      //we do this here because drand48() will
+      //be used an inconsistent number of times
+      //in future frames depending on the scene
+      //at any given moment in time, during the
+      //photon tracing.
+      seed = (long)(drand48() * (1<<30));
       //trace photon
       p = renderer->tracePhoton(p);
       if(!((p.r==p.g)&&(p.g==p.b)&&(p.g==0)))
