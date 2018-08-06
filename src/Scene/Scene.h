@@ -94,11 +94,14 @@ public:
 
   double dtdf; //change in time per frame
 
-  //sets Number of neighbors in photon map from scene information
+  //sets Number of neighbors to use for luminance information
   void setNumNeighbors();
-
+  void setNumNeighbors(int numNeighbors);
+  
 protected:
 
+  int numNeighbors;
+  
 #ifdef PARALLEL
   //parallel stuff
   //procedures

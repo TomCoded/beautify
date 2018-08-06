@@ -142,7 +142,6 @@ void display()
                   (*itSurf)->setTime(curTime);
                 }
               g_Scene->myRenderer->map();
-              //g_map->setNumNeighbors(g_map->getSize()/15);
               g_Scene->setNumNeighbors();
               g_map->buildTree();
               g_Scene->myRenderer->showMap(g_map);
@@ -343,7 +342,7 @@ void Scene::generateFiles(const char * filename,
                 myRenderer->getVolMap()->setMaxDist(maxDist);
               }
               if(neighbors) {
-                g_map->setNumNeighbors(neighbors);
+                setNumNeighbors(neighbors);
                 myRenderer->getVolMap()->setNumNeighbors(neighbors);
               }
               else {
@@ -380,9 +379,9 @@ void Scene::generateFiles(const char * filename,
         std::cout << "Frame " << nFrame << " Done in " <<
           frame_stop - frame_start << " seconds.\n";
 #else
-      std::cout << "Rendering frame on single machine " << nFrame <<std::endl;
+      std::cout << "Rendering frame " << nFrame << " on single machine." << std::endl;
       //FIXME: Use a better algorithm for numneighbors
-      setNumNeighbors();
+      setNumNeighbors(neighbors);
       g_map->buildTree();
       myRenderer->showMap(g_map);
 
@@ -412,7 +411,8 @@ Scene::Scene():
   dtdf(0),
   logicalImage(0),
   logicalRender(false),
-  paintingFromLogical(false)
+  paintingFromLogical(false),
+  numNeighbors(0)
 {
   lights = new vector<Light *>();
   surfaces = new vector<Surface *>();
@@ -1584,8 +1584,17 @@ void Scene::normalizeChannels()
 }
 
 #define NEIGHBORHOODS_PER_SURFACE 10
+void Scene::setNumNeighbors(int numNeighbors) {
+  this->numNeighbors = numNeighbors;
+  setNumNeighbors();
+}
+
 void Scene::setNumNeighbors() {
-  g_map->setNumNeighbors(surfaces->size(),
-                         NEIGHBORHOODS_PER_SURFACE
-                         );
+  if(numNeighbors) {
+    g_map->setNumNeighbors(numNeighbors);
+  } else {
+    g_map->setNumNeighbors(surfaces->size(),
+			   NEIGHBORHOODS_PER_SURFACE
+			   );
+  }
 }

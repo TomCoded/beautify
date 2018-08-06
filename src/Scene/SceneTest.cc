@@ -206,7 +206,7 @@ int main(int argc, char ** argv) {
 	  g_map->buildTree();
 	  g_map->setMinSearch(minDist);
 	  if(neighbors)
-	    g_map->setNumNeighbors(neighbors);
+	    setNumNeighbors(neighbors);
 	  else
 	    setNumNeighbors();
 	}
@@ -214,7 +214,7 @@ int main(int argc, char ** argv) {
 	g_map->buildTree();
 	g_map->setMinSearch(minDist);
 	if(neighbors)
-	  g_map->setNumNeighbors(neighbors);
+	  g_Scene->setNumNeighbors(neighbors);
 	else
     g_Scene->setNumNeighbors();
 #endif
