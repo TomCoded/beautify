@@ -217,7 +217,7 @@ if test "$gprof" = "yes" ; then
   echo "TARGET_GPROF=yes" >> config.mak
   echo "#define HAVE_GPROF 1" >> $TMPH
 fi
-CFLAGS="$CFLAGS -std=c++03 -Wendif-labels"
+CFLAGS="$CFLAGS -std=c++03 -Wno-endif-labels"
 CFLAGS="$CFLAGS $OPTFLAGS"
 echo "CCFLAGS=$CFLAGS" >> config.mak
 
