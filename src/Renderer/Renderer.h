@@ -3,7 +3,7 @@
 #define RENDERER_H_
 
 //Renderer.h
-//(C) 2002 Tom White
+//(C) Tom White
 
 class Camera;
 
@@ -128,7 +128,9 @@ class Renderer
   Scene * myScene;
 
   Camera * currentCamera;
-protected:
+
+  void newMap();
+  
   std::vector<Surface *> otherSurfaces;
 };
 

@@ -67,6 +67,18 @@ Renderer::~Renderer()
 
 //Management functions
 
+extern PhotonMap * g_map;
+void Renderer::newMap() {
+  if(pMap) {
+    delete pMap;
+  }
+  if(pVolMap)
+    delete pVolMap;
+  pVolMap = new PhotonMap();
+  pMap = new PhotonMap();
+  g_map = pMap;
+}
+
 //map() calls the photon mapper with default nPhotons
 PhotonMap * Renderer::map()
 {
@@ -92,13 +104,7 @@ PhotonMap * Renderer::map(int nPhotons)
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 #endif
 
-  if(pMap) {
-    delete pMap;
-  }
-  if(pVolMap)
-    delete pVolMap;
-  pVolMap = new PhotonMap();
-  pMap = new PhotonMap();
+  newMap();
   
   std::vector<Light *> * lights = myScene->getLights();
   std::vector<Light *>::iterator itLights = lights->begin();
