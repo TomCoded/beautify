@@ -43,7 +43,7 @@ public:
 
   // assignment operator
   Ray& operator=(const Ray& other);
-
+  
   // destructor
   ~Ray();
 
@@ -80,6 +80,8 @@ std::istream& operator>>(std::istream& is, Ray& theRay);
 
 // binary output operator
 std::ostream& operator<<(std::ostream& os, const Ray& theRay);
+
+bool operator==(const Ray& r1, const Ray& other);
 
 #endif RAY_H
 

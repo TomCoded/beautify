@@ -119,4 +119,8 @@ std::ostream& operator<<(std::ostream & os, const Ray& theRay)
   return theRay.out(os);
 }
 
+bool operator==(const Ray& r1, const Ray& other) {
+  return (r1.src == other.src &&
+	  r1.dir == other.dir);
+}
 

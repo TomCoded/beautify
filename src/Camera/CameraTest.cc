@@ -1,11 +1,8 @@
 // This may look like C code, but it is really -*- C++ -*-
 
-// CameraTest.cc
-
-// (C) 2002 Anonymous1
-
 #include <cmath>
 #include "Camera.h"
+#include "gtest/gtest.h"
 
 int main() {
   Camera c1;
@@ -21,4 +18,25 @@ int main() {
     for(int c=0;c<15;c++)
       std::cout << "Ray = " <<  c3.getRay(r,c) <<std::endl;
   return 0;
+}
+
+namespace {
+  class CameraTest : public ::testing::Test {
+  protected:
+    CameraTest() {
+      this->cam.setSampleDims(20,15);
+      this->cam2.setSampleDims(20,15);
+    }
+
+  Camera cam;
+  Camera cam2;
+  };
+}
+
+TEST_F(CameraTest,getRayConsistent) {
+  for(int r=0; r<20; r++) {
+    for(int c=0; c<20; c++) {
+      EXPECT_TRUE( cam.getRay(r,c) == cam2.getRay(r,c) );
+    }
+  }
 }
