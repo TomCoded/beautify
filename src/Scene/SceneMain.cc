@@ -19,8 +19,8 @@ MPI_Datatype MPI_PHOTON;
 
 extern Scene * g_Scene;
 extern PhotonMap * g_map;
-bool g_parallel;
-bool g_suppressGraphics;
+extern bool g_parallel;
+extern bool g_suppressGraphics;
 
 PhotonMap * loadMap(std::string fileName);
 void saveMap(PhotonMap *, std::string fileName);

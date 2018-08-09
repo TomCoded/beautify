@@ -2,6 +2,9 @@
 #include "gtest/gtest.h"
 #include <math.h>
 
+#include <string>
+#include <sstream>
+
 namespace {
 
   class photonTest : public ::testing::Test {

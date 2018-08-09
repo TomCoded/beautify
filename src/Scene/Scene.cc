@@ -77,8 +77,8 @@ PhotonMap * g_map;
 double lastTime;
 double curTime;
 
-extern bool g_parallel;
-extern bool g_suppressGraphics;
+bool g_parallel;
+bool g_suppressGraphics;
 
 //true iff we need to regenerate pmap between frames.
 bool g_dynamicMap;
