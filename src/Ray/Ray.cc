@@ -120,7 +120,12 @@ std::ostream& operator<<(std::ostream & os, const Ray& theRay)
 }
 
 bool operator==(const Ray& r1, const Ray& other) {
-  return (r1.src == other.src &&
-	  r1.dir == other.dir);
+  for(int i=0; i<4; i++) {
+    if (r1.src.data[i]!=other.src.data[i])
+      return false;
+    if (r1.dir.data[i]!=other.dir.data[i])
+      return false;
+  }
+  return true;
 }
 

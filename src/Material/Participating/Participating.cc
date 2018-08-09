@@ -3,6 +3,7 @@
 #include <math.h>
 #include <TransformMaker/TransformMaker.h>
 #include <Material/Participating/Participating.h>
+#include <Point4Dd.h>
 
 Participating::Participating():
   scatCo(0.5,0.5,0.5),
