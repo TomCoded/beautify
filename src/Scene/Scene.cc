@@ -95,6 +95,9 @@ std::vector<long> frameTimes;
 // A scene 
 //
 
+
+void frameCount();
+
 // essentials
 //glut display callback function
 void display()
@@ -104,18 +107,7 @@ void display()
   
   curTime+=g_Scene->dtdf;
 
-  struct timeval tp;
-  gettimeofday(&tp, NULL);
-  long actualTime=
-    tp.tv_sec * 1000 + tp.tv_usec / 1000;
-  frameTimes.push_back(actualTime);
-  int frameCount = frameTimes.size();
-  int frameTimesToAvg = 5>frameTimes.size() ? frameTimes.size() : 5;
-  double frameRateRecentAverage =
-    (frameTimes[frameTimes.size()-1]
-     -frameTimes[frameTimes.size()-frameTimesToAvg]
-     ) / frameTimesToAvg;
-  std::cout << 1/(frameRateRecentAverage/1000.0) << " fps." << std::endl;
+  frameCount();
   
 #ifdef DEBUG_BUILD
   std::cout << "dtdf is " << g_Scene->dtdf << std::endl;
@@ -156,6 +148,21 @@ void display()
     glFlush();
     glutPostRedisplay();
   }
+}
+
+void frameCount() {
+  struct timeval tp;
+  gettimeofday(&tp, NULL);
+  long actualTime=
+    tp.tv_sec * 1000 + tp.tv_usec / 1000;
+  frameTimes.push_back(actualTime);
+  int frameCount = frameTimes.size();
+  int frameTimesToAvg = 5>frameTimes.size() ? frameTimes.size() : 5;
+  double frameRateRecentAverage =
+    (frameTimes[frameTimes.size()-1]
+     -frameTimes[frameTimes.size()-frameTimesToAvg]
+     ) / frameTimesToAvg;
+  std::cout << 1/(frameRateRecentAverage/1000.0) << " fps." << std::endl;
 }
 
 //glut keyboard function
@@ -382,6 +389,7 @@ void Scene::generateFiles(const char * filename,
           frame_stop - frame_start << " seconds.\n";
 #else
       std::cout << "Rendering frame " << nFrame << " on single machine." << std::endl;
+      frameCount();
       setNumNeighbors(neighbors);
       g_map->buildTree();
       myRenderer->showMap(g_map);
