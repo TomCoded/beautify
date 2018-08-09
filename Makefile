@@ -48,6 +48,7 @@ clean:
 
 test:
 	$(CC) $(CCFLAGS) $(TESTFILES) -o bin/test $(LDFLAGS) $(GTESTFLAGS)
+	bin/test
 
 
 

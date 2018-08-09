@@ -90,8 +90,6 @@ public:
   // Reset camera to original values
   void resetCameraCoordSys();
 
-  /* Modifications by Tom */
-
   //reads temporal dependent camera from stream
   std::istream& funIn(std::istream &is);
 
@@ -106,16 +104,9 @@ public:
     * funNear,
     * funFar;
   
-  
-  // Camera to World Coordinates Transform
-  FunTransform4Dd * cameraToWorldFun, 
-    * worldToCameraFun;
-  
   //updates the state of the camera to reflect its position,
   //etc... at time t
   void setTime(double t);
-
-  /* End Modifications */
 
 };
 

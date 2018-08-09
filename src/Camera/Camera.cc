@@ -1,9 +1,5 @@
 // This may look like C code, but it is really -*- C++ -*-
 
-// Camera.cc a simple camera object
-
-// (C) Anonymous1 2002
-
 #include <cmath>
 #include "Defs.h"
 #include "Camera.h"
@@ -45,13 +41,13 @@ Camera::Camera(const Point4Dd& camEye, const Point4Dd& camLookAt,
 
 // copy constructor
 Camera::Camera(const Camera& other) {
-  wld2Camgl = new double[16];
   *this = other;
 }
 	
 // assignment operator
 Camera& Camera::operator=(const Camera& other) {
   if(this != &other) {
+    wld2Camgl = new double[16];
     eye = other.eye;
     origEye = other.origEye;
     lookAt = other.lookAt;
@@ -70,6 +66,9 @@ Camera& Camera::operator=(const Camera& other) {
     bottom = other.bottom;
     top = other.top;
 
+    rows = other.rows;
+    cols = other.cols;
+    
     if(other.funViewAngle) {
       funViewAngle = other.funViewAngle->clone();
       funAspectRatio = other.funAspectRatio->clone();
@@ -129,9 +128,12 @@ Ray Camera::getRay(int r, int c) {
   // Make the direction std::vector extend from eye to grid point
   // to give a ray with t=1 corresponding to grid point
   Point4Dd dir(0,0,-1,0);
-  dir.x+=(left+(c+.5)*(right-left)/cols);
-  dir.y+=(bottom+(r+.5)*(top-bottom)/rows);
-  return Ray(Point4Dd(0,0,0,1),dir).applyToSelf(cameraToWorld);
+  //want 0 to be at left, and cols-1 to be at right for symmetry
+  dir.x+=(left+(c)*(right-left)/(cols-1));
+  dir.y+=(bottom+(r)*(top-bottom)/(rows-1));
+  Ray rv(Point4Dd(0,0,0,1),dir);
+  rv.applyToSelf(cameraToWorld);
+  return rv;
 }
 
 //returns true iff InViewVol is inside the view volume of the camera
