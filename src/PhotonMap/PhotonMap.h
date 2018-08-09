@@ -121,10 +121,10 @@ class PhotonMap {
 		      double &zMin,
 		      double &zMax
 		      );
-  void generateList(list<Photon **> * sList, int nRoot, KD_DIM dim);
+  void generateList(std::list<Photon **> * sList, int nRoot, KD_DIM dim);
   void medianRootSwapAndPartition(int nRoot, KD_DIM dim,
-		list<Photon *> *leftList, list<Photon *> *rightList);
-  void fillTree(int nRoot, list<Photon *> * pNodes);
+				  std::list<Photon *> *leftList, std::list<Photon *> *rightList);
+  void fillTree(int nRoot, std::list<Photon *> * pNodes);
   
 };
 

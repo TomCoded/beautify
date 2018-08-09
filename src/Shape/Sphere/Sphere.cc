@@ -122,7 +122,7 @@ std::istream & Sphere::in(std::istream& is)
   char c;
 
   is >> c;
-  string formatErr = "Bad format for Sphere";
+  std::string formatErr = "Bad format for Sphere";
   FORMATTEST(c,'(',formatErr)
   is >> center >> c;
   FORMATTEST(c,',',formatErr)

@@ -27,7 +27,7 @@ class PhotonPriorityQueue
   void percolate(int);
 
   Point3Dd location;
-  vector<PPQueueNode *> PHeap;
+  std::vector<PPQueueNode *> PHeap;
 };
 
 #endif

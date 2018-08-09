@@ -151,7 +151,7 @@ int main(int argc, char ** argv) {
 PhotonMap * loadMap()
 {
   std::cout << "Enter filename to load from: ";
-  string fileName;
+  std::string fileName;
   std::cin >> fileName;
   ifstream inFile(fileName.c_str());
   if(!inFile)
@@ -172,7 +172,7 @@ PhotonMap * loadMap()
 void saveMap(PhotonMap * pmap)
 {
   std::cout << "Enter filename to save to: ";
-  string fileName;
+  std::string fileName;
   std::cin >> fileName;
   ofstream outFile(fileName.c_str());
   if(!outFile)

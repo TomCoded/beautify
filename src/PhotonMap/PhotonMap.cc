@@ -1,4 +1,6 @@
+#include "Defs.h"
 #include "PhotonMap.h"
+
 
 extern bool g_parallel;
 
@@ -79,8 +81,13 @@ void PhotonMap::setMaxDist(const double maxDist) {
 
 void PhotonMap::buildTree() {
   kdSize = unsortedPhotons.size()+1;
+
+  std::cout << "Allocating " << kdSize*2*sizeof(Photon*) << " bytes for kdTree rebuild..." ;
   kdTree = (Photon **) malloc(kdSize * 2 * sizeof(Photon *));
 
+  ASSERT(kdSize,"Cannot build tree from zero photons.")
+    ASSERT(kdTree,"Unable to allocate sufficient memory for tree build.")
+  
   //save ourself from embarassment later
   kdTree[0] = 0;
 
@@ -548,8 +555,8 @@ void PhotonMap::distributeTree() {
 
 //recursively balances the kdTree
 int PhotonMap::kdBalance(int nRoot) {
-  list<Photon *> leftList;
-  list<Photon *> rightList;
+  std::list<Photon *> leftList;
+  std::list<Photon *> rightList;
   if(!kdTree[nRoot]) return -1;
   if(nRoot * 2 < kdSize) {
     //has children
@@ -579,17 +586,17 @@ int PhotonMap::kdBalance(int nRoot) {
   }
 }
 
-//creates ordered list of photons in dim to find median
+//creates ordered std::list of photons in dim to find median
 //swaps median in dim with root if the two are different.
 //swaps left and right nodes in tree of nRoot according to
 //  location relative to median; orders tree
 void PhotonMap::medianRootSwapAndPartition(int nRoot,KD_DIM dim,
-		list<Photon *> *leftList, list<Photon *> *rightList) {
+					   std::list<Photon *> *leftList, std::list<Photon *> *rightList) {
   //  std::cout << "medianRootSwapAndPartition(" << nRoot << ',' << dim << ")\n";
-  list<Photon **> sortedPList;
-  //generate sorted list in dimension dim of all photons below nRoot
+  std::list<Photon **> sortedPList;
+  //generate sorted std::list in dimension dim of all photons below nRoot
   generateList(&sortedPList, nRoot, dim);
-  list<Photon **>::iterator itList = sortedPList.begin();
+  std::list<Photon **>::iterator itList = sortedPList.begin();
   int listSize = sortedPList.size()/2;
   if(listSize) {
     for(int n=0;n<listSize;n++) {
@@ -598,8 +605,8 @@ void PhotonMap::medianRootSwapAndPartition(int nRoot,KD_DIM dim,
         itList++;
       }
     }
-    //itList is now pointing at the median of the list; swap with root
-    list<Photon **>::iterator itMedian = itList;
+    //itList is now pointing at the median of the std::list; swap with root
+    std::list<Photon **>::iterator itMedian = itList;
     itList++;
     for(; itList!=sortedPList.end(); itList++) {
       (*rightList).push_back(**itList);
@@ -616,9 +623,9 @@ void PhotonMap::medianRootSwapAndPartition(int nRoot,KD_DIM dim,
   }
 }
 
-//fills tree with photons in vector, in unspecified order
-//removes them from the vector once they've been added.
-void PhotonMap::fillTree(int nRoot, list<Photon *> * pNodes) {
+//fills tree with photons in std::vector, in unspecified order
+//removes them from the std::vector once they've been added.
+void PhotonMap::fillTree(int nRoot, std::list<Photon *> * pNodes) {
   if(!pNodes->empty()) {
       //at least one node to be transferred, space for it exists.
       kdTree[nRoot]=pNodes->front();
@@ -643,7 +650,7 @@ void PhotonMap::fillTree(int nRoot, list<Photon *> * pNodes) {
 
 
 //FIXME: flags here set to be place in kdTree[] of current node
-void PhotonMap::generateList(list<Photon **> * sList, int nRoot,KD_DIM dim) {
+void PhotonMap::generateList(std::list<Photon **> * sList, int nRoot,KD_DIM dim) {
   //  std::cout << "generateList(" << sList << ',' << nRoot << ',' << dim << ")\n";
   if(!kdTree[nRoot]) return;
   if(sList->empty()) {
@@ -651,12 +658,12 @@ void PhotonMap::generateList(list<Photon **> * sList, int nRoot,KD_DIM dim) {
     sList->push_back(&kdTree[nRoot]);
   }
   else {
-    list<Photon **>::iterator itList;
+    std::list<Photon **>::iterator itList;
     double comp;
     switch(dim) {
     case X:
       comp=kdTree[nRoot]->x;
-      //for loop finds first photon in list s.t. the photon is to the
+      //for loop finds first photon in std::list s.t. the photon is to the
       //  left of the rootNode in the x dimension
       for(itList=sList->begin();
 	  (itList!=sList->end())
@@ -670,7 +677,7 @@ void PhotonMap::generateList(list<Photon **> * sList, int nRoot,KD_DIM dim) {
       break;
     case Y:
        comp=kdTree[nRoot]->y;
-      //for loop finds first photon in list s.t. the photon is to the
+      //for loop finds first photon in std::list s.t. the photon is to the
       //  left of the rootNode in the x dimension
       for(itList=sList->begin();
 	  (itList!=sList->end())
@@ -684,7 +691,7 @@ void PhotonMap::generateList(list<Photon **> * sList, int nRoot,KD_DIM dim) {
     break;
     case Z:
        comp=kdTree[nRoot]->z;
-      //for loop finds first photon in list s.t. the photon is to the
+      //for loop finds first photon in std::list s.t. the photon is to the
       //  left of the rootNode in the x dimension
       for(itList=sList->begin();
 	  (itList!=sList->end())
@@ -864,14 +871,14 @@ std::ostream& PhotonMap::out(std::ostream& o){
 }
 
 std::istream& PhotonMap::in(std::istream& is){
-  string beginString; 
+  std::string beginString; 
   int readFileType;
   char c;
   is >> beginString;
   if(beginString!="BEGIN_PHOTONMAP")
     {
       std::cerr << "Error reading photon map file.  No \"BEGIN_PHOTONMAP\""
-	   << " string found\n";
+	   << " std::string found\n";
     }
   else
     {

@@ -42,21 +42,21 @@ class Renderer
   //functions for shader
 
   //Lighting functions
-  //returns a vector of all apparent light sources in the scene.
+  //returns a std::vector of all apparent light sources in the scene.
   //these are new light sources! remember to delete!
-  vector<Light *> * getApparentLights(Point3Dd);
+  std::vector<Light *> * getApparentLights(Point3Dd);
 
-  //returns a vector of light sources in the scene
-  vector<Light *> * getAllLights();
+  //returns a std::vector of light sources in the scene
+  std::vector<Light *> * getAllLights();
 
   //returns all the lights that are fully visible
-  vector<Light *> * getVisibleLights(Point3Dd);
+  std::vector<Light *> * getVisibleLights(Point3Dd);
 
   //returns remaining surfaces behind the last intersected surface
-  vector<Surface *> * getOtherSurfaces();
+  std::vector<Surface *> * getOtherSurfaces();
   
-  //deallocates all the lights in a vector, then destroys it
-  void deAllocate(vector <Light *> *);
+  //deallocates all the lights in a std::vector, then destroys it
+  void deAllocate(std::vector <Light *> *);
 
   //I/O functions
   std::istream& in(std::istream&);
@@ -67,7 +67,7 @@ class Renderer
 
   Point3Dd getColor(Ray * sampleRay);
   Point3Dd getColor(Ray * sampleRay, 
-		    vector<Surface *> * surfaces
+		    std::vector<Surface *> * surfaces
 		    );
 
   //Traces the course of a photon and returns its final location
@@ -129,7 +129,7 @@ class Renderer
 
   Camera * currentCamera;
 protected:
-  vector<Surface *> otherSurfaces;
+  std::vector<Surface *> otherSurfaces;
 };
 
 #endif

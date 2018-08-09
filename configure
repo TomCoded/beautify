@@ -2,7 +2,6 @@
 # beautify configure script (C) 2003 Tom White
 echo "-----------------------------------------"
 echo "Beautify Version 1.00"
-echo "(C) 2003 Tom White"
 echo "-----------------------------------------"
 
 #set temporary files
@@ -117,8 +116,9 @@ if test "$debug" = "no"; then
 else
     CFLAGS="-g"
 fi
-CFLAGS="$CFLAGS -I$source_path/include/Functions -I$source_path/include/linAlgLib -std=c++03 -Wno-endif-labels"
 fi
+
+CFLAGS="$CFLAGS -I$source_path/include/Functions -I$source_path/include/linAlgLib -std=c++03 -Wno-endif-labels `pkg-config --cflags ImageMagick`"
 
 #test to see if win32 was set; if so, cross-compile
 if test "$win32" = "yes" ; then
@@ -152,7 +152,7 @@ int main(int argc, char ** argv) {
 EOF
 #echo "$cc $CFLAGS -o $TMPO $TMPC -llinAlg "
 $cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg 2>/dev/null || { 
-  echo "nope."; 
+  echo "NOT FOUND. Linear Algebra Library must be installed."; 
   anonymous1="yes";
 }
 if test "$anonymous1"="no"; then
@@ -169,9 +169,9 @@ int main(int argc, char ** argv) {
     return 0;
 }
 EOF
-echo $cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg -lTomFun 
-$cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg -lTomFun  || { 
-  echo "nope."; 
+#echo $cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg -lTomFun 
+$cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg -lTomFun 2>/dev/null || { 
+  echo "NOT FOUND. Function Library Must Be Installed."; 
   targets="tom $targets";
   tom="yes"
 }

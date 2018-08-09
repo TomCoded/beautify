@@ -31,7 +31,7 @@ Transform4Dd MakeRotation(const Point3Dd& vec, const Point3Dd& dir) {
   return MakeRotation(acos(fromVec.dot(toVec)),cross);
 }
 
-// Make a counter-clockwise rotation of angle theta about vector d
+// Make a counter-clockwise rotation of angle theta about std::vector d
 Transform4Dd MakeRotation(double theta, const Point3Dd& d) 
 {
   double c = cos(theta);

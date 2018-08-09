@@ -1,5 +1,5 @@
 //Renderer.cc
-//(C) 2002 Tom White
+//(C) Tom White
 
 #include <parallel_pm.h>
 #include <allIncludes.h>
@@ -100,8 +100,8 @@ PhotonMap * Renderer::map(int nPhotons)
   pVolMap = new PhotonMap();
   pMap = new PhotonMap();
   
-  vector<Light *> * lights = myScene->getLights();
-  vector<Light *>::iterator itLights = lights->begin();
+  std::vector<Light *> * lights = myScene->getLights();
+  std::vector<Light *>::iterator itLights = lights->begin();
   int nLights = lights->size();
   int nPhotonsForThisLight=0;
   double totalPower=0.0;
@@ -178,12 +178,12 @@ Point3Dd Renderer::getColor(Ray * sampleRay)
 
 Point3Dd Renderer::getColor(
 			    Ray * sampleRay,
-			    vector<Surface *> * surfaces
+			    std::vector<Surface *> * surfaces
 			    )
 {
-  vector<Surface *>::iterator itSurf;
-  vector<Surface *> intersectedSurfaces;
-  vector<Surface *>::iterator itIntSurf;
+  std::vector<Surface *>::iterator itSurf;
+  std::vector<Surface *> intersectedSurfaces;
+  std::vector<Surface *>::iterator itIntSurf;
   Point3Dd color(0,0,0);
   Surface * closestSurface = 0;
   Surface * farthestSurface = 0;
@@ -208,7 +208,7 @@ Point3Dd Renderer::getColor(
       tLast = (*itSurf)->tScratch
 	= (*itSurf)->surShape->closestIntersect(localSampleRay);
       if(tLast!=-1) // intersected something
-	{ //add to list of intersected surfaces
+	{ //add to std::list of intersected surfaces
 	  //scan to find proper place, by t-Value
 	  if(intersectedSurfaces.size()==0)
 	    {
@@ -265,7 +265,7 @@ Point3Dd Renderer::getColor(
 	std::cout << "huh2\n";
 
 	itIntSurf=intersectedSurfaces.begin();
-	otherSurfaces = vector<Surface *>();
+	otherSurfaces = std::vector<Surface *>();
 	for(++itIntSurf;
 	    itIntSurf!=intersectedSurfaces.end();
 	    itIntSurf++)
@@ -304,12 +304,12 @@ std::ostream& Renderer::out(std::ostream& out)
   UNIMPLEMENTED("Renderer.out")
 }
 
-vector<Light *> * Renderer::getAllLights()
+std::vector<Light *> * Renderer::getAllLights()
 {
   return myScene->getLights();
 }
 
-vector<Surface *> * Renderer::getOtherSurfaces()
+std::vector<Surface *> * Renderer::getOtherSurfaces()
 {
   if(otherSurfaces.size())
     return &otherSurfaces;
@@ -321,12 +321,12 @@ vector<Surface *> * Renderer::getOtherSurfaces()
 //the intensity of the light source decreases linearly 
 //with the transparency of the surfaces through which
 //the light ray passes.
-vector<Light *> * Renderer::getApparentLights(Point3Dd point)
+std::vector<Light *> * Renderer::getApparentLights(Point3Dd point)
 {
-  vector<Light *>::iterator itLights;
-  vector<Light *>::iterator itLastLight;
-  vector<Surface *>::iterator itSurfaces;
-  vector<Light *> * lightsToReturn = new vector<Light *>();
+  std::vector<Light *>::iterator itLights;
+  std::vector<Light *>::iterator itLastLight;
+  std::vector<Surface *>::iterator itSurfaces;
+  std::vector<Light *> * lightsToReturn = new std::vector<Light *>();
   double tLast, tClose, tPoint;
   double transparency=1;
   Point4Dd raySrc, rayDir; 
@@ -371,23 +371,23 @@ vector<Light *> * Renderer::getApparentLights(Point3Dd point)
   return lightsToReturn;
 }
 
-void Renderer::deAllocate(vector <Light *> * lights)
+void Renderer::deAllocate(std::vector <Light *> * lights)
 {
-  vector<Light *>::iterator itDestroyer = lights->begin();
+  std::vector<Light *>::iterator itDestroyer = lights->begin();
   while( itDestroyer != lights->end() )
-    { //destroy all light sources in the vector
+    { //destroy all light sources in the std::vector
       if(*itDestroyer) delete (*itDestroyer);
       itDestroyer++;
     }
   delete lights;
 }
 
-vector<Light *> * Renderer::getVisibleLights(Point3Dd point)
+std::vector<Light *> * Renderer::getVisibleLights(Point3Dd point)
 {
-  vector<Light *>::iterator itLights;
-  vector<Light *>::iterator itLastLight;
-  vector<Surface *>::iterator itSurfaces;
-  vector<Light *> * lightsToReturn = new vector<Light *>();
+  std::vector<Light *>::iterator itLights;
+  std::vector<Light *>::iterator itLastLight;
+  std::vector<Surface *>::iterator itSurfaces;
+  std::vector<Light *> * lightsToReturn = new std::vector<Light *>();
   itLights = myScene->getLights()->begin();
   itSurfaces = myScene->getSurfaces()->begin();
   itLastLight = myScene->getLights()->end();
@@ -452,7 +452,7 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
   //First scan through all surfaces for the closest one.
   double tClose, tCurrent;
   tClose = 1000000;
-  vector<Surface *>::iterator itSurfaces;
+  std::vector<Surface *>::iterator itSurfaces;
   itSurfaces = myScene->getSurfaces()->begin();  
   Surface * lastSurface = *(myScene->getSurfaces()->end());
   Surface * closestSurface = NULL;
@@ -741,7 +741,7 @@ Photon& Renderer::resetIncidentDir(Photon &p,
   //about normal.
   //  std::cout << "Before reseting incident direction: " << p <<std::endl;
   //  std::cout << "Resetting incident direction about " << normal <<std::endl;
-  //reflected vector = incidentDir + 2 * (-incidentDir dot normal) /
+  //reflected std::vector = incidentDir + 2 * (-incidentDir dot normal) /
   //  (normal.norm squared) * normal
   Point3Dd incidentDir(p.dx, p.dy, p.dz);
   //  normal=normal.normalize();
@@ -825,7 +825,7 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
   Point3Dd specPower(0,0,0);
   double tClose, tCurrent;
   tClose = 50000;
-  vector<Surface *>::iterator itSurfaces;
+  std::vector<Surface *>::iterator itSurfaces;
   itSurfaces = myScene->getSurfaces()->begin();  
   Surface * lastSurface = *(myScene->getSurfaces()->end());
   Surface * closestSurface = NULL;
@@ -865,8 +865,8 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
       Point4Dd hp4 = sampleRay->GetPointAt(tClose-BUMPDISTANCE); 
       Point3Dd hitPoint(hp4.x,hp4.y,hp4.z);
       Point3Dd normal = closestSurface->getNormalAt(*sampleRay);
-      vector<Light *> * lights = myScene->getLights();
-      vector<Light *>::iterator itLights = lights->begin();
+      std::vector<Light *> * lights = myScene->getLights();
+      std::vector<Light *>::iterator itLights = lights->begin();
       bool shadowed=false;
       for(;itLights!=lights->end();itLights++)
 	{ //for each light in the scene
@@ -974,7 +974,7 @@ Surface * Renderer::closestSurfaceAlongRay(Ray * sampleRay, double &tClose) {
   double tCurrent;
   tClose = 50000;
   
-  vector<Surface *>::iterator itSurfaces;
+  std::vector<Surface *>::iterator itSurfaces;
   itSurfaces = myScene->getSurfaces()->begin();  
   Surface * lastSurface = *(myScene->getSurfaces()->end());
   Surface * closestSurface = NULL;
@@ -1177,8 +1177,8 @@ Point3Dd Renderer::getIlluminationAtPointInMedium(const Point3Dd &point,
 						  const int marchsize) const {
 
   //common code
-  vector<Light *> * lights = myScene->getLights();
-  vector<Light *>::iterator itLights;
+  std::vector<Light *> * lights = myScene->getLights();
+  std::vector<Light *>::iterator itLights;
 
   //find the participating medium
   Participating * medium = (Participating*)surface->surMat;

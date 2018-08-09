@@ -178,7 +178,7 @@ std::ostream& SquareLight::out(std::ostream& os) const {
 std::istream& SquareLight::in(std::istream& is) {
   char c;
   is >> c;
-  string formatErr = "Bad format for SquareLight\n Format: (position,diffuse,specular,power,normal,dx,dy,dz)";
+  std::string formatErr = "Bad format for SquareLight\n Format: (position,diffuse,specular,power,normal,dx,dy,dz)";
   FORMATTEST(c,'(',formatErr)
   is >> diffuse >> c;
   FORMATTEST(c,',',formatErr)

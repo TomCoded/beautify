@@ -88,13 +88,13 @@ Point3Dd LambertShader::getColor(Hit &hitPoint)
 
 Point3Dd LambertShader::getLambertColor(Hit &hitPoint) 
 {
-  vector<Light *> * Lights;
-  vector<Light *>::iterator itLights;
+  std::vector<Light *> * Lights;
+  std::vector<Light *>::iterator itLights;
 
-  //Get a vector of all visible Lights in the Scene.
+  //Get a std::vector of all visible Lights in the Scene.
   //The renderer adjusted them for transparency
   //Lights = sceneRenderer->getApparentLights(hitPoint.point); 
-  //Get a vector of all lights in the scene,
+  //Get a std::vector of all lights in the scene,
   //since that's the project description
   Lights = sceneRenderer->getAllLights();
   itLights = Lights->begin();

@@ -7,6 +7,7 @@
 #include "Defs.h"
 #include "Ray/Ray.h"
 #include "Point3Dd.h"
+#include <stdlib.h>
 
 //////////////////////
 // class Ray //
@@ -65,7 +66,7 @@ std::istream & Ray::in(std::istream& is)
   Point3Dd inputPt;
 
   is >> c;
-  string formatErr("Bad format for Ray");
+  std::string formatErr("Bad format for Ray");
   FORMATTEST(c,'(',formatErr)
   is >> inputPt >> c;
   src = Point4Dd(inputPt,1);

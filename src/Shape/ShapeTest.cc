@@ -13,7 +13,7 @@ extern "C" {
 }
 
 int main(void) {
-  // create a list of shapes: note that dynamic allocation is necessary
+  // create a std::list of shapes: note that dynamic allocation is necessary
   // for correct method dispatch
   Shape *shapeList[4];
   shapeList[0] = new Sphere();

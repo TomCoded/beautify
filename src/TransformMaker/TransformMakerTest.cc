@@ -4,9 +4,9 @@
 
 #include "TransformMaker/TransformMaker.h"
 
-void print(const char * string, const Transform4Dd& t)
+void print(const char * std::string, const Transform4Dd& t)
 {
-  std::cout << string << " = " << t <<std::endl;
+  std::cout << std::string << " = " << t <<std::endl;
 }
 
 int main(void) {

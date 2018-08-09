@@ -79,7 +79,7 @@ std::ostream& PointLight::out(std::ostream& os) const {
 std::istream& PointLight::in(std::istream& is) {
   char c;
   is >> c;
-  string formatErr = "Bad format for PointLight";
+  std::string formatErr = "Bad format for PointLight";
   FORMATTEST(c,'(',formatErr)
   is >> location >> c;
   FORMATTEST(c,',',formatErr)

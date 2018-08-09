@@ -70,10 +70,10 @@ public:
   // dot product
   float dot(const Point4Df& v2) const;
   
-  // compute length of vector (distance to origin)
+  // compute length of std::vector (distance to origin)
   float norm() const;
 
-  // normalize vector: divide self by self.norm()
+  // normalize std::vector: divide self by self.norm()
   Point4Df& normalize();
 
   //co-ordinate-wise add,subtract,multiply to self

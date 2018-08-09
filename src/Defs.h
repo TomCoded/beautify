@@ -30,7 +30,13 @@
 " is unimplemented!\n"; \
 exit(1); 
 
-#define BADFORMAT(s) { \
+#define ASSERT(condition,errMsg) {					\
+    if(!condition)							\
+    { std::cerr << "An assertion failed: " << errMsg << std::endl;	\
+      exit(1); }							\
+  }
+
+#define BADFORMAT(s) {						\
 std::cerr << "Input file syntax error: " << s <<std::endl;\
 exit(1); \
 }
@@ -38,6 +44,7 @@ exit(1); \
 #define FORMATTEST(value,shouldBe,errString) { \
     if (value != shouldBe) { BADFORMAT(errString + ":" + value + " found instead of " + shouldBe) } \
     }
+
 
 #ifndef CLONEMETHOD 
 #define CLONEMETHOD(s) s * s::clone() { return new s(*this); } 
@@ -50,6 +57,8 @@ exit(1); \
 #define SPECULAR_REFLECTION 16
 #define SCATTER 32
 #define STEP 64
+
+
 
 #endif
 

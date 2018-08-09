@@ -7,7 +7,7 @@
 #include <allIncludes.h>
 #include <iostream>
 #include <string>
-#include <chrono>
+#include <sys/time.h>
 #include <string.h>
 #include <GL/glut.h>
 #include <Magick++.h>
@@ -21,7 +21,7 @@
 // #define SAVE_VOLMAP
 
 //in SceneTest.cc
-void saveMap(PhotonMap * pmap, string fileName);
+void saveMap(PhotonMap * pmap, std::string fileName);
 
 #ifdef PARALLEL
 int g_nFrame;
@@ -86,7 +86,7 @@ bool g_regenerate;
 
 char outbuffer[80];
 
-vector<long> frameTimes;
+std::vector<long> frameTimes;
 
 ////////////////////
 // class Scene //
@@ -104,8 +104,10 @@ void display()
   
   curTime+=g_Scene->dtdf;
 
+  struct timeval tp;
+  gettimeofday(&tp, NULL);
   long actualTime=
-    std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    tp.tv_sec * 1000 + tp.tv_usec / 1000;
   frameTimes.push_back(actualTime);
   int frameCount = frameTimes.size();
   int frameTimesToAvg = 5>frameTimes.size() ? frameTimes.size() : 5;
@@ -135,8 +137,8 @@ void display()
             }
           else
             {
-              vector<Surface *> * surfaces = g_Scene->getSurfaces();
-              vector<Surface *>::iterator itSurf = surfaces->begin();
+              std::vector<Surface *> * surfaces = g_Scene->getSurfaces();
+              std::vector<Surface *>::iterator itSurf = surfaces->begin();
               for(;itSurf!=surfaces->end(); itSurf++)
                 {
                   (*itSurf)->setTime(curTime);
@@ -172,7 +174,7 @@ void keyboard(unsigned char c, int, int)
       if(g_Scene->hasImage)
         {
           std::cout << "Image file name: ";
-          string fileName;
+          std::string fileName;
           std::cin >> fileName;
           g_Scene->writeImage(fileName.c_str());
         }
@@ -224,8 +226,8 @@ void reshape(GLsizei scr_w, GLsizei scr_h)
 //Updates all transformations in the scene to 
 //be generated based on the current time
 void Scene::setTime(double t) {
-  vector<Surface *>::iterator itSurf;
-  vector<Camera *>::iterator itCam;
+  std::vector<Surface *>::iterator itSurf;
+  std::vector<Camera *>::iterator itCam;
 
   curTime=t;
 
@@ -281,7 +283,7 @@ void Scene::generateFiles(const char * filename,
       g_nFrame = nFrame;
       myRenderer->setSeed(rank);
 #else
-      std::cout << "Creating photon map for frame " << nFrame <<std::endl << flush;
+      std::cout << "Creating photon map for frame " << nFrame <<std::endl << std::flush;
 #endif
 
 
@@ -380,7 +382,6 @@ void Scene::generateFiles(const char * filename,
           frame_stop - frame_start << " seconds.\n";
 #else
       std::cout << "Rendering frame " << nFrame << " on single machine." << std::endl;
-      //FIXME: Use a better algorithm for numneighbors
       setNumNeighbors(neighbors);
       g_map->buildTree();
       myRenderer->showMap(g_map);
@@ -414,10 +415,10 @@ Scene::Scene():
   paintingFromLogical(false),
   numNeighbors(0)
 {
-  lights = new vector<Light *>();
-  surfaces = new vector<Surface *>();
-  cameras = new vector<Camera *>();
-  materials = new vector<Material *>();
+  lights = new std::vector<Light *>();
+  surfaces = new std::vector<Surface *>();
+  cameras = new std::vector<Camera *>();
+  materials = new std::vector<Material *>();
   g_specModel=HALFWAY;
   myRenderer = new Renderer(this);
   g_Scene=this;
@@ -471,31 +472,31 @@ Scene::~Scene()
   if(hasImage)
     delete logicalImage;
 
-  vector<Light *>::iterator itDestroyer = lights->begin();
+  std::vector<Light *>::iterator itDestroyer = lights->begin();
   while( itDestroyer != lights->end() )
-    { //destroy all light sources in the vector
+    { //destroy all light sources in the std::vector
       if(*itDestroyer) delete (*itDestroyer);
       itDestroyer++;
     }
   delete lights;
 
-  vector<Surface *>::iterator itSDestroyer = surfaces->begin();
+  std::vector<Surface *>::iterator itSDestroyer = surfaces->begin();
   while( itSDestroyer != surfaces->end() )
-    { //destroy all surfaces in the vector
+    { //destroy all surfaces in the std::vector
       delete (*itSDestroyer);
       itSDestroyer++;
     }
   delete surfaces;
 
-  vector<Material *>::iterator itMatDestroyer = materials->begin();
+  std::vector<Material *>::iterator itMatDestroyer = materials->begin();
   while( itMatDestroyer != materials->end() )
-    { //destroy all Materials in the vector
+    { //destroy all Materials in the std::vector
       delete (*itMatDestroyer);
       itMatDestroyer++;
     }
   delete materials;
 
-  vector<Camera *>::iterator itCDestroyer = cameras->begin();
+  std::vector<Camera *>::iterator itCDestroyer = cameras->begin();
   while(itCDestroyer != cameras->end() )
     {
       delete (*itCDestroyer);
@@ -505,7 +506,7 @@ Scene::~Scene()
 }
 
 // Scene features
-void Scene::ReadFile(string fileName) {
+void Scene::ReadFile(std::string fileName) {
   Point3Dd currentPoint3Dd;
   Point3Df currentPoint3Df;
   double currentDouble;
@@ -569,7 +570,7 @@ void Scene::ReadFile(string fileName) {
   char c; //scratch
 
   // create an input filestream
-  ifstream inFile(fileName.c_str());
+  std::ifstream inFile(fileName.c_str());
 
   // check for success of stream constructor
   if(!inFile) { // could not open file
@@ -578,13 +579,13 @@ void Scene::ReadFile(string fileName) {
   }
 
   // read in contents
-  string keyword;
+  std::string keyword;
 
   while(!inFile.eof()) {
     inFile >> keyword;
 
     if(keyword == "include") {
-      string ifile;
+      std::string ifile;
       inFile >> ifile;
       ReadFile(ifile);
     }
@@ -827,7 +828,7 @@ void Scene::ReadFile(string fileName) {
     }
     else if(keyword == "rotate") {
       char ch; double a; Point3Dd d;
-      string formatErr("Bad format for rotation");
+      std::string formatErr("Bad format for rotation");
       inFile >> ch;
       FORMATTEST(c,'(',formatErr)
 
@@ -1043,7 +1044,7 @@ void Scene::putPixel(int x, int y, double r, double g, double b)
         glPointSize(1.5);
         double dx = (x/(double)width);
         double dy = (y/(double)height);
-        glColor3f(r,g,b);
+        glColor3d(r,g,b);
         glBegin(GL_POINTS);
         glVertex3d(dx,dy,0.0);
         glEnd();
@@ -1301,7 +1302,7 @@ void Scene::drawParallel() {
             //child sent data; dump it into buffer
             progressMeter++;
             if(!(progressMeter % (height/20)))
-              std::cout << "|" << flush;
+              std::cout << "|" << std::flush;
             MPI_Recv(&logicalImage[tag*3*getWindowWidth()],
                      localLogicalSize*3, MPI_DOUBLE,
                      child,tag,MPI_COMM_WORLD,&status);
@@ -1325,7 +1326,7 @@ void Scene::drawParallel() {
               //	      int done = task*3*width+localLogicalSize*3;
               progressMeter++;
               if(!(progressMeter % (height/20)))
-                std::cout << "|" << flush;
+                std::cout << "|" << std::flush;
 
               for(int i=0; i<localLogicalSize*3; i++) {
                 logicalImage[i+localLogicalStart*3]
@@ -1380,14 +1381,14 @@ void Scene::drawParallel() {
 }
 #endif
 
-//returns a pointer to a vector of pointers to all lights in the scene
-vector<Light *> * Scene::getLights()
+//returns a pointer to a std::vector of pointers to all lights in the scene
+std::vector<Light *> * Scene::getLights()
 {
   return lights;
 }
 
-//returns a pointer to a vector of pointers to all surfaces in the scene
-vector<Surface *> * Scene::getSurfaces()
+//returns a pointer to a std::vector of pointers to all surfaces in the scene
+std::vector<Surface *> * Scene::getSurfaces()
 {
   return surfaces;
 }
@@ -1505,9 +1506,9 @@ Shader * Scene::createShader(int shaderType,
 
 
 // skip the parameters of any non-implemented scene file feature
-// assumes that parameter lists are either single strings w/o white space
+// assumes that parameter std::lists are either single std::strings w/o white space
 // or properly parenthetically nested
-ifstream& Scene::skipDescription(ifstream& ifFile) {
+std::ifstream& Scene::skipDescription(std::ifstream& ifFile) {
   char input;
 
   if(!ifFile.eof()) {
@@ -1530,7 +1531,7 @@ ifstream& Scene::skipDescription(ifstream& ifFile) {
         }
       }
     }
-    // ..or it consists of a single string
+    // ..or it consists of a single std::string
     else
       while(!ifFile.eof() && !isspace(ifFile.peek())) ifFile.get();
   }

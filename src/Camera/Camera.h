@@ -62,10 +62,10 @@ public:
   // Get sample ray
   Ray getRay(int r, int c);
 
-  //  Slide camera using direction vector
+  //  Slide camera using direction std::vector
   void slide(double du, double dv, double dn);
   
-  //  Slide camera using direction vector
+  //  Slide camera using direction std::vector
   void slide(const Point4Dd& dir);
 
   // Rotate camera about direction by angle (in degrees

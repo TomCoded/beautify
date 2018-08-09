@@ -126,7 +126,7 @@ void Camera::setSampleDims(int r, int c) {
 // Get sample ray
 Ray Camera::getRay(int r, int c) {
   // Build ray by adding its u, v, and n components
-  // Make the direction vector extend from eye to grid point
+  // Make the direction std::vector extend from eye to grid point
   // to give a ray with t=1 corresponding to grid point
   Point4Dd dir(0,0,-1,0);
   dir.x+=(left+(c+.5)*(right-left)/cols);
@@ -197,13 +197,13 @@ void Camera::resetCameraCoordSys() {
   setCameraCoordSys();
 }
 
-//  Slide camera using direction vector
+//  Slide camera using direction std::vector
 void Camera::slide(const Point4Dd& dir) {
   eye+=dir;
   resetCameraTransform();
 }
 
-//  Slide camera using direction vector
+//  Slide camera using direction std::vector
 void Camera::slide(double du, double dv, double dn) {
   slide(Point4Dd(du,dv,dn,0));
 }
@@ -236,7 +236,7 @@ std::ostream& Camera::out(std::ostream& os) const {
 std::istream& Camera::in(std::istream& is) {
   char c;
   Point3Dd inputPt;
-  string formatErr("Bad Camera Format");
+  std::string formatErr("Bad Camera Format");
   is >> c;
   FORMATTEST(c,'(',formatErr)
   is >> inputPt >> c;
@@ -277,7 +277,7 @@ std::istream& Camera::funIn(std::istream& is) {
     funLookAt = new FunPoint4Dd();
   }
 
-  string formatErr("Bad format for Camera.");
+  std::string formatErr("Bad format for Camera.");
   is >> c;
   FORMATTEST(c,'(',formatErr)
   is >> *funEye >> c;

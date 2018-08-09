@@ -4,5 +4,5 @@ prefix=/usr/local
 MAKE=make
 CC=g++
 beautify_config_args=
-CCFLAGS=-g -I/home/tom/code/beautify/include/Functions -I/home/tom/code/beautify/include/linAlgLib -std=c++03 -Wno-endif-labels -I/home/tom/code/beautify -I/home/tom/code/beautify/src -I/home/tom/code/beautify/src/Functions
+CCFLAGS=-g -I/home/tom/code/own/beautify/include/Functions -I/home/tom/code/own/beautify/include/linAlgLib -std=c++03 -Wno-endif-labels -fopenmp -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -I/usr/include/x86_64-linux-gnu//ImageMagick-6 -I/usr/include/ImageMagick-6 -I/home/tom/code/own/beautify -I/home/tom/code/own/beautify/src -I/home/tom/code/own/beautify/src/Functions
 LDFLAGS=

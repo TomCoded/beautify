@@ -131,7 +131,7 @@ void Participating::DoBRDF(Photon &p)
   Point3Dd nDir(p.dx,p.dy,p.dz);
   Point3Dd xhat(1.0,0.0,0.0);
 
-  //rotate by theta about a vector perpendicular to the incoming photon
+  //rotate by theta about a std::vector perpendicular to the incoming photon
   Point3Dd cross = nDir.cross(xhat);
   
   Transform4Dd thetaTrans = MakeRotation(theta,cross);
@@ -239,7 +239,7 @@ void Participating::copyExtinctCo(Point3Dd &outparam,
 std::istream& Participating::in(std::istream &is)
 {
   char c;
-  string formatErr("Bad format for Participating");
+  std::string formatErr("Bad format for Participating");
   is >> c;
 
   SumFunNode parser;

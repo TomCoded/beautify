@@ -1,35 +1,52 @@
 include config.mak
 
-CONFIGDIRS=src lib/linAlgLib lib/TomFun
+#MAKE = gmake
 
-all: $(targets)
+SRCDIR = src
+OBJDIR = obj
+BINDIR = bin
+TARGET = bin/beautify
+INCDIR = inc
+LDFLAGS=-lTomFun -llinAlg -lglut -lGLU -lGL -lMagick++-6.Q16 -L/usr/lib/x86_64-linux-gnu/
 
-beautify:
-	cd src; \
-	./configure --prefix=$(prefix) $(beautify_config_args); \
-	$(MAKE);
+CCFILES1 = $(wildcard $(SRCDIR)/*/*.cc) $(wildcard $(SRCDIR)/*/*/*.cc) $(wildcard $(SRCDIR)/*/*/*/*.cc)
+TESTFILES = $(CCFILES1)
+CCFILES = $(filter-out %Test.cc,$(CCFILES1))
+#CCFILES = $(FUNCCS)
+#OBJS = $(addprefix $(OBJDIR)/,$(notdir $(CCFILES:.cc=.o)))
+#use in place .o files on nested src tree to avoid complex Makefile rules.
+OBJS = $(CCFILES:.cc=.o)
+INCLDIRS = -I$(SRCDIR) -I$(INCDIR)
+#CC = g++
 
-libs: bill tom
+#build the library
+$(TARGET): $(OBJS)
+	$(CC) $(CCFLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS)
+	chmod 755 $@
+	#Remember to run make install with permissions on $(prefix)
 
-bill: 
-	cd lib/linAlgLib; ./configure --prefix=$(prefix); $(MAKE);
+.cc.o:
+	#$(OBJDIR)/%.o: $(SRCDIR)/%/*.cc
+	$(CC) $(CCFLAGS) -c -o $@ $(filter-out %Test.cc,$^) $(INCLDIRS)
 
-tom:
-	cd lib/TomFun; ./configure --prefix=$(prefix); $(MAKE);
+# install the library
+install: $(TARGET)
+	cp $(TARGET) $(prefix)/bin/
 
-clean:
-	for i in $(CONFIGDIRS); do \
-		pushd $$i; \
-		touch config.mak config.h; \
-		$(MAKE) clean; \
-		popd;\
-	done;
+all: config.mak $(OBJS) $(TARGET)
+
+copyheaders:
+	cp $(SRCDIR)/*/*.h $(prefix)/include
 
 mrproper: clean
-	for i in $(CONFIGDIRS); do \
-		pushd $$i; \
-		touch config.mak config.h; \
-		$(MAKE) mrproper; \
-		popd;\
-	done;
-	rm config.mak
+	rm -f config.h config.mak
+
+clean:	
+	rm -rf $(OBJS)
+	rm bin/beautify
+
+
+
+
+
+

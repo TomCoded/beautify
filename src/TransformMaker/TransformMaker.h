@@ -27,7 +27,7 @@ double * GetArray(const Transform4Dd& tr);
 // A transform that rotates vec onto dir around (vec x dir)
 Transform4Dd MakeRotation(const Point3Dd& vec, const Point3Dd& dir);
 
-// Make a counter-clockwise rotation of angle theta about vector d
+// Make a counter-clockwise rotation of angle theta about std::vector d
 Transform4Dd MakeRotation(double theta, const Point3Dd& d);
 
 // Make a positive rotation of angle theta about the x axis

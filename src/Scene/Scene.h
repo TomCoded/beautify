@@ -44,7 +44,7 @@ public:
   // Scene Procedures
 
   // Read contents of a scene file, skipping over unimplemented features
-  void ReadFile(string fileName);
+  void ReadFile(std::string fileName);
 
   //Outputs image to filename specified
   void writeImage(const char * fileName);
@@ -65,8 +65,8 @@ public:
   void draw();
 
   //Scene Functions
-  vector<Light *> * getLights();
-  vector<Surface *> * getSurfaces();
+  std::vector<Light *> * getLights();
+  std::vector<Surface *> * getSurfaces();
   Camera * getCamera();
   int getWindowWidth();
   int getWindowHeight();
@@ -133,16 +133,16 @@ protected:
   //  Renderer * myRenderer;
 
   //We also want information about the lights in a scene
-  vector<Light *> * lights;
+  std::vector<Light *> * lights;
 
-  //And a list of all the surfaces
-  vector<Surface *> * surfaces;
+  //And a std::list of all the surfaces
+  std::vector<Surface *> * surfaces;
 
-  //And a list of all the materials
-  vector<Material *> * materials;
+  //And a std::list of all the materials
+  std::vector<Material *> * materials;
 
-  //And finally, a list of all the camera available
-  vector<Camera *> * cameras;
+  //And finally, a std::list of all the camera available
+  std::vector<Camera *> * cameras;
   int currentCamera;
 
   //helper functions.  We keep these around to provide an abstraction
@@ -170,9 +170,9 @@ private:
 
 
   // skip the parameters of any non-implemented scene file feature
-  // assumes that parameter lists are either single strings w/o white space
+  // assumes that parameter std::lists are either single strings w/o white space
   // or properly parenthetically nested
-  ifstream& skipDescription(ifstream& ifs);
+  std::ifstream& skipDescription(std::ifstream& ifs);
 };
 
 #endif SCENE_H

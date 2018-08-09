@@ -129,7 +129,7 @@ std::istream & Plane::in(std::istream& is)
   char c;
   
   is >> c;
-  string formatErr="Bad format for Plane";
+  std::string formatErr="Bad format for Plane";
   FORMATTEST(c,'(',formatErr)
   is >> point >> c;
   FORMATTEST(c,',',formatErr)

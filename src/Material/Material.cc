@@ -7,6 +7,7 @@
 
 #include "Material.h"
 #include <string>
+#include <stdlib.h>
 #include "Defs.h"
 
 Material::Material():
@@ -120,7 +121,7 @@ double Material::getSpecCo(int nLightingModel)
 std::istream& Material::in(std::istream &in)
 {
   char c;
-  string formatErr("Bad format for Material");
+  std::string formatErr("Bad format for Material");
 
   in >> c >> ambient;
   FORMATTEST(c,'(',formatErr)

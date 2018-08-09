@@ -149,7 +149,7 @@ std::ostream& DirLight::out(std::ostream& os) const {
 std::istream& DirLight::in(std::istream& is) {
   char c;
   is >> c;
-  string formatErr="Bad format for DirLight";
+  std::string formatErr="Bad format for DirLight";
   FORMATTEST(c,'(',formatErr)
   is >> diffuse >> c;
   FORMATTEST(c,',',formatErr)
