@@ -267,8 +267,9 @@ void Scene::generateFiles(const char * filename,
 
   setTime(startFrame*dtdf);
 
+  int rank=0;
 #ifdef PARALLEL
-  int rank, nodes;
+  int nodes;
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
   MPI_Comm_size(MPI_COMM_WORLD,&nodes);
   if(!rank) {
@@ -278,6 +279,7 @@ void Scene::generateFiles(const char * filename,
   }
   //  photons /= nodes;
 #endif
+  
   paintingFromLogical=false;
 
   for(int nFrame=startFrame; nFrame<numFrames+startFrame; nFrame++)
@@ -288,7 +290,7 @@ void Scene::generateFiles(const char * filename,
 
 #ifdef PARALLEL
       g_nFrame = nFrame;
-      myRenderer->setSeed(rank);
+      //myRenderer->setSeed(rank);
 #else
       std::cout << "Creating photon map for frame " << nFrame <<std::endl << std::flush;
 #endif
@@ -297,9 +299,7 @@ void Scene::generateFiles(const char * filename,
       if(g_dynamicMap || (nFrame == startFrame) ) {
         while( (g_map = g_Scene->myRenderer->map(photons) )->getSize() < 10) {
           //give it a blank image
-#ifdef PARALLEL	  
           if (!rank)	
-#endif
             std::cerr << "Photon Map of " << g_map->getSize() 
                       << " photons Too Small to Render frame" << nFrame 
                       << "; ";
@@ -310,67 +310,24 @@ void Scene::generateFiles(const char * filename,
       }
 
 #ifdef PARALLEL
-      double frame_start = MPI_Wtime();
-      if (g_parallel) {
-        double start = MPI_Wtime();
+      renderParallelFrame(photons,
+			  nFrame,
+			  startFrame,
+			  neighbors,
+			  minDist,
+			  maxDist,
+			  rank,
+			  nodes
+			  );
 
-        if(g_dynamicMap || (nFrame == startFrame) ) {
-          if(!map_too_small) {
-            g_regenerate = true;
-	    
-            g_map->gatherPhotons(photons);
-            MPI_Barrier(MPI_COMM_WORLD);
-            //	  myRenderer->getVolMap()->gatherPhotons(photons);
-            int bufSize = myRenderer->getVolMap()->getSize()*(nodes+2);
-            myRenderer->getVolMap()->gatherPhotons(bufSize > photons ? bufSize : photons);
-#define TAG_HANDSHAKE 6000
+#else
+      std::cout << "Rendering frame " << nFrame << std::endl;
+      frameCount();
+      setNumNeighbors(neighbors);
+      g_map->buildTree();
+      myRenderer->showMap(g_map);
 
-            double stop = MPI_Wtime();
-
-            if(!rank) {
-              sprintf(outbuffer,"%5d  %4d  %5d %9d  %9f %6f  ",
-                      g_nFrame, rank, nodes, g_map->getSize(),
-                      0.0, 0.0, 
-                      stop-start);
-              //	    std::cout << "Took " << stop - start << " seconds to create photon map.\n";
-              start = MPI_Wtime();
-
-              g_map->buildTree();
-              myRenderer->getVolMap()->buildTree();
-
-              stop = MPI_Wtime();
-              sprintf(outbuffer + strlen(outbuffer),"%6f",stop-start);
-              printf("%s\n",outbuffer);
-              //	    std::cout << "Took " << stop - start << " seconds to build kdTree.\n";
-              if(minDist) {
-                g_map->setMinSearch(minDist);
-                myRenderer->getVolMap()->setMinSearch(minDist);
-              }
-              if(maxDist) {
-                g_map->setMaxDist(maxDist);
-                myRenderer->getVolMap()->setMaxDist(maxDist);
-              }
-              if(neighbors) {
-                setNumNeighbors(neighbors);
-                myRenderer->getVolMap()->setNumNeighbors(neighbors);
-              }
-              else {
-                setNumNeighbors();
-                myRenderer->getVolMap()->setNumNeighbors(g_map->getSize()/15);
-              }
-            }
-          } 
-        } else {
-          g_regenerate = false;
-        }
-        start = MPI_Wtime();
-	
-        draw();
-
-        double stop = MPI_Wtime();
-        //	if(!rank)
-        //	  std::cout << "Took " << stop - start << " seconds to render image.\n";
-      }
+#endif
       
       if(!rank) {
         sprintf(szTail,"%d.jpg\x00",nFrame);
@@ -378,30 +335,20 @@ void Scene::generateFiles(const char * filename,
         writeImage(szFile);
       }
       setTime(curTime+dtdf);
-      //why was this here?
-      //	logicalRender=false;
+      logicalRender=false;
+      
+#ifdef PARALLEL
 
       //synchronize between frames.
       MPI_Barrier(MPI_COMM_WORLD);
       double frame_stop = MPI_Wtime();
       if(!rank)
-        std::cout << "Frame " << nFrame << " Done in " <<
-          frame_stop - frame_start << " seconds.\n";
-#else
-      std::cout << "Rendering frame " << nFrame << " on single machine." << std::endl;
-      frameCount();
-      setNumNeighbors(neighbors);
-      g_map->buildTree();
-      myRenderer->showMap(g_map);
+	frameCount();
+        //std::cout << "Frame " << nFrame << " Done in " <<
+	//frame_stop - frame_start << " seconds.\n";
 
-      sprintf(szTail,"%d.jpg\x00",nFrame);
-      strncpy(nTail,szTail,strlen(szTail)+1);
-      writeImage(szFile);
-
-      setTime(curTime+dtdf);
-
-      logicalRender=false;
 #endif
+
     }
   //  MPI_Barrier(MPI_COMM_WORLD);
   //  std::cout <<std::endl << rank << " post-draw() waiting at barrier.\n" << flush;
@@ -410,6 +357,80 @@ void Scene::generateFiles(const char * filename,
   MPI_Barrier(MPI_COMM_WORLD);
 #endif
 }
+
+#ifdef PARALLEL
+void Scene::renderParallelFrame(int photons,
+				int nFrame,
+				int startFrame,
+				int neighbors,
+				double minDist,
+				double maxDist,
+				int rank,
+				int nodes
+				) {
+  double frame_start = MPI_Wtime();
+  if (g_parallel) {
+    double start = MPI_Wtime();
+    
+    if(g_dynamicMap || (nFrame == startFrame) ) {
+      if(!map_too_small) {
+	g_regenerate = true;
+	    
+	g_map->gatherPhotons(photons);
+	MPI_Barrier(MPI_COMM_WORLD);
+	//	  myRenderer->getVolMap()->gatherPhotons(photons);
+	int bufSize = myRenderer->getVolMap()->getSize()*(nodes+2);
+	myRenderer->getVolMap()->gatherPhotons(bufSize > photons ? bufSize : photons);
+#define TAG_HANDSHAKE 6000
+
+	double stop = MPI_Wtime();
+
+	if(!rank) {
+	  sprintf(outbuffer,"%5d  %4d  %5d %9d  %9f %6f  ",
+		  g_nFrame, rank, nodes, g_map->getSize(),
+		  0.0, 0.0, 
+		  stop-start);
+	  //	    std::cout << "Took " << stop - start << " seconds to create photon map.\n";
+	  start = MPI_Wtime();
+
+	  g_map->buildTree();
+	  myRenderer->getVolMap()->buildTree();
+
+	  stop = MPI_Wtime();
+	  sprintf(outbuffer + strlen(outbuffer),"%6f",stop-start);
+	  printf("%s\n",outbuffer);
+	  //	    std::cout << "Took " << stop - start << " seconds to build kdTree.\n";
+	  if(minDist) {
+	    g_map->setMinSearch(minDist);
+	    myRenderer->getVolMap()->setMinSearch(minDist);
+	  }
+	  if(maxDist) {
+	    g_map->setMaxDist(maxDist);
+	    myRenderer->getVolMap()->setMaxDist(maxDist);
+	  }
+	  if(neighbors) {
+	    setNumNeighbors(neighbors);
+	    myRenderer->getVolMap()->setNumNeighbors(neighbors);
+	  }
+	  else {
+	    setNumNeighbors();
+	    myRenderer->getVolMap()->setNumNeighbors(g_map->getSize()/15);
+	  }
+	}
+      } 
+    } else {
+      g_regenerate = false;
+    }
+    start = MPI_Wtime();
+	
+    draw();
+
+    double stop = MPI_Wtime();
+    //	if(!rank)
+    //	  std::cout << "Took " << stop - start << " seconds to render image.\n";
+  }
+}
+#endif
 
 // default constructor
 Scene::Scene():

@@ -164,7 +164,7 @@ int main(int argc, char ** argv) {
 #ifdef PARALLEL
 	int rank;
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-	g_Scene->myRenderer->setSeed(rank);
+	//g_Scene->myRenderer->setSeed(rank);
 	nPhotons /= nodes;
 #endif	
 	g_map = g_Scene->myRenderer->map(nPhotons);
@@ -206,9 +206,9 @@ int main(int argc, char ** argv) {
 	  g_map->buildTree();
 	  g_map->setMinSearch(minDist);
 	  if(neighbors)
-	    setNumNeighbors(neighbors);
+	    g_Scene->setNumNeighbors(neighbors);
 	  else
-	    setNumNeighbors();
+	    g_Scene->setNumNeighbors();
 	}
 #else
 	g_map->buildTree();

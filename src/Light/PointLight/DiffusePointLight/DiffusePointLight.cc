@@ -32,6 +32,7 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
   float yPow = (power * (diffuse.y / denom)) / numPhotons;
   float zPow = (power * (diffuse.z / denom)) / numPhotons;
   Photon p;
+  //TODO: for parallel implementation, make seed rank-specific
   long seed=SEED;
   
   g_photonPower.x = xPow;

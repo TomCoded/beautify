@@ -8,6 +8,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include "config.h"
 #include <parallel_pm.h>
 #include <fstream>
 
@@ -113,6 +114,16 @@ protected:
   int localLogicalSize;
   bool doingLocalPart;
 
+  void renderParallelFrame(int photons,
+			   int nFrame,
+			   int startFrame,
+			   int neighbors,
+			   double minDist,
+			   double maxDist,
+			   int rank,
+			   int nodes
+			   );
+  
 #endif
   bool map_too_small; 
 
