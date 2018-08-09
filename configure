@@ -118,7 +118,7 @@ else
 fi
 fi
 
-CFLAGS="$CFLAGS -I$source_path/include/Functions -I$source_path/include/linAlgLib -std=c++03 -Wno-endif-labels `pkg-config --cflags ImageMagick`"
+CFLAGS="$CFLAGS -I$source_path/include/Functions -I$source_path/include/linAlgLib -Wno-endif-labels `pkg-config --cflags ImageMagick`"
 
 #test to see if win32 was set; if so, cross-compile
 if test "$win32" = "yes" ; then
