@@ -77,10 +77,12 @@ int Material::nRoulette(Photon &p)
 				  specular.z*p.b) / maxP;
   if(probDiffReflection + probSpecReflection >= 1)
     {
+      double tempTotalProbability=
+	probSpecReflection+probDiffReflection;
       probDiffReflection = probDiffReflection / 
-	probSpecReflection+probDiffReflection;
+	tempTotalProbability;
       probSpecReflection = probSpecReflection /
-	probSpecReflection+probDiffReflection;
+	tempTotalProbability;
     }
   if(dRand < probDiffReflection)
     {
