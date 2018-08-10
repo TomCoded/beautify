@@ -12,6 +12,7 @@ GTESTFLAGS=-lgtest_main -lgtest -lpthread
 
 CCFILES1 = $(wildcard $(SRCDIR)/*/*.cc) $(wildcard $(SRCDIR)/*/*/*.cc) $(wildcard $(SRCDIR)/*/*/*/*.cc)
 TESTFILES = $(filter-out %Main.cc,$(CCFILES1))
+TESTOBJS = $(TESTFILES:.cc=.o)
 CCFILES = $(filter-out %Test.cc,$(CCFILES1))
 #CCFILES = $(FUNCCS)
 #OBJS = $(addprefix $(OBJDIR)/,$(notdir $(CCFILES:.cc=.o)))
@@ -27,8 +28,7 @@ $(TARGET): $(OBJS)
 	#Remember to run make install with permissions on $(prefix)
 
 .cc.o:
-	#$(OBJDIR)/%.o: $(SRCDIR)/%/*.cc
-	$(CC) $(CCFLAGS) -c -o $@ $(filter-out %Test.cc,$^) $(INCLDIRS)
+	$(CC) $(CCFLAGS) -c -o $@ $^ $(INCLDIRS)
 
 # install the library
 install: $(TARGET)
@@ -43,11 +43,11 @@ mrproper: clean
 	rm -f config.h config.mak
 
 clean:	
-	rm -rf $(OBJS)
 	rm bin/beautify
+	rm -rf $(OBJS) $(TESTOBJS)
 
-test:
-	$(CC) $(CCFLAGS) $(TESTFILES) -o bin/test $(LDFLAGS) $(GTESTFLAGS)
+test: $(TESTOBJS) 
+	$(CC) $(CCFLAGS) $(TESTOBJS) -o bin/test $(LDFLAGS) $(GTESTFLAGS)
 	bin/test
 
 
