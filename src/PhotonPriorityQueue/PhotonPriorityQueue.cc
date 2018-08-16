@@ -76,8 +76,14 @@ void PhotonPriorityQueue::add(Photon * newPhoton)
   percolate(getSize());
 }
 
-Photon * PhotonPriorityQueue::pop()
-{
+//prunes farther photons
+void PhotonPriorityQueue::keepThisManyPhotons(int numNeighbors) {
+  while(getSize()>numNeighbors) {
+    pop();
+  }
+}
+
+PPQueueNode * PhotonPriorityQueue::popAsPPQNode() {
   if(!getSize())
     return NULL;
   else
@@ -87,10 +93,16 @@ Photon * PhotonPriorityQueue::pop()
       PHeap[1] = PHeap.back();
       PHeap.pop_back();
       siftdown(1);
-      delete toRemove;
-
-      return rv;
+      return toRemove;
     }
+}
+
+Photon * PhotonPriorityQueue::pop()
+{
+  PPQN * toRemove = popAsPPQNode();
+  Photon * rv = toRemove->value;
+  delete toRemove;
+  return rv;
 }
 
 Photon * PhotonPriorityQueue::top()

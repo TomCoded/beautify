@@ -138,9 +138,10 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
     Point3Dd lDir;
     double myMult;
 
-    while(Q.getSize()>numNeighbors)
-      Q.pop();
-
+    Q.keepThisManyPhotons(numNeighbors);
+    
+    ASSERT(Q.getSize(), "Unable to find enough photons near the point I am trying to render.")
+    
     maxDistSqr = distance(Q.top(),loc);
 
 #if DEBUG_BUILD
