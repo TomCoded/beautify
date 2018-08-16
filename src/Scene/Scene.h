@@ -94,7 +94,10 @@ public:
   bool hasImage; 
 
   double dtdf; //change in time per frame
-
+  
+  //update time for scene and everything it owns that has knowledge of time.
+  void setTime(double time);
+  
   //sets Number of neighbors to use for luminance information
   void setNumNeighbors();
   void setNumNeighbors(int numNeighbors);
@@ -114,6 +117,8 @@ protected:
   int localLogicalSize;
   bool doingLocalPart;
 
+  double currentTime;
+  
   void renderParallelFrame(int photons,
 			   int nFrame,
 			   int startFrame,
@@ -127,7 +132,9 @@ protected:
 #endif
   bool map_too_small; 
 
-  Material * lastMaterial; //for readscene recursion
+  //for readscene recursion
+  Material * lastMaterial; 
+
   //true if we're repainting a scene;
   //false if we're not.
   bool paintingFromLogical;
@@ -163,9 +170,6 @@ protected:
   inline void addSurface(Surface *);
   inline void addCamera(Camera *);
   inline void addMaterial(Material *);
-
-  //updates all objects in the scene to reflect current time
-  void setTime(double t);
 
   //Creates a shader of type shaderType
   Shader * createShader(int shaderType, 

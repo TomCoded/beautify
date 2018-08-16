@@ -129,12 +129,7 @@ void display()
             }
           else
             {
-              std::vector<Surface *> * surfaces = g_Scene->getSurfaces();
-              std::vector<Surface *>::iterator itSurf = surfaces->begin();
-              for(;itSurf!=surfaces->end(); itSurf++)
-                {
-                  (*itSurf)->setTime(curTime);
-                }
+	      g_Scene->setTime(curTime);
               g_Scene->myRenderer->map();
               g_Scene->setNumNeighbors();
               g_map->buildTree();
@@ -499,7 +494,7 @@ Scene::~Scene()
   //  if(g_map)
   //    delete g_map;
   if(hasImage)
-    delete logicalImage;
+    delete[] logicalImage;
 
   std::vector<Light *>::iterator itDestroyer = lights->begin();
   while( itDestroyer != lights->end() )
@@ -1034,7 +1029,7 @@ void Scene::ReadFile(std::string fileName) {
 #endif
     {
       if(logicalImage)
-        delete logicalImage;
+        delete[] logicalImage;
       logicalImage = new double[3*(height*width)];
       for(int i=0; i<3*height*width;) {
         logicalImage[i++]=1.0;
@@ -1056,6 +1051,10 @@ void Scene::putPixel(int x, int y, double r, double g, double b)
   if(r>1) r=1;
   if(g>1) g=1;
   if(b>1) b=1;
+  if(x<0) x=0;
+  if(x>=width) x=width-1;
+  if(y<0) y=0;
+  if(y>=height) y=height-1;
 #ifdef PARALLEL
   if(!doingLocalPart) {
 #endif
@@ -1141,7 +1140,7 @@ void Scene::writeImage(const char * fileName)
   //  Image img(dims,"white");
   Magick::Image img (Magick::Geometry(width,height),"white" );
   int nPos=0;
-  if(hasImage&&localImage) {
+  if(hasImage&&logicalImage) {
     for(int y=0; y<height; y++) {
       for(int x=0; x<width; x++) {
 	  img.pixelColor(x,
@@ -1175,7 +1174,7 @@ void Scene::setWindowSize(int x, int y)
   if(!g_suppressGraphics)
     glutReshapeWindow(x,y);
   if(hasImage&&logicalImage)
-    delete logicalImage;
+    delete[] logicalImage;
   logicalImage = new double[width*height*3];
   hasImage=true;
 }
