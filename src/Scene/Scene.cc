@@ -1141,18 +1141,20 @@ void Scene::writeImage(const char * fileName)
   //  Image img(dims,"white");
   Magick::Image img (Magick::Geometry(width,height),"white" );
   int nPos=0;
-  for(int y=0; y<height; y++)
-    for(int x=0; x<width; x++)
-      {
-        img.pixelColor(x,
-                       y,
-                       Magick::ColorRGB(logicalImage[nPos],
-                                        logicalImage[nPos+1],
-                                        logicalImage[nPos+2]
-                                        )
-                       );
-        nPos+=3;
+  if(hasImage&&localImage) {
+    for(int y=0; y<height; y++) {
+      for(int x=0; x<width; x++) {
+	  img.pixelColor(x,
+			 y,
+			 Magick::ColorRGB(logicalImage[nPos],
+					  logicalImage[nPos+1],
+					  logicalImage[nPos+2]
+					  )
+			 );
+	  nPos+=3;
       }
+    }
+  }
 
   //This keeps ffmpeg from freezing on blank frames
   //in videos we later create
