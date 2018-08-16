@@ -10,7 +10,7 @@ funcam (<FunPoint4Dd eye>, <FunPoint4Dd lookAt>, <FunPoint4Dd up>, <SumFunNode v
 DiffusePointLight (<Point3Dd location>,<Point3Dd diffuse>,<Point3Dd specular>,<double power>)
 DirLight <DirLight>
 SquareLight <SquareLight>
-Material <Material>
+Material (<Point3Dd ambient>,<Point3Dd diffuse>,<Point3Dd specular>,<double specularCoefficient>)
 Participating <Participating>
 
 ########################
