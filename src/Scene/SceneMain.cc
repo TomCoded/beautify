@@ -30,16 +30,20 @@ int main(int argc, char ** argv) {
 #ifdef PARALLEL
   MPI_Init(&argc,&argv);
 
+  int nodes;
   {
+    MPI_Comm_size(MPI_COMM_WORLD,&nodes);
+
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     char hostname[63];
     gethostname(hostname,63);
     std::cout << "Process " << rank << " running on " 
 	 << hostname <<std::endl;
+    if(!rank) {
+      std::cout << "Total " << nodes << " nodes." << std::endl;
+    }
   }
-  int nodes;
-  MPI_Comm_size(MPI_COMM_WORLD,&nodes);
   int blocklen[3] = { 9, 1, 1 };
   MPI_Aint disp[3] = { 0, (9 * sizeof(float)), (9*sizeof(float)+sizeof(int)) };
   MPI_Datatype types[3] = { MPI_FLOAT, MPI_INT, MPI_SHORT };
@@ -113,6 +117,7 @@ int main(int argc, char ** argv) {
     std::cout << "  -p                 G_Parallel execution using MPI\n";
     std::cout << "  -S                 Suppress graphic output\n";
     std::cout << "  -?                 Output this message\n";
+    std::cout << "  NOTE: Parallel execution should be started with mpirun";
   }
 
   PhotonMap pMap;
@@ -138,17 +143,16 @@ int main(int argc, char ** argv) {
   sc = new Scene();
 
   if(nPhotons) {
+    sc->ReadFile(sceneFile);
     if(mapImport) {
-      sc->ReadFile(sceneFile);
       std::cout << "Inputting map from " << mapInName <<std::endl;
       g_map = loadMap(mapInName);
       std::cout << "Map Loaded\n";
     }
-    if(frames) {
-      sc->ReadFile(sceneFile);
 #ifdef PARALLEL      
       if (g_parallel) nPhotons /= nodes;
 #endif
+    if(frames) {
       g_Scene->generateFiles(fname.c_str(),
 			     startFrame,
 			     frames,
@@ -160,14 +164,15 @@ int main(int argc, char ** argv) {
     } else {
       if(!g_suppressGraphics) {
 	//output to screen
-	sc->ReadFile(sceneFile);
+
 #ifdef PARALLEL
 	int rank;
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 	//g_Scene->myRenderer->setSeed(rank);
-	nPhotons /= nodes;
 #endif	
+
 	g_map = g_Scene->myRenderer->map(nPhotons);
+
 #ifdef PARALLEL
 	if (g_parallel) {
 	  double start = MPI_Wtime();
@@ -238,7 +243,6 @@ int main(int argc, char ** argv) {
 	}
 #endif
       } else {
-	sc->ReadFile(sceneFile);
 	std::cout << "Graphics Suppression not yet implemented\n";
 	exit(1);
       }
