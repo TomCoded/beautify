@@ -76,11 +76,7 @@ public:
 
   void generateFiles(const char * filename, 
 		     int startFrame,
-		     int numFrames, 
-		     int photons,
-		     int neighbors,
-		     double minDist,
-		     double maxDist
+		     int numFrames
 		     );
   
   //renderer keeps its own copy; be sure to update
@@ -105,10 +101,10 @@ public:
   void setNumNeighbors();
   void setNumNeighbors(int numNeighbors);
 
-  void Scene::willHaveThisManyPhotonsThrownAtIt(int nPhotons);
-  void Scene::willNotUseMoreThanThisManyPhotonsPerPixel(int neighbors);
-  void Scene::willNeverDiscardPhotonsThisClose(int minDist);
-  void Scene::willAlwaysDiscardPhotonsThisFar(int maxDist);
+  void willHaveThisManyPhotonsThrownAtIt(int nPhotons);
+  void willNotUseMoreThanThisManyPhotonsPerPixel(int neighbors);
+  void willNeverDiscardPhotonsThisClose(int minDist);
+  void willAlwaysDiscardPhotonsThisFar(int maxDist);
   
   
 protected:
@@ -117,15 +113,22 @@ protected:
   int nPhotons;
   int minDist, maxDist;
   double currentTime;
+
+  //generates a logicalImage from the Scene and returns a pointer to it.
+  // note this is the same as this->logicalImage, and caller should NOT delete.
+  double * toLogicalImage();
   
   //tells myRenderer to throw photons into the scene
-  void throwPhotonsIn();
+  //void throwPhotonsIn();
 
+  //sets photon map parameters to those we have saved
+  void tuneMapParams();
+  
 #ifdef PARALLEL
   //parallel stuff
   
-  //called by regular throwPhotonsIn()
-  void throwPhotonsInParallel();
+  //called by regular toLogicalImage
+  void toLogicalImageInParallel();
 
   //variables
   double * localLogical;

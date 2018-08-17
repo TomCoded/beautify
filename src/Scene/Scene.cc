@@ -71,14 +71,19 @@ int antialias;
 int g_specModel;
 Scene * g_Scene;
 PhotonMap * g_map;
+PhotonMap * g_volMap;
 #define rayTrace 0
 #define photonMap 1
 
 double lastTime;
 double curTime;
+bool hasLastTime;
 
 bool g_parallel;
 bool g_suppressGraphics;
+
+//does anything move around between frames?
+bool g_dynamicMap=false;
 
 char outbuffer[80];
 
@@ -103,14 +108,15 @@ void display()
 
 void Scene::glutDisplayCallback() {
   frameCount();
-
+  std::cout << "Scene::glutDisplayCallback()" << std::endl;
   //update time
   if(!frames_are_being_rendered_to_files) {
     currentTime+=dtdf;
     glClear(GL_COLOR_BUFFER_BIT);
-    ASSERT(myRenderer);
+    ASSERT(myRenderer,"Renderer Class Not Initialized.");
     drawSingleFrame(currentTime);
     renderDrawnSceneToWindow();
+    
   }
 }
 
@@ -201,6 +207,7 @@ void Scene::setTime(double t) {
   std::vector<Camera *>::iterator itCam;
 
   curTime=t;
+  hasLastTime=true;
 
   for(itSurf=surfaces->begin();
       itSurf!=surfaces->end();
@@ -210,6 +217,8 @@ void Scene::setTime(double t) {
       itCam!=cameras->end();
       itCam++)
     (*itCam)->setTime(t);
+
+  lastTime=curTime;
 }
 
 //batch video file generator
@@ -218,7 +227,6 @@ void Scene::generateFiles(const char * filename,
 			  int numFrames) {
   frames_are_being_rendered_to_files=true;
   char szFile[MAX_FILENAME_LEN];
-#define MAX_FRAMES=100000000
   char szTail[10];
   strncpy(szFile,filename,MAX_FILENAME_LEN);
   int nBaseLen = strlen(filename);
@@ -250,19 +258,17 @@ void Scene::generateFiles(const char * filename,
 #endif
 
       drawSingleFrame(startFrame*dtdf);
-      
-      renderDrawnSceneToFile(FILENAME);
-      if(!g_suppressGraphics) {
-	if(!rank) {
-	  renderDrawnSceneToWindow();
-	}
-      }
-      
+
       if(!rank) {
-	ASSERT(nFrame<MAX_FRAMES,"Cannot Process a frame count that high.")
+	ASSERT((nFrame<10000000),"Cannot Process a frame count that high.");
 	sprintf(szTail,"%d.jpg\x00",nFrame);
 	strncpy(nTail,szTail,strlen(szTail)+1);
+	
 	renderDrawnSceneToFile(szFile);
+	
+	if(!g_suppressGraphics) {
+	  renderDrawnSceneToWindow();
+	}
       }
   }
   
@@ -283,7 +289,7 @@ Scene::Scene():
   numNeighbors(0),
   nPhotons(6000),
   minDist(0.5),
-  maxDist(2.0)
+  maxDist(2.0),
   frames_are_being_rendered_to_files(false)
 {
   lights = new std::vector<Light *>();
@@ -295,11 +301,14 @@ Scene::Scene():
   myRenderer = new Renderer(this);
   g_Scene=this;
   Magick::InitializeMagick("/usr/lib");
+  if(!g_suppressGraphics) {
+    int rank=0;
 #ifdef PARALLEL
-  if (g_parallel) {
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-    if(!(rank||g_suppressGraphics)) {
+    if (g_parallel) {
+      MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+    }
+#endif
+    if(!(rank)) {
       glutInitWindowSize(width,height);
       glutInitWindowPosition(200,200);
       glutCreateWindow("The Scene:");
@@ -308,7 +317,7 @@ Scene::Scene():
       gluLookAt(0.5,0.5,1.0, //eye
                 0.5,0.5,0, //lookAt
                 0,1.0,0); //up
-
+      
       glClearColor(0.0,1.0,0.0, 0.0f); //Green Background
       glColor3f(1.0f,0.0f,0.0f); //drawing color
       glutDisplayFunc(display);
@@ -316,24 +325,6 @@ Scene::Scene():
       glutReshapeFunc(reshape);
     }
   }
-#else
-  if(!g_suppressGraphics) {
-    glutInitWindowSize(width,height);
-    glutInitWindowPosition(200,200);
-    glutCreateWindow("The Scene:");
-
-    glMatrixMode(GL_MODELVIEW);
-    gluLookAt(0.5,0.5,1.0, //eye
-              0.5,0.5,0, //lookAt
-              0,1.0,0); //up
-
-    glClearColor(0.0,1.0,0.0, 0.0f); //Green Background
-    glColor3f(1.0f,0.0f,0.0f); //drawing color
-    glutDisplayFunc(display);
-    glutKeyboardFunc(keyboard);
-    glutReshapeFunc(reshape);
-  }
-#endif
 }
 
 // destructor
@@ -990,16 +981,17 @@ int Scene::getWindowWidth()
 int Scene::getWindowHeight()
 { return height; }
 
-void Scene::throwPhotonsIn()
+double * Scene::toLogicalImage()
 {
   myRenderer->ambient=ambient;
+
   if(photonMap&&(!g_map)) {
-    g_map = g_Scene->myRenderer->map();
-    photonMaps.push_back(g_map);
+    g_map = g_Scene->myRenderer->map(nPhotons);
+    photonMaps->push_back(g_map);
   }
   if(photonMap&&(!g_volMap)) {
     g_volMap = g_Scene->myRenderer->getVolMap();
-    photonMaps.push_back(g_volMap);
+    photonMaps->push_back(g_volMap);
   }
 
 #ifdef PARALLEL
@@ -1007,16 +999,16 @@ void Scene::throwPhotonsIn()
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
   MPI_Barrier(MPI_COMM_WORLD);
   if(g_parallel) {
-    throwPhotonsInParallel();
-  }
-#else
-  myRenderer->showMap();
+    toLogicalImageInParallel();
+  } else 
 #endif
-
+  myRenderer->showMap(g_map);
+  
+  return logicalImage;
 }
 
 #ifdef PARALLEL
-void Scene::throwPhotonsInParallel() {
+void Scene::toLogicalImageInParallel() {
   int nodes, rank;
   double start, stop; //for timings
   MPI_Comm_size(MPI_COMM_WORLD,&nodes);
@@ -1024,6 +1016,8 @@ void Scene::throwPhotonsInParallel() {
   int totalSize = getWindowHeight()*getWindowWidth();
   int task = rank;
 
+  std::cout << "tPiP";
+  
   //allocate space for a row of pixels.
   localLogicalSize = getWindowWidth();
 
@@ -1036,7 +1030,7 @@ void Scene::throwPhotonsInParallel() {
   if(!map_too_small) {
     start = MPI_Wtime();
 
-    for(auto &pMap: photonMaps) { pMap->distributeTree(); }
+    for(auto &pMap: *photonMaps) { pMap->distributeTree(); }
 #ifdef SAVE_VOLMAP
     if(!rank) {
       saveMap(myRenderer->getVolMap(),"volmap.map");
@@ -1046,7 +1040,7 @@ void Scene::throwPhotonsInParallel() {
     stop = MPI_Wtime();
     //    printf("%s",outbuffer);
     sprintf(outbuffer,"%5d  %4d  %5d %9d  %9f ",
-            g_nFrame, rank, nodes, photonMaps->begin()->getSize(),
+            g_nFrame, rank, nodes, (*(photonMaps->begin()))->getSize(),
             stop - start
             );
 
@@ -1426,11 +1420,11 @@ void Scene::setNumNeighbors(int numNeighbors) {
 
 void Scene::setNumNeighbors() {
   if(numNeighbors) {
-    for(auto &pMap: photonMaps) {
+    for(auto &pMap: *photonMaps) {
       pMap->setNumNeighbors(numNeighbors);
     }
   } else {
-    for(auto &pMap: photonMaps) {
+    for(auto &pMap: *photonMaps) {
       pMap->setNumNeighbors(surfaces->size(),
 			    NEIGHBORHOODS_PER_SURFACE
 			    );
@@ -1458,20 +1452,21 @@ void Scene::willAlwaysDiscardPhotonsThisFar(int maxDist) {
 void Scene::tuneMapParams() {
   setNumNeighbors();
   if(minDist) {
-    for(auto &pMap: photonMaps) {
+    for(auto &pMap: *photonMaps) {
       pMap->setMinSearch(minDist);
     }
   }
   if(maxDist) {
-    for(auto &pMap: photonMaps) {
+    for(auto &pMap: *photonMaps) {
       pMap->setMaxDist(maxDist);
     }
   }
 }
 
 void Scene::drawSingleFrame(double time) {
+  curTime=time;
   if(photonMap) {
-    if(lastTime==curTime) {
+    if(hasLastTime && (lastTime==curTime)) {
       if(hasImage) {
 	//this frame already exists in memory
 	return;
@@ -1480,23 +1475,23 @@ void Scene::drawSingleFrame(double time) {
       //update the time of the scene
       setTime(curTime);
       //throw photons into the world
-      myRenderer->map();
-      //indicate we have regenerated the photon maps
-      g_regenerate=true;
+      PhotonMap * pm = myRenderer->map(nPhotons);
+      while(photonMaps->size()) { photonMaps->pop_back(); }
+      photonMaps->push_back(pm);
       //gather photons from other nodes
-      for(auto &pMap: photonMaps) {
-	pMap->gatherPhotons();
+      for(auto &pMap: *photonMaps) {
+	pMap->gatherPhotons(nPhotons);
       }
       //tune the photon map
       tuneMapParams();
       setNumNeighbors();
       //build (or re-build) the kd-tree
-      for(auto &pMap: photonMaps) {
+      for(auto &pMap: *photonMaps) {
 	pMap->buildTree();
       }
     }
     //draw scene to our logical image.
-    throwPhotonsIn();
+    toLogicalImage();
   } else if(rayTrace) {
     //The very early skeleton of the Photon Mapper came from
     //an old undergrad ray tracing assignment. It would be
@@ -1514,23 +1509,24 @@ void Scene::drawSingleFrame(double time) {
 void Scene::renderDrawnSceneToWindow() {
   int totalPixelDoubles = width*height*3;
   double r, g, b, dx, dy, x, y;
-  for(int nPlace=0; nPlace<totalPixelDoubles; nPlace+=3) {
-    //int nPlace= (y*width+x*3)
-    glPointSize(1.5);
-    r=logicalImage[nPlace];
-    g=logicalImage[nPlace+1];
-    b=logicalImage[nPlace+2];
-    x = nPlace % width;
-    y = nPlace / width;
-    dx = (x/(double)width);
-    dy = (y/(double)height);
-    glColor3d(r,g,b);
-    glBegin(GL_POINTS);
-    glVertex3d(dx,dy,0.0);
-    glEnd();
-  }
-
   glutReshapeWindow(width,height);
+
+  for(int x=0; x<width; x++) {
+    for(int y=0; y<height; y++) {
+      int nPlace= (y*width+x)*3;
+      glPointSize(1.5);
+      r=logicalImage[nPlace];
+      g=logicalImage[nPlace+1];
+      b=logicalImage[nPlace+2];
+      dx = (x/(double)width);
+      dy = (y/(double)height);
+      glColor3d(r,g,b);
+      glBegin(GL_POINTS);
+      glVertex3d(dx,dy,0.0);
+      glEnd();
+    }
+  }
+  
   glFlush();
   glutPostRedisplay();
 }
@@ -1566,6 +1562,6 @@ void Scene::renderDrawnSceneToFile(const char * filename) {
   img.pixelColor(2,2,Magick::ColorRGB(1.0,1.0,5.0));
 
   img.flip();
-  img.write(fileName);
+  img.write(filename);
 }
 

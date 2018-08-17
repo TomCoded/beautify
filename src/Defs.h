@@ -6,6 +6,8 @@
 
 #define MAX_FILENAME_LEN 256
 
+#define TAG_HANDSHAKE 6000
+
 //how much larger to make the map than number of emitted photons
 #define MAPMULT 50
 

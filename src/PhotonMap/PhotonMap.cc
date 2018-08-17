@@ -82,11 +82,13 @@ void PhotonMap::setMaxDist(const double maxDist) {
 void PhotonMap::buildTree() {
   kdSize = unsortedPhotons.size()+1;
 
-  std::cout << "Allocating " << kdSize*2*sizeof(Photon*) << " bytes for kdTree rebuild..." ;
+  std::cout << "Allocating " << kdSize*2*sizeof(Photon*) << " bytes for kdTree rebuild "
+	    << " of map " << this
+	    << std::endl;
   kdTree = (Photon **) malloc(kdSize * 2 * sizeof(Photon *));
 
-  ASSERT(kdSize,"Cannot build tree from zero photons.")
-    ASSERT(kdTree,"Unable to allocate sufficient memory for tree build.")
+  ASSERT(kdSize>1,"Cannot build tree from zero photons.")
+  ASSERT(kdTree,"Unable to allocate sufficient memory for tree build.")
   
   //save ourself from embarassment later
   kdTree[0] = 0;
@@ -99,6 +101,8 @@ void PhotonMap::buildTree() {
   kdSize=kdSize*2;
   kdBalance(1);
   storage=KD_TREE;
+
+  std::cout << "Built tree of size " << kdSize << std::endl;
 }
 
 Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
@@ -144,7 +148,7 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
     
     maxDistSqr = distance(Q.top(),loc);
 
-#if DEBUG_BUILD
+#ifdef DEBUG_BUILD
     static int totalQueued = 0;
     static int passes = 0;
     passes++;
@@ -456,6 +460,12 @@ void PhotonMap::gatherPhotons(int maxPhotons) {
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
   MPI_Comm_size(MPI_COMM_WORLD,&nodes);
 
+  std::cout << "Process " << rank
+	    << " started with " << unsortedPhotons.size() << " photons from map "
+	    << this
+	    << std::endl;
+  
+  
   //FIXME: Dynamic buffer resizing?
   
   MPI_Barrier(MPI_COMM_WORLD);
@@ -464,7 +474,7 @@ void PhotonMap::gatherPhotons(int maxPhotons) {
     int sendsize = getSize();
     Photon *tmp = (Photon *)malloc(maxPhotons * sizeof(Photon));
     getArrMembers(tmp);
-    ASSERT_WARN(sendSize<maxPhotons,"Warning: Buffer Size Exceeded for MPI Gather.");
+    ASSERT_WARN(sendsize<maxPhotons,"Warning: Buffer Size Exceeded for MPI Gather.");
     MPI_Send(tmp,sendsize,MPI_PHOTON,0,sendsize,MPI_COMM_WORLD);
   } else {
     //master process
@@ -484,7 +494,10 @@ void PhotonMap::gatherPhotons(int maxPhotons) {
       addPhoton(*(tmp+i));
     delete tmp;
   }
-
+  std::cout << "Process " << rank
+	    << " gathered " << unsortedPhotons.size() << " photons from map "
+	    << this
+	    << std::endl;
 }
 
 //distribute tree to all processes

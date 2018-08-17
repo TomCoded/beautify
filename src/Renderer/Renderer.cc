@@ -102,7 +102,7 @@ PhotonMap * Renderer::map(int nPhotons)
 #ifdef PARALLEL
   int rank, nodes;
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-  MPI_Comm_size(MPI_COMM_NODES,&nodes);
+  MPI_Comm_size(MPI_COMM_WORLD,&nodes);
 #endif
 
   newMap();
@@ -162,16 +162,6 @@ PhotonMap * Renderer::map(int nPhotons)
   g_photonPowerLow.x /= 4.0;
   g_photonPowerLow.y /= 4.0;
   g_photonPowerLow.z /= 4.0;
-
-#ifdef PARALLEL
-  pMap->gatherPhotons(nPhotons);
-  MPI_Barrier(MPI_COMM_WORLD);
-  int bufSize = getVolMap()->getSize()*(nodes+2);
-  getVolMap()->gatherPhotons(bufSize > nPhotons ? bufSize : nPhotons);
-#define TAG_HANDSHAKE 6000
-  double stop=MPI_Wtime();
-  
-#endif
 
   return pMap;
 }

@@ -25,13 +25,16 @@ extern bool g_suppressGraphics;
 PhotonMap * loadMap(std::string fileName);
 void saveMap(PhotonMap *, std::string fileName);
 
-void initMPI(&argv, &argc);
+int initMPI();
 void printHelp(char ** argv);
 
 int main(int argc, char ** argv) {
 
-  initMPI(&argv,&argv);
-
+#ifdef PARALLEL 
+  MPI_Init(&argc,&argv);
+  int nodes=initMPI();
+#endif
+  
   int optch;
   int frames=0;
   int startFrame=0;
@@ -74,17 +77,17 @@ int main(int argc, char ** argv) {
   }
 
   PhotonMap pMap;
-
+  int rank=0;
 
   //Initialize GLUT
   if(!g_suppressGraphics) {
-    int rank=0;
 #ifdef PARALLEL
     if (g_parallel) {
       MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     }
 #endif
     if(!(rank)) {
+      std::cout << "glutInit called with rank " << rank << std::endl;
       glutInit(&argc,argv);
       //  glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
     }
@@ -118,9 +121,14 @@ int main(int argc, char ** argv) {
 		      startFrame,
 		      frames);
   } else {
+    std::cout << "Not generating files. Beginning glut main loop..." << std::endl;
     if(!g_suppressGraphics) {
       //output to screen
-      glutMainLoop();
+      if(!rank) {
+	glutMainLoop();
+	sc->drawSingleFrame(0.0);
+	sc->renderDrawnSceneToWindow();
+      }
     }
   }
   
@@ -142,9 +150,8 @@ int main(int argc, char ** argv) {
   
 }
 
-void initMPI(int &argc, char ** &argv) {
+int initMPI() {
 #ifdef PARALLEL
-  MPI_Init(&argc,&argv);
 
   int nodes;
   {
@@ -172,6 +179,7 @@ void initMPI(int &argc, char ** &argv) {
     exit(1);
   }
 #endif
+  return nodes;
 }
 
 void printHelp(char ** argv) {
