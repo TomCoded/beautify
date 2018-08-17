@@ -106,6 +106,23 @@ void display()
   g_Scene->glutDisplayCallback();
 }
 
+//processes other than the process with rank 0 won't be running the glutMainloop,
+//but have to synchronize with it
+void Scene::glutHeadlessServant() {
+  std::cout<<"glutHeadlessServant()";
+  while(1) {
+    if(!frames_are_being_rendered_to_files) {
+      currentTime+=dtdf;
+      ASSERT(myRenderer,"Renderer Class Not Initialized.");
+      std::cout << "headless servant drawing frame..." << std::endl;
+      drawSingleFrame(currentTime);
+    }
+#ifdef PARALLEL
+    MPI_Barrier(MPI_COMM_WORLD);
+#endif
+  }
+}
+
 void Scene::glutDisplayCallback() {
   frameCount();
   std::cout << "Scene::glutDisplayCallback()" << std::endl;
@@ -116,9 +133,12 @@ void Scene::glutDisplayCallback() {
     ASSERT(myRenderer,"Renderer Class Not Initialized.");
     drawSingleFrame(currentTime);
     renderDrawnSceneToWindow();
-    
   }
+#ifdef PARALLEL
+  MPI_Barrier(MPI_COMM_WORLD);
+#endif
 }
+
 
 void frameCount() {
   struct timeval tp;
@@ -1016,8 +1036,6 @@ void Scene::toLogicalImageInParallel() {
   int totalSize = getWindowHeight()*getWindowWidth();
   int task = rank;
 
-  std::cout << "tPiP";
-  
   //allocate space for a row of pixels.
   localLogicalSize = getWindowWidth();
 

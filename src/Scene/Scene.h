@@ -93,6 +93,8 @@ public:
 
   //call from glut's display() callback
   void glutDisplayCallback();
+  //and a function to sync with it from other processes
+  void glutHeadlessServant();
   
   //update time for scene and everything it owns that has knowledge of time.
   void setTime(double time);

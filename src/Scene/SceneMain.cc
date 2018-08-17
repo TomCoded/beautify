@@ -78,18 +78,18 @@ int main(int argc, char ** argv) {
 
   PhotonMap pMap;
   int rank=0;
+#ifdef PARALLEL
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+#endif
 
   //Initialize GLUT
   if(!g_suppressGraphics) {
-#ifdef PARALLEL
-    if (g_parallel) {
-      MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-    }
-#endif
     if(!(rank)) {
       std::cout << "glutInit called with rank " << rank << std::endl;
       glutInit(&argc,argv);
       //  glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
+    } else {
+      std::cout << "process " << rank << " will not run glut." << std::endl;
     }
   }
 
@@ -126,8 +126,11 @@ int main(int argc, char ** argv) {
       //output to screen
       if(!rank) {
 	glutMainLoop();
-	sc->drawSingleFrame(0.0);
-	sc->renderDrawnSceneToWindow();
+	//sc->drawSingleFrame(0.0);
+	//sc->renderDrawnSceneToWindow();
+      } else {
+	std::cout << "Rank ... " << rank << std::endl;
+	sc->glutHeadlessServant();
       }
     }
   }
