@@ -107,6 +107,7 @@ void display()
 }
 
 void Scene::startMainLoop(int rank) {
+  std::cout << "starting main loop..." << std::endl;
   this->rank=rank;
   //mainLoop();
   
@@ -131,7 +132,6 @@ void Scene::mainLoop() {
   //quit program at end
   bool quit=false;
   MPI_Request doneRequest;
-  std::cout<<rank <<":mainLoop()" << std::endl;
 
   //listen for shutdown flags
   if(rank) { 
@@ -144,9 +144,6 @@ void Scene::mainLoop() {
   }
   
   while(!done) {
-    std::cout<<rank<<":mainLoop():loop"
-	     << " done is " << done 
-	     <<std::endl;
 
     frameCount();
     currentTime+=dtdf;
@@ -192,10 +189,6 @@ void Scene::mainLoop() {
     
   }
 
-  std::cout << rank << ":mainLoop(): out"
-	    << " done is " << done
-	    << std::endl;
-  
 #ifdef PARALLEL
   if(g_parallel) {
     if(rank) quit = true;
@@ -342,9 +335,7 @@ Scene::Scene():
   if(!g_suppressGraphics) {
     int rank=0;
 #ifdef PARALLEL
-    if (g_parallel) {
-      MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-    }
+    MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 #endif
     if(!(rank)) {
       glutInitWindowSize(width,height);
@@ -1035,8 +1026,8 @@ double * Scene::toLogicalImage()
 #ifdef PARALLEL
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-  MPI_Barrier(MPI_COMM_WORLD);
   if(g_parallel) {
+    MPI_Barrier(MPI_COMM_WORLD);
     toLogicalImageInParallel();
   } else 
 #endif
@@ -1542,13 +1533,20 @@ void Scene::drawSingleFrame(double time) {
       PhotonMap * pm = myRenderer->map(nPhotons);
       while(photonMaps->size()) { photonMaps->pop_back(); }
       photonMaps->push_back(pm);
-      //gather photons from other nodes
-      for(auto &pMap: *photonMaps) {
-	pMap->gatherPhotons(nPhotons);
+
+#ifdef PARALLEL
+      if(g_parallel) {
+	//gather photons from other nodes
+	for(auto &pMap: *photonMaps) {
+	  pMap->gatherPhotons(nPhotons);
+	}
       }
+#endif
+      
       //tune the photon map
       tuneMapParams();
       setNumNeighbors();
+
       //build (or re-build) the kd-tree
       for(auto &pMap: *photonMaps) {
 	pMap->buildTree();

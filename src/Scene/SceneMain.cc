@@ -80,6 +80,11 @@ int main(int argc, char ** argv) {
   int rank=0;
 #ifdef PARALLEL
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  MPI_Comm_size(MPI_COMM_WORLD,&nodes);
+  if(!g_parallel && nodes>1) {
+    std::cerr << nodes << " processes started. Turning on parallel option." << std::endl;
+    g_parallel = true;
+  }
 #endif
 
   //Initialize GLUT
@@ -96,11 +101,13 @@ int main(int argc, char ** argv) {
   int i,j;
   char c='\x00';
 
+  std::cout << "creating new scene..." << std::endl;
+  
   //initialize the scene
   Scene * sc=0;
   sc = new Scene();
 
-  std::cout << "created default scene...";
+  std::cout << "created default scene..." << std::endl;
   
   if(nPhotons) {
     sc->ReadFile(sceneFile);
@@ -109,8 +116,10 @@ int main(int argc, char ** argv) {
       g_map = loadMap(mapInName);
       std::cout << "Map Loaded\n";
     }
-#ifdef PARALLEL      
-    if (g_parallel) nPhotons /= nodes;
+#ifdef PARALLEL
+    if (g_parallel) {
+      nPhotons /= nodes;
+    }
 #endif
   }
   sc->willHaveThisManyPhotonsThrownAtIt(nPhotons);
@@ -159,11 +168,11 @@ int initMPI() {
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     char hostname[63];
     gethostname(hostname,63);
-    std::cout << "Process " << rank << " running on " 
-	 << hostname <<std::endl;
     if(!rank) {
       std::cout << "Total " << nodes << " nodes." << std::endl;
     }
+    std::cout << "Process " << rank << " running on " 
+	      << hostname <<std::endl;
   }
   int blocklen[3] = { 9, 1, 1 };
   MPI_Aint disp[3] = { 0, (9 * sizeof(float)), (9*sizeof(float)+sizeof(int)) };
