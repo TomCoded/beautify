@@ -105,17 +105,13 @@ void Scene::glutDisplayCallback() {
   frameCount();
 
   //update time
-  currentTime+=dtdf;
-
-  glClear(GL_COLOR_BUFFER_BIT);
-
-  ASSERT(myRenderer);
-    
-  drawSingleFrame(currentTime);
-  renderDrawnFrameToWindow();
-
-  glFlush();
-  glutPostRedisplay();
+  if(!frames_are_being_rendered_to_files) {
+    currentTime+=dtdf;
+    glClear(GL_COLOR_BUFFER_BIT);
+    ASSERT(myRenderer);
+    drawSingleFrame(currentTime);
+    renderDrawnSceneToWindow();
+  }
 }
 
 void frameCount() {
@@ -220,6 +216,7 @@ void Scene::setTime(double t) {
 void Scene::generateFiles(const char * filename,
 			  int startFrame,
 			  int numFrames) {
+  frames_are_being_rendered_to_files=true;
   char szFile[MAX_FILENAME_LEN];
 #define MAX_FRAMES=100000000
   char szTail[10];
@@ -238,6 +235,10 @@ void Scene::generateFiles(const char * filename,
     std::cout << "-----  ----  ----- ---------  --------- ------- ----------- ------\n";
   }
 #endif
+
+  if(!(g_suppressGraphics||rank)) {
+    glutMainLoop();
+  }
   
   for(int nFrame=startFrame; nFrame<startFrame+numFrames; nFrame++) {
 
@@ -279,7 +280,11 @@ Scene::Scene():
   dtdf(0),
   logicalImage(0),
   paintingFromLogical(false),
-  numNeighbors(0)
+  numNeighbors(0),
+  nPhotons(6000),
+  minDist(0.5),
+  maxDist(2.0)
+  frames_are_being_rendered_to_files(false)
 {
   lights = new std::vector<Light *>();
   surfaces = new std::vector<Surface *>();
@@ -1433,6 +1438,23 @@ void Scene::setNumNeighbors() {
   }
 }
 
+void Scene::willHaveThisManyPhotonsThrownAtIt(int nPhotons) {
+  this->nPhotons = nPhotons;
+}
+
+void Scene::willNotUseMoreThanThisManyPhotonsPerPixel(int neighbors) {
+  setNumNeighbors(neighbors);
+}
+
+void Scene::willNeverDiscardPhotonsThisClose(int minDist) {
+  this->minDist = minDist;
+}
+
+void Scene::willAlwaysDiscardPhotonsThisFar(int maxDist) {
+  this->maxDist = maxDist;
+}
+
+
 void Scene::tuneMapParams() {
   setNumNeighbors();
   if(minDist) {
@@ -1489,7 +1511,7 @@ void Scene::drawSingleFrame(double time) {
 //slower per frame than using GLUT pipeline directly in putPixel,
 //but much better encapsulation.
 //note: only call on process you want to use GLUT.
-void Scene::RenderDrawnSceneToWindow() {
+void Scene::renderDrawnSceneToWindow() {
   int totalPixelDoubles = width*height*3;
   double r, g, b, dx, dy, x, y;
   for(int nPlace=0; nPlace<totalPixelDoubles; nPlace+=3) {
@@ -1509,6 +1531,7 @@ void Scene::RenderDrawnSceneToWindow() {
   }
 
   glutReshapeWindow(width,height);
+  glFlush();
   glutPostRedisplay();
 }
 

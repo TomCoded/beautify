@@ -104,10 +104,18 @@ public:
   //sets Number of neighbors to use for luminance information
   void setNumNeighbors();
   void setNumNeighbors(int numNeighbors);
+
+  void Scene::willHaveThisManyPhotonsThrownAtIt(int nPhotons);
+  void Scene::willNotUseMoreThanThisManyPhotonsPerPixel(int neighbors);
+  void Scene::willNeverDiscardPhotonsThisClose(int minDist);
+  void Scene::willAlwaysDiscardPhotonsThisFar(int maxDist);
+  
   
 protected:
 
   int numNeighbors;
+  int nPhotons;
+  int minDist, maxDist;
   double currentTime;
   
   //tells myRenderer to throw photons into the scene
@@ -188,6 +196,8 @@ protected:
 			double matReflection,
 			double matTransparent
 			);
+
+  bool frames_are_being_rendered_to_files;
   
 private:
 
