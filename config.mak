@@ -2,7 +2,8 @@
 targets=beautify
 prefix=/usr/local
 MAKE=make
-CC=g++
+CC=mpiCC
 beautify_config_args=
-CCFLAGS=-O3 -I/home/tom/code/own/beautify/include/Functions -I/home/tom/code/own/beautify/include/linAlgLib -Wno-endif-labels -fopenmp -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -I/usr/include/x86_64-linux-gnu//ImageMagick-6 -I/usr/include/ImageMagick-6 -fomit-frame-pointer -finline-functions -I/home/tom/code/own/beautify -I/home/tom/code/own/beautify/src -I/home/tom/code/own/beautify/src/Functions
+CCFLAGS=-g -I/home/tom/code/own/beautify/include/Functions -I/home/tom/code/own/beautify/include/linAlgLib -Wno-endif-labels -fopenmp -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -I/usr/include/x86_64-linux-gnu//ImageMagick-6 -I/usr/include/ImageMagick-6 -I /include -I/home/tom/code/own/beautify -I/home/tom/code/own/beautify/src -I/home/tom/code/own/beautify/src/Functions
 LDFLAGS=
+MPI=yes

@@ -28,14 +28,15 @@ class Renderer
   ~Renderer();
 
   //Management functions
-  //runs the ray tracer.
-  int run();
 
   //runs the photon mapper.
   PhotonMap * map();
   PhotonMap * map(int nPhotons);
 
   //traces a photon map
+  //throws rays from the eye toward the scene
+  //and calls back Scene::putPixel() with
+  //color information for each pixel
   void showMap(PhotonMap *);
   void showMap(PhotonMap *, int start, int pixels);
     

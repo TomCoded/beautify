@@ -115,6 +115,7 @@ int main(int argc, char ** argv) {
     std::cout << "  -M <mapfile>       Output generated photon map to <mapfile>\n";
     std::cout << "  -m <mapfile>       Import scene's Photon map from <mapfile>\n";
     std::cout << "  -p                 G_Parallel execution using MPI\n";
+    std::cout << "                     (must be configured with --enable-mpi during build)\n";
     std::cout << "  -S                 Suppress graphic output\n";
     std::cout << "  -?                 Output this message\n";
     std::cout << "  NOTE: Parallel execution should be started with mpirun";

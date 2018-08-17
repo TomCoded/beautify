@@ -47,11 +47,15 @@ public:
   // Read contents of a scene file, skipping over unimplemented features
   void ReadFile(std::string fileName);
 
-  //Outputs image to filename specified
-  void writeImage(const char * fileName);
+  //renders a single frame into logicalImage
+  void drawSingleFrame(double time);
 
-  //writes a pixel to a graphics window.  If x>width or y>height,
-  //resizes window to size x,y
+  //Outputs image to filename specified
+  void renderDrawnSceneToFile(const char * fileName);
+  void renderDrawnSceneToWindow();
+  
+
+  //writes a pixel to a graphics window.
   void putPixel(int x, int y, Point3Dd color);
   void putPixel(int x, int y, double r, double g, double b);
 
@@ -59,20 +63,16 @@ public:
   void repaint();
   //smooths an image after it's been rendered.
   void smoothLogicalImage();
+  //normalizes each color channel.
+  void normalizeChannels();
 
   void setWindowSize(int x, int y);
 
-  //tells myRenderer to draw the scene
-  void draw();
-
-  //Scene Functions
   std::vector<Light *> * getLights();
   std::vector<Surface *> * getSurfaces();
   Camera * getCamera();
   int getWindowWidth();
   int getWindowHeight();
-  //normalizes each color channel.
-  void normalizeChannels();
 
   void generateFiles(const char * filename, 
 		     int startFrame,
@@ -94,6 +94,9 @@ public:
   bool hasImage; 
 
   double dtdf; //change in time per frame
+
+  //call from glut's display() callback
+  void glutDisplayCallback();
   
   //update time for scene and everything it owns that has knowledge of time.
   void setTime(double time);
@@ -105,11 +108,16 @@ public:
 protected:
 
   int numNeighbors;
+  double currentTime;
   
+  //tells myRenderer to throw photons into the scene
+  void throwPhotonsIn();
+
 #ifdef PARALLEL
   //parallel stuff
-  //procedures
-  void drawParallel();
+  
+  //called by regular throwPhotonsIn()
+  void throwPhotonsInParallel();
 
   //variables
   double * localLogical;
@@ -117,8 +125,6 @@ protected:
   int localLogicalSize;
   bool doingLocalPart;
 
-  double currentTime;
-  
   void renderParallelFrame(int photons,
 			   int nFrame,
 			   int startFrame,
@@ -130,6 +136,7 @@ protected:
 			   );
   
 #endif
+
   bool map_too_small; 
 
   //for readscene recursion
@@ -141,8 +148,6 @@ protected:
 
   //Our scene should have information about the graphics window being
   //used.
-
-  bool logicalRender; //true if we're not acutally rendering to a window.
 
   //This is a logical image of the picture we're rendering, in RGB
   //format
@@ -159,9 +164,12 @@ protected:
   //And a std::list of all the materials
   std::vector<Material *> * materials;
 
-  //And finally, a std::list of all the camera available
+  //And a std::list of all the camera available
   std::vector<Camera *> * cameras;
   int currentCamera;
+
+  //And a list of all of the photon maps in use
+  std::vector<PhotonMap *> * photonMaps;
 
   //helper functions.  We keep these around to provide an abstraction
   //layer in case we want to change implementation later.  Also, they

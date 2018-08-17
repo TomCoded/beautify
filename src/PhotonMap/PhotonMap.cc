@@ -464,6 +464,7 @@ void PhotonMap::gatherPhotons(int maxPhotons) {
     int sendsize = getSize();
     Photon *tmp = (Photon *)malloc(maxPhotons * sizeof(Photon));
     getArrMembers(tmp);
+    ASSERT_WARN(sendSize<maxPhotons,"Warning: Buffer Size Exceeded for MPI Gather.");
     MPI_Send(tmp,sendsize,MPI_PHOTON,0,sendsize,MPI_COMM_WORLD);
   } else {
     //master process

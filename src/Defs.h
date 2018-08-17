@@ -4,6 +4,8 @@
 //#define DEBUG_BUILD
 //#define USE_FUNCTIONS
 
+#define MAX_FILENAME_LEN 256
+
 //how much larger to make the map than number of emitted photons
 #define MAPMULT 50
 
@@ -34,6 +36,12 @@ exit(1);
     if(!condition)							\
     { std::cerr << "An assertion failed: " << errMsg << std::endl;	\
       exit(1); }							\
+  }
+
+#define ASSERT_WARN(condition,errMsg) {					\
+    if(!condition)							\
+    { std::cerr << "An assertion failed: " << errMsg << std::endl;	\
+      }							\
   }
 
 #define BADFORMAT(s) {						\
