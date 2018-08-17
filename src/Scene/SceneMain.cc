@@ -38,8 +38,8 @@ int main(int argc, char ** argv) {
   int optch;
   int frames=0;
   int startFrame=0;
-  std::string fname;
-  std::string sceneFile;
+  std::string fname("default");
+  std::string sceneFile("scenes/sample.dat");
   int help=0;
   if(argc==0) help=1;
   int nPhotons=0;
@@ -82,7 +82,9 @@ int main(int argc, char ** argv) {
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
   MPI_Comm_size(MPI_COMM_WORLD,&nodes);
   if(!g_parallel && nodes>1) {
-    std::cerr << nodes << " processes started. Turning on parallel option." << std::endl;
+    if(!rank) {
+      std::cerr << nodes << " processes started. Turning on parallel option." << std::endl;
+    }
     g_parallel = true;
   }
 #endif
@@ -90,25 +92,17 @@ int main(int argc, char ** argv) {
   //Initialize GLUT
   if(!g_suppressGraphics) {
     if(!(rank)) {
+      std::cout<<"glutInit()"<<std::endl;
       glutInit(&argc,argv);
-      std::cout << "glutInit called with rank " << rank << std::endl;
       //  glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
-    } else {
-      std::cout << "process " << rank << " will not run glut." << std::endl;
     }
   }
 
   int i,j;
   char c='\x00';
-
-  std::cout << "creating new scene..." << std::endl;
-  
-  //initialize the scene
   Scene * sc=0;
   sc = new Scene();
 
-  std::cout << "created default scene..." << std::endl;
-  
   if(nPhotons) {
     sc->ReadFile(sceneFile);
     if(mapImport) {
@@ -122,6 +116,7 @@ int main(int argc, char ** argv) {
     }
 #endif
   }
+  
   sc->willHaveThisManyPhotonsThrownAtIt(nPhotons);
   sc->willNotUseMoreThanThisManyPhotonsPerPixel(neighbors);
   sc->willNeverDiscardPhotonsThisClose(minDist);
@@ -168,9 +163,6 @@ int initMPI() {
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     char hostname[63];
     gethostname(hostname,63);
-    if(!rank) {
-      std::cout << "Total " << nodes << " nodes." << std::endl;
-    }
     std::cout << "Process " << rank << " running on " 
 	      << hostname <<std::endl;
   }

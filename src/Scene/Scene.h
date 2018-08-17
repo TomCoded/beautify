@@ -128,6 +128,10 @@ protected:
   int frame;
   int startsOnFrame;
   int writesThisManyFrames;
+
+  //for program metrics
+  double mapCreationTime;
+  double treeCreationTime;
   
   //filename information for current frame
   char szFile[MAX_FILENAME_LEN];

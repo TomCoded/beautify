@@ -86,10 +86,10 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
 	  map->addPhoton(p);
 	}
     }
-  
-  std::cout << "Light " << &(*this) << " adds " <<
-    map->getSize() - priorPhotons << " photons to map\n";
 
+  //std::cout << "Light " << &(*this) << " adds " <<
+  //map->getSize() - priorPhotons << " photons to map\n";
+  
 }
 
 std::istream& DiffusePointLight::in(std::istream& is)

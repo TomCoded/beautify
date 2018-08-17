@@ -85,7 +85,7 @@ bool g_suppressGraphics;
 //does anything move around between frames?
 bool g_dynamicMap=false;
 
-char outbuffer[80];
+char outbuffer[120];
 
 std::vector<long> frameTimes;
 
@@ -99,7 +99,6 @@ std::vector<long> frameTimes;
 
 void frameCount();
 
-// essentials
 //glut display callback function
 void display()
 {
@@ -107,13 +106,10 @@ void display()
 }
 
 void Scene::startMainLoop(int rank) {
-  std::cout << "starting main loop..." << std::endl;
   this->rank=rank;
-  //mainLoop();
   
   if(!rank) { 
     if(!g_suppressGraphics) {
-      //output to screen
       glutMainLoop();
     } else {
       mainLoop();
@@ -144,8 +140,7 @@ void Scene::mainLoop() {
   }
   
   while(!done) {
-
-    frameCount();
+    if(!rank) frameCount();
     currentTime+=dtdf;
     drawSingleFrame(currentTime);
     
@@ -321,6 +316,8 @@ Scene::Scene():
   frame(0),
   startsOnFrame(0),
   writesThisManyFrames(0),
+  mapCreationTime(0.0),
+  treeCreationTime(0.0),
   frames_are_being_rendered_to_files(false)
 {
   lights = new std::vector<Light *>();
@@ -1156,7 +1153,7 @@ void Scene::toLogicalImageInParallel() {
           } else {
             //child sent data; dump it into buffer
             progressMeter++;
-            if(!(progressMeter % (height/20)))
+            if(!(progressMeter % (height/80)))
               std::cout << "|" << std::flush;
             MPI_Recv(&logicalImage[tag*3*getWindowWidth()],
                      localLogicalSize*3, MPI_DOUBLE,
@@ -1168,19 +1165,15 @@ void Scene::toLogicalImageInParallel() {
         } else {
           //run a portion of our own task.
           if(!done2) {
-            //	    std::cout << "Master process doing pixel " << taskPlace
-            //	    <<std::endl;
             myRenderer->showMap(g_map,
                                 taskPlace++,
                                 1
                                 );
             if(taskPlace%width == 0) {
-              //	      std::cout << "taskplace is " << taskPlace <<std::endl;
-              //	      std::cout << "task " << task << " finished by master\n";
               //now copy stuff over to logicalImage from local
               //	      int done = task*3*width+localLogicalSize*3;
               progressMeter++;
-              if(!(progressMeter % (height/20)))
+              if(!(progressMeter % (height/80)))
                 std::cout << "|" << std::flush;
 
               for(int i=0; i<localLogicalSize*3; i++) {
@@ -1208,16 +1201,20 @@ void Scene::toLogicalImageInParallel() {
       flag=0;
     }
     stop = MPI_Wtime();
-    sprintf(outbuffer + strlen(outbuffer), "%6f\n",stop-start);
+    //sprintf(outbuffer + strlen(outbuffer), "%6f\n",stop-start);
+    sprintf(outbuffer + strlen(outbuffer), "%6f %9f %6f\n",stop-start,mapCreationTime, treeCreationTime);
   } 
   if(!rank) {
     std::cout <<std::endl;
-    std::cerr << "Volumetric Photon Map is size " << myRenderer->getVolMap()->getSize() <<std::endl;
-
+    //std::cerr << "Volumetric Photon Map is size " << myRenderer->getVolMap()->getSize() <<std::endl;
   }
-  // Don't think we need this...
-  //  MPI_Barrier(MPI_COMM_WORLD);
 
+  if(!frame && !rank) {
+    //std::cout << "frame rank nodes mapsize    disttrees render " << std::endl;
+    std::cout <<std::endl;
+    std::cout << "frame  proc  procs pMap Size  pMap dist render   pMap create kdTree\n";
+    std::cout << "-----  ----  ----- ---------  --------- ------- ----------- ------\n";
+  }
   printf("%s",outbuffer);
   //now gather information again.  Everything has same amount of data,
   //use gather.
@@ -1228,8 +1225,9 @@ void Scene::toLogicalImageInParallel() {
   doingLocalPart = false;
   MPI_Barrier(MPI_COMM_WORLD);
   stop = MPI_Wtime();
-  if(!rank)
-    printf("%d %d %d Gather Required: %f s\n",g_nFrame,rank,nodes,stop-start);
+  
+  //if(!rank)
+  //  printf("%d %d %d Gather Required: %f s\n",g_nFrame,rank,nodes,stop-start);
   //      std::cout << "Took " << stop - start << " seconds to gather pixels.\n";
   hasImage = true;
 
@@ -1536,10 +1534,13 @@ void Scene::drawSingleFrame(double time) {
 
 #ifdef PARALLEL
       if(g_parallel) {
+	double start=MPI_Wtime();
 	//gather photons from other nodes
 	for(auto &pMap: *photonMaps) {
 	  pMap->gatherPhotons(nPhotons);
 	}
+	double stop=MPI_Wtime();
+	mapCreationTime=stop-start;
       }
 #endif
       
@@ -1548,9 +1549,12 @@ void Scene::drawSingleFrame(double time) {
       setNumNeighbors();
 
       //build (or re-build) the kd-tree
+      double start=MPI_Wtime();
       for(auto &pMap: *photonMaps) {
 	pMap->buildTree();
       }
+      double stop=MPI_Wtime();
+      treeCreationTime=stop-start;
     }
     //draw scene to our logical image.
     toLogicalImage();
@@ -1649,7 +1653,6 @@ void Scene::closeChildren() {
 
     int nodes=MPI_Comm_size(MPI_COMM_WORLD, &nodes);
     for(int i=1; i<nodes; i++) {
-      std::cout << "sending done to node " << i << std::endl;
       MPI_Send(&done,1,MPI_C_BOOL,
 	       i,
 	       TAG_PROGRAM_DONE,
@@ -1658,3 +1661,4 @@ void Scene::closeChildren() {
     }
   }
 }
+

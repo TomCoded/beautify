@@ -104,8 +104,6 @@ void PhotonMap::buildTree() {
   kdSize=kdSize*2;
   kdBalance(1);
   storage=KD_TREE;
-
-  std::cout << "Built tree of size " << kdSize << std::endl;
 }
 
 Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
@@ -463,11 +461,12 @@ void PhotonMap::gatherPhotons(int maxPhotons) {
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
   MPI_Comm_size(MPI_COMM_WORLD,&nodes);
 
+#ifdef DEBUG_BUILD
   std::cout << "Process " << rank
 	    << " started with " << unsortedPhotons.size() << " photons from map "
 	    << this
 	    << std::endl;
-  
+#endif
   
   //FIXME: Dynamic buffer resizing?
   
@@ -477,7 +476,7 @@ void PhotonMap::gatherPhotons(int maxPhotons) {
     int sendsize = getSize();
     Photon *tmp = (Photon *)malloc(maxPhotons * sizeof(Photon));
     getArrMembers(tmp);
-    ASSERT_WARN(sendsize<maxPhotons,"Warning: Buffer Size Exceeded for MPI Gather.");
+    ASSERT_WARN((sendsize<maxPhotons),"Warning: Buffer Size Exceeded for MPI Gather.");
     MPI_Send(tmp,sendsize,MPI_PHOTON,0,sendsize,MPI_COMM_WORLD);
   } else {
     //master process
@@ -497,10 +496,14 @@ void PhotonMap::gatherPhotons(int maxPhotons) {
       addPhoton(*(tmp+i));
     delete tmp;
   }
+
+#ifdef DEBUG_BUILD  
   std::cout << "Process " << rank
 	    << " gathered " << unsortedPhotons.size() << " photons from map "
 	    << this
 	    << std::endl;
+#endif
+  
 }
 
 //distribute tree to all processes
