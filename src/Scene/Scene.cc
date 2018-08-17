@@ -106,39 +106,109 @@ void display()
   g_Scene->glutDisplayCallback();
 }
 
-//processes other than the process with rank 0 won't be running the glutMainloop,
-//but have to synchronize with it
-void Scene::glutHeadlessServant() {
-  std::cout<<"glutHeadlessServant()";
-  while(1) {
-    if(!frames_are_being_rendered_to_files) {
-      currentTime+=dtdf;
-      ASSERT(myRenderer,"Renderer Class Not Initialized.");
-      std::cout << "headless servant drawing frame..." << std::endl;
-      drawSingleFrame(currentTime);
+void Scene::startMainLoop(int rank) {
+  this->rank=rank;
+  //mainLoop();
+  
+  if(!rank) { 
+    if(!g_suppressGraphics) {
+      //output to screen
+      glutMainLoop();
+    } else {
+      mainLoop();
     }
-#ifdef PARALLEL
-    MPI_Barrier(MPI_COMM_WORLD);
-#endif
+  } else {
+    mainLoop();
   }
 }
 
 void Scene::glutDisplayCallback() {
-  frameCount();
-  std::cout << "Scene::glutDisplayCallback()" << std::endl;
-  //update time
-  if(!frames_are_being_rendered_to_files) {
-    currentTime+=dtdf;
-    glClear(GL_COLOR_BUFFER_BIT);
-    ASSERT(myRenderer,"Renderer Class Not Initialized.");
-    drawSingleFrame(currentTime);
-    renderDrawnSceneToWindow();
-  }
-#ifdef PARALLEL
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif
+  mainLoop();
 }
 
+void Scene::mainLoop() {
+  bool done=false;
+  //quit program at end
+  bool quit=false;
+  MPI_Request doneRequest;
+  std::cout<<rank <<":mainLoop()" << std::endl;
+
+  //listen for shutdown flags
+  if(rank) { 
+    MPI_Irecv(&done,1,MPI_C_BOOL,
+	       MASTER_PROCESS,
+	      TAG_PROGRAM_DONE,
+	       MPI_COMM_WORLD
+	       ,&doneRequest
+	       );
+  }
+  
+  while(!done) {
+    std::cout<<rank<<":mainLoop():loop"
+	     << " done is " << done 
+	     <<std::endl;
+
+    frameCount();
+    currentTime+=dtdf;
+    drawSingleFrame(currentTime);
+    
+    if(!rank) {
+
+      if(writesThisManyFrames) {
+	renderDrawnSceneToFile();
+      }
+
+      if(!g_suppressGraphics) {
+	renderDrawnSceneToWindow();
+      }
+      
+    }
+    
+    frame++;
+    if(writesThisManyFrames &&
+       frame>=startsOnFrame+writesThisManyFrames) {
+      done=true;
+    }
+    //In Master process, this whole function is within
+    //and driven by the glutMainLoop.
+    if(!rank) {
+      if(!g_suppressGraphics) {
+	done=true;
+      }
+    }
+    
+#ifdef PARALLEL
+    if(g_parallel) {
+      if(!rank) {
+	if (g_suppressGraphics ||
+	    (writesThisManyFrames && frame>=writesThisManyFrames))
+	  {
+	    closeChildren();
+	    quit = true;
+	  }
+      }
+    }
+#endif
+    
+  }
+
+  std::cout << rank << ":mainLoop(): out"
+	    << " done is " << done
+	    << std::endl;
+  
+#ifdef PARALLEL
+  if(g_parallel) {
+    if(rank) quit = true;
+    if(quit) {
+      MPI_Barrier(MPI_COMM_WORLD);
+      MPI_Finalize();
+      std::cout << "Finalized process " << rank << std::endl;
+      exit(0);
+    }
+  }
+#endif
+  
+}
 
 void frameCount() {
   struct timeval tp;
@@ -173,7 +243,7 @@ void keyboard(unsigned char c, int, int)
           std::cout << "Image file name: ";
           std::string fileName;
           std::cin >> fileName;
-          g_Scene->renderDrawnSceneToFile(fileName.c_str());
+          g_Scene->renderDrawnSceneToFile();
         }
       break;
     case 'r':
@@ -193,8 +263,9 @@ void keyboard(unsigned char c, int, int)
       break;
     case 'q': 
 #ifdef PARALLEL
-      if(g_parallel) 
-        MPI_Finalize();
+      if(g_parallel) {
+	g_Scene->closeChildren();
+      }
 #endif
       exit(0);
       break;
@@ -241,62 +312,6 @@ void Scene::setTime(double t) {
   lastTime=curTime;
 }
 
-//batch video file generator
-void Scene::generateFiles(const char * filename,
-			  int startFrame,
-			  int numFrames) {
-  frames_are_being_rendered_to_files=true;
-  char szFile[MAX_FILENAME_LEN];
-  char szTail[10];
-  strncpy(szFile,filename,MAX_FILENAME_LEN);
-  int nBaseLen = strlen(filename);
-  char * nTail = &szFile[nBaseLen];
-
-  int rank=0;
-#ifdef PARALLEL
-  int nodes;
-  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-  MPI_Comm_size(MPI_COMM_WORLD,&nodes);
-  if(!rank) {
-    std::cout <<std::endl;
-    std::cout << "frame  proc  procs pMap Size  pMap dist render   pMap create kdTree\n";
-    std::cout << "-----  ----  ----- ---------  --------- ------- ----------- ------\n";
-  }
-#endif
-
-  if(!(g_suppressGraphics||rank)) {
-    glutMainLoop();
-  }
-  
-  for(int nFrame=startFrame; nFrame<startFrame+numFrames; nFrame++) {
-
-#ifdef PARALLEL
-      g_nFrame = nFrame;
-      //synchronize between frames.
-      MPI_Barrier(MPI_COMM_WORLD);
-      double frame_start = MPI_Wtime();
-#endif
-
-      drawSingleFrame(startFrame*dtdf);
-
-      if(!rank) {
-	ASSERT((nFrame<10000000),"Cannot Process a frame count that high.");
-	sprintf(szTail,"%d.jpg\x00",nFrame);
-	strncpy(nTail,szTail,strlen(szTail)+1);
-	
-	renderDrawnSceneToFile(szFile);
-	
-	if(!g_suppressGraphics) {
-	  renderDrawnSceneToWindow();
-	}
-      }
-  }
-  
-#ifdef PARALLEL
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif
-}
-
 // default constructor
 Scene::Scene():
   currentCamera(0),
@@ -310,6 +325,9 @@ Scene::Scene():
   nPhotons(6000),
   minDist(0.5),
   maxDist(2.0),
+  frame(0),
+  startsOnFrame(0),
+  writesThisManyFrames(0),
   frames_are_being_rendered_to_files(false)
 {
   lights = new std::vector<Light *>();
@@ -1450,6 +1468,35 @@ void Scene::setNumNeighbors() {
   }
 }
 
+void Scene::willWriteFilesWithBasename(const char *filename) {
+  frames_are_being_rendered_to_files=true;
+  strncpy(szFile,filename,MAX_FILENAME_LEN);
+  nBaseLen = strlen(filename);
+  ASSERT((nBaseLen<201),"Base file name too long.");
+  
+  int rank=0;
+#ifdef PARALLEL
+  int nodes;
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  MPI_Comm_size(MPI_COMM_WORLD,&nodes);
+  if(!rank) {
+    std::cout <<std::endl;
+    std::cout << "frame  proc  procs pMap Size  pMap dist render   pMap create kdTree\n";
+    std::cout << "-----  ----  ----- ---------  --------- ------- ----------- ------\n";
+  }
+#endif
+}
+
+void Scene::willWriteThisManyFrames(int willWriteThisManyFrames) {
+  this->writesThisManyFrames=willWriteThisManyFrames;
+}
+
+void Scene::willStartOnFrame(int willStartOnFrame) {
+  this->startsOnFrame=willStartOnFrame;
+  this->frame=willStartOnFrame;
+  g_nFrame=frame;
+}
+
 void Scene::willHaveThisManyPhotonsThrownAtIt(int nPhotons) {
   this->nPhotons = nPhotons;
 }
@@ -1465,7 +1512,6 @@ void Scene::willNeverDiscardPhotonsThisClose(int minDist) {
 void Scene::willAlwaysDiscardPhotonsThisFar(int maxDist) {
   this->maxDist = maxDist;
 }
-
 
 void Scene::tuneMapParams() {
   setNumNeighbors();
@@ -1549,8 +1595,22 @@ void Scene::renderDrawnSceneToWindow() {
   glutPostRedisplay();
 }
 
+void Scene::setFilename() {
+  ASSERT((frame<10000000),"Cannot Process a frame count that high.");
+  sprintf(szTail,"%d.jpg\x00",frame);
+  std::cout<<"np.";
+  strncpy(&szFile[nBaseLen],szTail,strlen(szTail)+1);
+  std::cout<<"wtf.";
+}
+
 //was Scene::writeImage()
-void Scene::renderDrawnSceneToFile(const char * filename) {
+void Scene::renderDrawnSceneToFile() {
+  std::cout << "rDSTF";
+  setFilename();
+  std::cout << "sFN done";
+  const char * filename=szFile;
+  std::cout << "Writing to " << filename << std::endl;
+  
   char dims[32];
   sprintf(dims,"%dx%d\x00",width,height);
   //  Image img(dims,"white");
@@ -1583,3 +1643,20 @@ void Scene::renderDrawnSceneToFile(const char * filename) {
   img.write(filename);
 }
 
+void Scene::closeChildren() {
+  bool done=true; int nodes=0;
+  if(!rank) {
+    //MPI_Abort(MPI_COMM_WORLD,0);
+    //exit(0);
+
+    int nodes=MPI_Comm_size(MPI_COMM_WORLD, &nodes);
+    for(int i=1; i<nodes; i++) {
+      std::cout << "sending done to node " << i << std::endl;
+      MPI_Send(&done,1,MPI_C_BOOL,
+	       i,
+	       TAG_PROGRAM_DONE,
+	       MPI_COMM_WORLD
+	       );
+    }
+  }
+}

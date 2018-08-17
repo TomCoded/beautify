@@ -85,8 +85,8 @@ int main(int argc, char ** argv) {
   //Initialize GLUT
   if(!g_suppressGraphics) {
     if(!(rank)) {
-      std::cout << "glutInit called with rank " << rank << std::endl;
       glutInit(&argc,argv);
+      std::cout << "glutInit called with rank " << rank << std::endl;
       //  glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
     } else {
       std::cout << "process " << rank << " will not run glut." << std::endl;
@@ -99,6 +99,9 @@ int main(int argc, char ** argv) {
   //initialize the scene
   Scene * sc=0;
   sc = new Scene();
+
+  std::cout << "created default scene...";
+  
   if(nPhotons) {
     sc->ReadFile(sceneFile);
     if(mapImport) {
@@ -116,23 +119,15 @@ int main(int argc, char ** argv) {
   sc->willAlwaysDiscardPhotonsThisFar(maxDist);
 
   //render to files and/or screen
-  if(frames) {
-    sc->generateFiles(fname.c_str(),
-		      startFrame,
-		      frames);
-  } else {
-    std::cout << "Not generating files. Beginning glut main loop..." << std::endl;
-    if(!g_suppressGraphics) {
-      //output to screen
-      if(!rank) {
-	glutMainLoop();
-	//sc->drawSingleFrame(0.0);
-	//sc->renderDrawnSceneToWindow();
-      } else {
-	std::cout << "Rank ... " << rank << std::endl;
-	sc->glutHeadlessServant();
-      }
+  if(frames||!g_suppressGraphics) {
+    if(frames) {
+      sc->willWriteFilesWithBasename(fname.c_str());
+      sc->willWriteThisManyFrames(frames);
+      sc->willStartOnFrame(startFrame);
     }
+    sc->startMainLoop(rank);
+  } else {
+    std::cerr << "Nothing to do." << std::endl;
   }
   
   if(mapExport) {

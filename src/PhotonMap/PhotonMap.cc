@@ -82,9 +82,12 @@ void PhotonMap::setMaxDist(const double maxDist) {
 void PhotonMap::buildTree() {
   kdSize = unsortedPhotons.size()+1;
 
+#ifdef DEBUG_BUILD
   std::cout << "Allocating " << kdSize*2*sizeof(Photon*) << " bytes for kdTree rebuild "
 	    << " of map " << this
 	    << std::endl;
+#endif
+  
   kdTree = (Photon **) malloc(kdSize * 2 * sizeof(Photon *));
 
   ASSERT(kdSize>1,"Cannot build tree from zero photons.")

@@ -2,11 +2,12 @@
 
 // Scene.h
 
-// (C) 2002 Anonymous1
 // Modified 2002 Tom White
 
 #ifndef SCENE_H
 #define SCENE_H
+
+#define MAX_FILENAME_LEN 256
 
 #include "config.h"
 #include <parallel_pm.h>
@@ -51,7 +52,7 @@ public:
   void drawSingleFrame(double time);
 
   //Outputs image to filename specified
-  void renderDrawnSceneToFile(const char * fileName);
+  void renderDrawnSceneToFile();
   void renderDrawnSceneToWindow();
   
 
@@ -91,10 +92,11 @@ public:
 
   double dtdf; //change in time per frame
 
+  //starts scene and glut loops
+  void startMainLoop(int rank);
+  
   //call from glut's display() callback
   void glutDisplayCallback();
-  //and a function to sync with it from other processes
-  void glutHeadlessServant();
   
   //update time for scene and everything it owns that has knowledge of time.
   void setTime(double time);
@@ -103,19 +105,39 @@ public:
   void setNumNeighbors();
   void setNumNeighbors(int numNeighbors);
 
+  void willWriteFilesWithBasename(const char *filename);
+  void willWriteThisManyFrames(int willWriteThisManyFrames);
+  void willStartOnFrame(int willStartOnFrame);
+  
+  
   void willHaveThisManyPhotonsThrownAtIt(int nPhotons);
   void willNotUseMoreThanThisManyPhotonsPerPixel(int neighbors);
   void willNeverDiscardPhotonsThisClose(int minDist);
   void willAlwaysDiscardPhotonsThisFar(int maxDist);
   
+  void closeChildren();
   
 protected:
 
   int numNeighbors;
   int nPhotons;
   int minDist, maxDist;
-  double currentTime;
 
+  //start at 0
+  double currentTime;
+  int frame;
+  int startsOnFrame;
+  int writesThisManyFrames;
+  
+  //filename information for current frame
+  char szFile[MAX_FILENAME_LEN];
+  char szTail[16];
+  int nBaseLen;
+  void setFilename();
+
+  //runs the Scene.
+  void mainLoop();
+  
   //generates a logicalImage from the Scene and returns a pointer to it.
   // note this is the same as this->logicalImage, and caller should NOT delete.
   double * toLogicalImage();
@@ -126,9 +148,12 @@ protected:
   //sets photon map parameters to those we have saved
   void tuneMapParams();
   
+  //process rank
+  int rank; 
+  
 #ifdef PARALLEL
   //parallel stuff
-  
+
   //called by regular toLogicalImage
   void toLogicalImageInParallel();
 
@@ -203,7 +228,7 @@ protected:
 			);
 
   bool frames_are_being_rendered_to_files;
-  
+
 private:
 
 
