@@ -344,6 +344,7 @@ fi;
 if test "$mpi" = "yes" ; then
     echo "MPI=yes" >> config.mak
     echo "#define BEAUTIFY_USES_MPI" >> $TMPH
+    echo "#define PARALLEL" >> $TMPH
 fi;
 if test "$mpi_path" ; then
     echo "mpi_path=$mpi_path" >> config.mak

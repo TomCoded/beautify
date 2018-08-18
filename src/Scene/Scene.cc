@@ -71,20 +71,21 @@ int antialias;
 int g_specModel;
 Scene * g_Scene;
 PhotonMap * g_map;
+PhotonMap * g_volMap;
 #define rayTrace 0
 #define photonMap 1
 
 double lastTime;
 double curTime;
+bool hasLastTime;
 
 bool g_parallel;
 bool g_suppressGraphics;
 
-//true iff we need to regenerate pmap between frames.
-bool g_dynamicMap;
-bool g_regenerate;
+//does anything move around between frames?
+bool g_dynamicMap=false;
 
-char outbuffer[80];
+char outbuffer[120];
 
 std::vector<long> frameTimes;
 
@@ -98,56 +99,103 @@ std::vector<long> frameTimes;
 
 void frameCount();
 
-// essentials
 //glut display callback function
 void display()
 {
-  if(!g_suppressGraphics)
-    glClear(GL_COLOR_BUFFER_BIT);
-  
-  curTime+=g_Scene->dtdf;
+  g_Scene->glutDisplayCallback();
+}
 
-  frameCount();
+void Scene::startMainLoop(int rank) {
+  this->rank=rank;
   
-#ifdef DEBUG_BUILD
-  std::cout << "dtdf is " << g_Scene->dtdf << std::endl;
-  std::cout << "frame time is " << curTime << std::endl;
+  if(!rank) { 
+    if(!g_suppressGraphics) {
+      glutMainLoop();
+    } else {
+      mainLoop();
+    }
+  } else {
+    mainLoop();
+  }
+}
+
+void Scene::glutDisplayCallback() {
+  mainLoop();
+}
+
+void Scene::mainLoop() {
+  bool done=false;
+  //quit program at end
+  bool quit=false;
+  MPI_Request doneRequest;
+
+  //listen for shutdown flags
+  if(rank) { 
+    MPI_Irecv(&done,1,MPI_C_BOOL,
+	       MASTER_PROCESS,
+	      TAG_PROGRAM_DONE,
+	       MPI_COMM_WORLD
+	       ,&doneRequest
+	       );
+  }
+  
+  while(!done) {
+    if(!rank) frameCount();
+    currentTime+=dtdf;
+    drawSingleFrame(currentTime);
+    
+    if(!rank) {
+
+      if(writesThisManyFrames) {
+	renderDrawnSceneToFile();
+      }
+
+      if(!g_suppressGraphics) {
+	renderDrawnSceneToWindow();
+      }
+      
+    }
+    
+    frame++;
+    if(writesThisManyFrames &&
+       frame>=startsOnFrame+writesThisManyFrames) {
+      done=true;
+    }
+    //In Master process, this whole function is within
+    //and driven by the glutMainLoop.
+    if(!rank) {
+      if(!g_suppressGraphics) {
+	done=true;
+      }
+    }
+    
+#ifdef PARALLEL
+    if(g_parallel) {
+      if(!rank) {
+	if (g_suppressGraphics ||
+	    (writesThisManyFrames && frame>=writesThisManyFrames))
+	  {
+	    closeChildren();
+	    quit = true;
+	  }
+      }
+    }
+#endif
+    
+  }
+
+#ifdef PARALLEL
+  if(g_parallel) {
+    if(rank) quit = true;
+    if(quit) {
+      MPI_Barrier(MPI_COMM_WORLD);
+      MPI_Finalize();
+      std::cout << "Finalized process " << rank << std::endl;
+      exit(0);
+    }
+  }
 #endif
   
-  if(g_Scene->myRenderer) 
-    {
-      if(photonMap)
-        {
-          if(lastTime==curTime)
-            {
-              if(g_Scene->hasImage)
-                {
-                  g_Scene->repaint();
-                }
-              else
-                g_Scene->myRenderer->showMap(g_map);
-            }
-          else
-            {
-              std::vector<Surface *> * surfaces = g_Scene->getSurfaces();
-              std::vector<Surface *>::iterator itSurf = surfaces->begin();
-              for(;itSurf!=surfaces->end(); itSurf++)
-                {
-                  (*itSurf)->setTime(curTime);
-                }
-              g_Scene->myRenderer->map();
-              g_Scene->setNumNeighbors();
-              g_map->buildTree();
-              g_Scene->myRenderer->showMap(g_map);
-            }
-        }
-      else if(rayTrace)
-        g_Scene->myRenderer->run();
-    }
-  if(!g_suppressGraphics) {
-    glFlush();
-    glutPostRedisplay();
-  }
 }
 
 void frameCount() {
@@ -183,7 +231,7 @@ void keyboard(unsigned char c, int, int)
           std::cout << "Image file name: ";
           std::string fileName;
           std::cin >> fileName;
-          g_Scene->writeImage(fileName.c_str());
+          g_Scene->renderDrawnSceneToFile();
         }
       break;
     case 'r':
@@ -203,8 +251,9 @@ void keyboard(unsigned char c, int, int)
       break;
     case 'q': 
 #ifdef PARALLEL
-      if(g_parallel) 
-        MPI_Finalize();
+      if(g_parallel) {
+	g_Scene->closeChildren();
+      }
 #endif
       exit(0);
       break;
@@ -237,6 +286,7 @@ void Scene::setTime(double t) {
   std::vector<Camera *>::iterator itCam;
 
   curTime=t;
+  hasLastTime=true;
 
   for(itSurf=surfaces->begin();
       itSurf!=surfaces->end();
@@ -246,191 +296,9 @@ void Scene::setTime(double t) {
       itCam!=cameras->end();
       itCam++)
     (*itCam)->setTime(t);
+
+  lastTime=curTime;
 }
-
-// batch video file generator 
-void Scene::generateFiles(const char * filename, 
-                          int startFrame,
-                          int numFrames, 
-                          int photons,
-                          int neighbors,
-                          double minDist,
-                          double maxDist
-                          )
-{
-  logicalRender=true;
-  char szFile[63];
-  char szTail[10];
-  strcpy(szFile,filename);
-  int nBaseLen = strlen(filename);
-  char * nTail = &szFile[nBaseLen];
-
-  setTime(startFrame*dtdf);
-
-  int rank=0;
-#ifdef PARALLEL
-  int nodes;
-  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-  MPI_Comm_size(MPI_COMM_WORLD,&nodes);
-  if(!rank) {
-    std::cout <<std::endl;
-    std::cout << "frame  proc  procs pMap Size  pMap dist render   pMap create kdTree\n";
-    std::cout << "-----  ----  ----- ---------  --------- ------- ----------- ------\n";
-  }
-  //  photons /= nodes;
-#endif
-  
-  paintingFromLogical=false;
-
-  for(int nFrame=startFrame; nFrame<numFrames+startFrame; nFrame++)
-    {
-      //      MPI_Barrier(MPI_COMM_WORLD);
-      //paint the map into the array
-      //      paintingFromLogical=false;
-
-#ifdef PARALLEL
-      g_nFrame = nFrame;
-      //myRenderer->setSeed(rank);
-#else
-      std::cout << "Creating photon map for frame " << nFrame <<std::endl << std::flush;
-#endif
-
-
-      if(g_dynamicMap || (nFrame == startFrame) ) {
-        while( (g_map = g_Scene->myRenderer->map(photons) )->getSize() < 10) {
-          //give it a blank image
-          if (!rank)	
-            std::cerr << "Photon Map of " << g_map->getSize() 
-                      << " photons Too Small to Render frame" << nFrame 
-                      << "; ";
-          map_too_small=true;
-          break;
-          //	      MPI_Abort(MPI_COMM_WORLD,1);
-        }
-      }
-
-#ifdef PARALLEL
-      renderParallelFrame(photons,
-			  nFrame,
-			  startFrame,
-			  neighbors,
-			  minDist,
-			  maxDist,
-			  rank,
-			  nodes
-			  );
-
-#else
-      std::cout << "Rendering frame " << nFrame << std::endl;
-      frameCount();
-      setNumNeighbors(neighbors);
-      g_map->buildTree();
-      myRenderer->showMap(g_map);
-
-#endif
-      
-      if(!rank) {
-        sprintf(szTail,"%d.jpg\x00",nFrame);
-        strncpy(nTail,szTail,strlen(szTail)+1);
-        writeImage(szFile);
-      }
-      setTime(curTime+dtdf);
-      logicalRender=false;
-      
-#ifdef PARALLEL
-
-      //synchronize between frames.
-      MPI_Barrier(MPI_COMM_WORLD);
-      double frame_stop = MPI_Wtime();
-      if(!rank)
-	frameCount();
-        //std::cout << "Frame " << nFrame << " Done in " <<
-	//frame_stop - frame_start << " seconds.\n";
-
-#endif
-
-    }
-  //  MPI_Barrier(MPI_COMM_WORLD);
-  //  std::cout <<std::endl << rank << " post-draw() waiting at barrier.\n" << flush;
-  //inter-frame barrier
-#ifdef PARALLEL
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif
-}
-
-#ifdef PARALLEL
-void Scene::renderParallelFrame(int photons,
-				int nFrame,
-				int startFrame,
-				int neighbors,
-				double minDist,
-				double maxDist,
-				int rank,
-				int nodes
-				) {
-  double frame_start = MPI_Wtime();
-  if (g_parallel) {
-    double start = MPI_Wtime();
-    
-    if(g_dynamicMap || (nFrame == startFrame) ) {
-      if(!map_too_small) {
-	g_regenerate = true;
-	    
-	g_map->gatherPhotons(photons);
-	MPI_Barrier(MPI_COMM_WORLD);
-	//	  myRenderer->getVolMap()->gatherPhotons(photons);
-	int bufSize = myRenderer->getVolMap()->getSize()*(nodes+2);
-	myRenderer->getVolMap()->gatherPhotons(bufSize > photons ? bufSize : photons);
-#define TAG_HANDSHAKE 6000
-
-	double stop = MPI_Wtime();
-
-	if(!rank) {
-	  sprintf(outbuffer,"%5d  %4d  %5d %9d  %9f %6f  ",
-		  g_nFrame, rank, nodes, g_map->getSize(),
-		  0.0, 0.0, 
-		  stop-start);
-	  //	    std::cout << "Took " << stop - start << " seconds to create photon map.\n";
-	  start = MPI_Wtime();
-
-	  g_map->buildTree();
-	  myRenderer->getVolMap()->buildTree();
-
-	  stop = MPI_Wtime();
-	  sprintf(outbuffer + strlen(outbuffer),"%6f",stop-start);
-	  printf("%s\n",outbuffer);
-	  //	    std::cout << "Took " << stop - start << " seconds to build kdTree.\n";
-	  if(minDist) {
-	    g_map->setMinSearch(minDist);
-	    myRenderer->getVolMap()->setMinSearch(minDist);
-	  }
-	  if(maxDist) {
-	    g_map->setMaxDist(maxDist);
-	    myRenderer->getVolMap()->setMaxDist(maxDist);
-	  }
-	  if(neighbors) {
-	    setNumNeighbors(neighbors);
-	    myRenderer->getVolMap()->setNumNeighbors(neighbors);
-	  }
-	  else {
-	    setNumNeighbors();
-	    myRenderer->getVolMap()->setNumNeighbors(g_map->getSize()/15);
-	  }
-	}
-      } 
-    } else {
-      g_regenerate = false;
-    }
-    start = MPI_Wtime();
-	
-    draw();
-
-    double stop = MPI_Wtime();
-    //	if(!rank)
-    //	  std::cout << "Took " << stop - start << " seconds to render image.\n";
-  }
-}
-#endif
 
 // default constructor
 Scene::Scene():
@@ -440,23 +308,33 @@ Scene::Scene():
   hasImage(0),
   dtdf(0),
   logicalImage(0),
-  logicalRender(false),
   paintingFromLogical(false),
-  numNeighbors(0)
+  numNeighbors(0),
+  nPhotons(6000),
+  minDist(0.5),
+  maxDist(2.0),
+  frame(0),
+  startsOnFrame(0),
+  writesThisManyFrames(0),
+  mapCreationTime(0.0),
+  treeCreationTime(0.0),
+  frames_are_being_rendered_to_files(false)
 {
   lights = new std::vector<Light *>();
   surfaces = new std::vector<Surface *>();
   cameras = new std::vector<Camera *>();
   materials = new std::vector<Material *>();
+  photonMaps = new std::vector<PhotonMap *>();
   g_specModel=HALFWAY;
   myRenderer = new Renderer(this);
   g_Scene=this;
   Magick::InitializeMagick("/usr/lib");
+  if(!g_suppressGraphics) {
+    int rank=0;
 #ifdef PARALLEL
-  if (g_parallel) {
-    int rank;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-    if(!(rank||g_suppressGraphics)) {
+#endif
+    if(!(rank)) {
       glutInitWindowSize(width,height);
       glutInitWindowPosition(200,200);
       glutCreateWindow("The Scene:");
@@ -465,7 +343,7 @@ Scene::Scene():
       gluLookAt(0.5,0.5,1.0, //eye
                 0.5,0.5,0, //lookAt
                 0,1.0,0); //up
-
+      
       glClearColor(0.0,1.0,0.0, 0.0f); //Green Background
       glColor3f(1.0f,0.0f,0.0f); //drawing color
       glutDisplayFunc(display);
@@ -473,24 +351,6 @@ Scene::Scene():
       glutReshapeFunc(reshape);
     }
   }
-#else
-  if(!g_suppressGraphics) {
-    glutInitWindowSize(width,height);
-    glutInitWindowPosition(200,200);
-    glutCreateWindow("The Scene:");
-
-    glMatrixMode(GL_MODELVIEW);
-    gluLookAt(0.5,0.5,1.0, //eye
-              0.5,0.5,0, //lookAt
-              0,1.0,0); //up
-
-    glClearColor(0.0,1.0,0.0, 0.0f); //Green Background
-    glColor3f(1.0f,0.0f,0.0f); //drawing color
-    glutDisplayFunc(display);
-    glutKeyboardFunc(keyboard);
-    glutReshapeFunc(reshape);
-  }
-#endif
 }
 
 // destructor
@@ -499,7 +359,7 @@ Scene::~Scene()
   //  if(g_map)
   //    delete g_map;
   if(hasImage)
-    delete logicalImage;
+    delete[] logicalImage;
 
   std::vector<Light *>::iterator itDestroyer = lights->begin();
   while( itDestroyer != lights->end() )
@@ -1034,7 +894,7 @@ void Scene::ReadFile(std::string fileName) {
 #endif
     {
       if(logicalImage)
-        delete logicalImage;
+        delete[] logicalImage;
       logicalImage = new double[3*(height*width)];
       for(int i=0; i<3*height*width;) {
         logicalImage[i++]=1.0;
@@ -1056,6 +916,10 @@ void Scene::putPixel(int x, int y, double r, double g, double b)
   if(r>1) r=1;
   if(g>1) g=1;
   if(b>1) b=1;
+  if(x<0) x=0;
+  if(x>=width) x=width-1;
+  if(y<0) y=0;
+  if(y>=height) y=height-1;
 #ifdef PARALLEL
   if(!doingLocalPart) {
 #endif
@@ -1066,17 +930,6 @@ void Scene::putPixel(int x, int y, double r, double g, double b)
         logicalImage[nPlace++]=g;
         logicalImage[nPlace]=b;
         hasImage=true;
-      }
-    //if we're rendering to the screen
-    if(!logicalRender)
-      {
-        glPointSize(1.5);
-        double dx = (x/(double)width);
-        double dy = (y/(double)height);
-        glColor3d(r,g,b);
-        glBegin(GL_POINTS);
-        glVertex3d(dx,dy,0.0);
-        glEnd();
       }
 #ifdef PARALLEL
   }
@@ -1090,8 +943,11 @@ void Scene::putPixel(int x, int y, double r, double g, double b)
 }
 
 //repaints scene from logical image
+//TODO: Remove if not used any longer.
+//  relied on old putPixel method
 void Scene::repaint()
 {
+  ASSERT(false,"repaint() no longer effective. Call RenderDrawnSceneToWindow()")
   if(hasImage&&logicalImage)
     {
       int nPos=0;
@@ -1133,39 +989,6 @@ void Scene::smoothLogicalImage()
   }
 }
 
-//Writes the image to a file
-void Scene::writeImage(const char * fileName)
-{
-  char dims[32];
-  sprintf(dims,"%dx%d\x00",width,height);
-  //  Image img(dims,"white");
-  Magick::Image img (Magick::Geometry(width,height),"white" );
-  int nPos=0;
-  for(int y=0; y<height; y++)
-    for(int x=0; x<width; x++)
-      {
-        img.pixelColor(x,
-                       y,
-                       Magick::ColorRGB(logicalImage[nPos],
-                                        logicalImage[nPos+1],
-                                        logicalImage[nPos+2]
-                                        )
-                       );
-        nPos+=3;
-      }
-
-  //This keeps ffmpeg from freezing on blank frames
-  //in videos we later create
-  img.pixelColor(0,0,Magick::ColorRGB(1.0,1.0,5.0));
-  img.pixelColor(1,1,Magick::ColorRGB(1.0,1.0,5.0));
-  img.pixelColor(2,1,Magick::ColorRGB(1.0,1.0,5.0));
-  img.pixelColor(1,2,Magick::ColorRGB(1.0,1.0,5.0));
-  img.pixelColor(2,2,Magick::ColorRGB(1.0,1.0,5.0));
-
-  img.flip();
-  img.write(fileName);
-}
-
 void Scene::setWindowSize(int x, int y)
 {
   width=x;
@@ -1173,7 +996,7 @@ void Scene::setWindowSize(int x, int y)
   if(!g_suppressGraphics)
     glutReshapeWindow(x,y);
   if(hasImage&&logicalImage)
-    delete logicalImage;
+    delete[] logicalImage;
   logicalImage = new double[width*height*3];
   hasImage=true;
 }
@@ -1184,29 +1007,34 @@ int Scene::getWindowWidth()
 int Scene::getWindowHeight()
 { return height; }
 
-void Scene::draw()
+double * Scene::toLogicalImage()
 {
   myRenderer->ambient=ambient;
+
   if(photonMap&&(!g_map)) {
-    g_map = g_Scene->myRenderer->map();
+    g_map = g_Scene->myRenderer->map(nPhotons);
+    photonMaps->push_back(g_map);
   }
+  if(photonMap&&(!g_volMap)) {
+    g_volMap = g_Scene->myRenderer->getVolMap();
+    photonMaps->push_back(g_volMap);
+  }
+
 #ifdef PARALLEL
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-  MPI_Barrier(MPI_COMM_WORLD);
   if(g_parallel) {
-    drawParallel();
-  }
-  if(!(rank||g_suppressGraphics)) {
-    glutReshapeWindow(width,height);
-    glutPostRedisplay();
-  } else if(!rank) 
-    display();
+    MPI_Barrier(MPI_COMM_WORLD);
+    toLogicalImageInParallel();
+  } else 
 #endif
+  myRenderer->showMap(g_map);
+  
+  return logicalImage;
 }
 
 #ifdef PARALLEL
-void Scene::drawParallel() {
+void Scene::toLogicalImageInParallel() {
   int nodes, rank;
   double start, stop; //for timings
   MPI_Comm_size(MPI_COMM_WORLD,&nodes);
@@ -1216,32 +1044,29 @@ void Scene::drawParallel() {
 
   //allocate space for a row of pixels.
   localLogicalSize = getWindowWidth();
-  //totalSize / nodes;
+
   //each process starts off with row equal to its rank
   localLogicalStart = rank * localLogicalSize;
   localLogical = new double[3*localLogicalSize];
   doingLocalPart = true;
 
   //distribute kdTree
-
   if(!map_too_small) {
     start = MPI_Wtime();
 
-    //only do this if the pmap has been generated this frame
-    if(g_regenerate) {
-      g_map->distributeTree();
-      myRenderer->getVolMap()->distributeTree();
+    int mapSize=(*(photonMaps->begin()))->getSize();
+    
+    for(auto &pMap: *photonMaps) { pMap->distributeTree(); }
 #ifdef SAVE_VOLMAP
-      if(!rank) {
-        saveMap(myRenderer->getVolMap(),"volmap.map");
-      }
-#endif
+    if(!rank) {
+      saveMap(myRenderer->getVolMap(),"volmap.map");
     }
+#endif
 
     stop = MPI_Wtime();
     //    printf("%s",outbuffer);
     sprintf(outbuffer,"%5d  %4d  %5d %9d  %9f ",
-            g_nFrame, rank, nodes, g_map->getSize(),
+            g_nFrame, rank, nodes, mapSize,
             stop - start
             );
 
@@ -1253,8 +1078,8 @@ void Scene::drawParallel() {
     if(rank) {
       while(!done) {
         //we are a child process.  Have default task.  Run task.
-	
-        //now render results
+
+        //throw rays from the eye toward the scene, calling putPixel()
         myRenderer->showMap(g_map,
                             localLogicalStart,
                             localLogicalSize
@@ -1330,7 +1155,7 @@ void Scene::drawParallel() {
           } else {
             //child sent data; dump it into buffer
             progressMeter++;
-            if(!(progressMeter % (height/20)))
+            if(!(progressMeter % (height/80)))
               std::cout << "|" << std::flush;
             MPI_Recv(&logicalImage[tag*3*getWindowWidth()],
                      localLogicalSize*3, MPI_DOUBLE,
@@ -1342,19 +1167,15 @@ void Scene::drawParallel() {
         } else {
           //run a portion of our own task.
           if(!done2) {
-            //	    std::cout << "Master process doing pixel " << taskPlace
-            //	    <<std::endl;
             myRenderer->showMap(g_map,
                                 taskPlace++,
                                 1
                                 );
             if(taskPlace%width == 0) {
-              //	      std::cout << "taskplace is " << taskPlace <<std::endl;
-              //	      std::cout << "task " << task << " finished by master\n";
               //now copy stuff over to logicalImage from local
               //	      int done = task*3*width+localLogicalSize*3;
               progressMeter++;
-              if(!(progressMeter % (height/20)))
+              if(!(progressMeter % (height/80)))
                 std::cout << "|" << std::flush;
 
               for(int i=0; i<localLogicalSize*3; i++) {
@@ -1382,16 +1203,20 @@ void Scene::drawParallel() {
       flag=0;
     }
     stop = MPI_Wtime();
-    sprintf(outbuffer + strlen(outbuffer), "%6f\n",stop-start);
+    //sprintf(outbuffer + strlen(outbuffer), "%6f\n",stop-start);
+    sprintf(outbuffer + strlen(outbuffer), "%6f %9f %6f\n",stop-start,mapCreationTime, treeCreationTime);
   } 
   if(!rank) {
     std::cout <<std::endl;
-    std::cerr << "Volumetric Photon Map is size " << myRenderer->getVolMap()->getSize() <<std::endl;
-
+    //std::cerr << "Volumetric Photon Map is size " << myRenderer->getVolMap()->getSize() <<std::endl;
   }
-  // Don't think we need this...
-  //  MPI_Barrier(MPI_COMM_WORLD);
 
+  if(!frame && !rank) {
+    //std::cout << "frame rank nodes mapsize    disttrees render " << std::endl;
+    std::cout <<std::endl;
+    std::cout << "frame  proc  procs pMap Size  pMap dist render   pMap create kdTree\n";
+    std::cout << "-----  ----  ----- ---------  --------- ------- ----------- ------\n";
+  }
   printf("%s",outbuffer);
   //now gather information again.  Everything has same amount of data,
   //use gather.
@@ -1402,8 +1227,9 @@ void Scene::drawParallel() {
   doingLocalPart = false;
   MPI_Barrier(MPI_COMM_WORLD);
   stop = MPI_Wtime();
-  if(!rank)
-    printf("%d %d %d Gather Required: %f s\n",g_nFrame,rank,nodes,stop-start);
+  
+  //if(!rank)
+  //  printf("%d %d %d Gather Required: %f s\n",g_nFrame,rank,nodes,stop-start);
   //      std::cout << "Took " << stop - start << " seconds to gather pixels.\n";
   hasImage = true;
 
@@ -1621,10 +1447,218 @@ void Scene::setNumNeighbors(int numNeighbors) {
 
 void Scene::setNumNeighbors() {
   if(numNeighbors) {
-    g_map->setNumNeighbors(numNeighbors);
+    for(auto &pMap: *photonMaps) {
+      pMap->setNumNeighbors(numNeighbors);
+    }
   } else {
-    g_map->setNumNeighbors(surfaces->size(),
-			   NEIGHBORHOODS_PER_SURFACE
-			   );
+    for(auto &pMap: *photonMaps) {
+      pMap->setNumNeighbors(surfaces->size(),
+			    NEIGHBORHOODS_PER_SURFACE
+			    );
+    }
   }
 }
+
+void Scene::willWriteFilesWithBasename(const char *filename) {
+  frames_are_being_rendered_to_files=true;
+  strncpy(szFile,filename,MAX_FILENAME_LEN);
+  nBaseLen = strlen(filename);
+  ASSERT((nBaseLen<201),"Base file name too long.");
+  
+  int rank=0;
+#ifdef PARALLEL
+  int nodes;
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  MPI_Comm_size(MPI_COMM_WORLD,&nodes);
+  if(!rank) {
+    std::cout <<std::endl;
+    std::cout << "frame  proc  procs pMap Size  pMap dist render   pMap create kdTree\n";
+    std::cout << "-----  ----  ----- ---------  --------- ------- ----------- ------\n";
+  }
+#endif
+}
+
+void Scene::willWriteThisManyFrames(int willWriteThisManyFrames) {
+  this->writesThisManyFrames=willWriteThisManyFrames;
+}
+
+void Scene::willStartOnFrame(int willStartOnFrame) {
+  this->startsOnFrame=willStartOnFrame;
+  this->frame=willStartOnFrame;
+  g_nFrame=frame;
+}
+
+void Scene::willHaveThisManyPhotonsThrownAtIt(int nPhotons) {
+  this->nPhotons = nPhotons;
+}
+
+void Scene::willNotUseMoreThanThisManyPhotonsPerPixel(int neighbors) {
+  setNumNeighbors(neighbors);
+}
+
+void Scene::willNeverDiscardPhotonsThisClose(int minDist) {
+  this->minDist = minDist;
+}
+
+void Scene::willAlwaysDiscardPhotonsThisFar(int maxDist) {
+  this->maxDist = maxDist;
+}
+
+void Scene::tuneMapParams() {
+  setNumNeighbors();
+  if(minDist) {
+    for(auto &pMap: *photonMaps) {
+      pMap->setMinSearch(minDist);
+    }
+  }
+  if(maxDist) {
+    for(auto &pMap: *photonMaps) {
+      pMap->setMaxDist(maxDist);
+    }
+  }
+}
+
+void Scene::drawSingleFrame(double time) {
+  curTime=time;
+  if(photonMap) {
+    if(hasLastTime && (lastTime==curTime)) {
+      if(hasImage) {
+	//this frame already exists in memory
+	return;
+      }
+    } else {
+      //update the time of the scene
+      setTime(curTime);
+      //throw photons into the world
+      PhotonMap * pm = myRenderer->map(nPhotons);
+      while(photonMaps->size()) { photonMaps->pop_back(); }
+      photonMaps->push_back(pm);
+
+#ifdef PARALLEL
+      if(g_parallel) {
+	double start=MPI_Wtime();
+	//gather photons from other nodes
+	for(auto &pMap: *photonMaps) {
+	  pMap->gatherPhotons(nPhotons);
+	}
+	double stop=MPI_Wtime();
+	mapCreationTime=stop-start;
+      }
+#endif
+      
+      //tune the photon map
+      tuneMapParams();
+      setNumNeighbors();
+
+      //build (or re-build) the kd-tree
+      double start=MPI_Wtime();
+      for(auto &pMap: *photonMaps) {
+	pMap->buildTree();
+      }
+      double stop=MPI_Wtime();
+      treeCreationTime=stop-start;
+    }
+    //draw scene to our logical image.
+    toLogicalImage();
+  } else if(rayTrace) {
+    //The very early skeleton of the Photon Mapper came from
+    //an old undergrad ray tracing assignment. It would be
+    //easy to add a ray tracer back in and I may do so in the
+    //future.
+    ASSERT(false,"Ray Tracing Not Enabled.");
+  } else {
+    ASSERT(false,"NO ILLUMINATION ENGINE SPECIFIED");
+  }
+}
+
+//slower per frame than using GLUT pipeline directly in putPixel,
+//but much better encapsulation.
+//note: only call on process you want to use GLUT.
+void Scene::renderDrawnSceneToWindow() {
+  int totalPixelDoubles = width*height*3;
+  double r, g, b, dx, dy, x, y;
+  glutReshapeWindow(width,height);
+
+  for(int x=0; x<width; x++) {
+    for(int y=0; y<height; y++) {
+      int nPlace= (y*width+x)*3;
+      glPointSize(1.5);
+      r=logicalImage[nPlace];
+      g=logicalImage[nPlace+1];
+      b=logicalImage[nPlace+2];
+      dx = (x/(double)width);
+      dy = (y/(double)height);
+      glColor3d(r,g,b);
+      glBegin(GL_POINTS);
+      glVertex3d(dx,dy,0.0);
+      glEnd();
+    }
+  }
+  
+  glFlush();
+  glutPostRedisplay();
+}
+
+void Scene::setFilename() {
+  ASSERT((frame<10000000),"Cannot Process a frame count that high.");
+  sprintf(szTail,"%d.jpg\x00",frame);
+  std::cout<<"np.";
+  strncpy(&szFile[nBaseLen],szTail,strlen(szTail)+1);
+  std::cout<<"wtf.";
+}
+
+//was Scene::writeImage()
+void Scene::renderDrawnSceneToFile() {
+  setFilename();
+  const char * filename=szFile;
+  std::cout << "Writing to " << filename << std::endl;
+  
+  char dims[32];
+  sprintf(dims,"%dx%d\x00",width,height);
+  //  Image img(dims,"white");
+  Magick::Image img (Magick::Geometry(width,height),"white" );
+  int nPos=0;
+  if(hasImage&&logicalImage) {
+    for(int y=0; y<height; y++) {
+      for(int x=0; x<width; x++) {
+	  img.pixelColor(x,
+			 y,
+			 Magick::ColorRGB(logicalImage[nPos],
+					  logicalImage[nPos+1],
+					  logicalImage[nPos+2]
+					  )
+			 );
+	  nPos+=3;
+      }
+    }
+  }
+
+  //This keeps ffmpeg from freezing on blank frames
+  //in videos we later create
+  img.pixelColor(0,0,Magick::ColorRGB(1.0,1.0,5.0));
+  img.pixelColor(1,1,Magick::ColorRGB(1.0,1.0,5.0));
+  img.pixelColor(2,1,Magick::ColorRGB(1.0,1.0,5.0));
+  img.pixelColor(1,2,Magick::ColorRGB(1.0,1.0,5.0));
+  img.pixelColor(2,2,Magick::ColorRGB(1.0,1.0,5.0));
+
+  img.flip();
+  img.write(filename);
+}
+
+void Scene::closeChildren() {
+  bool done=true; int nodes=0;
+  if(!rank) {
+    //MPI_Abort(MPI_COMM_WORLD,0);
+    //exit(0);
+
+    int nodes=MPI_Comm_size(MPI_COMM_WORLD, &nodes);
+    for(int i=1; i<nodes; i++) {
+      MPI_Send(&done,1,MPI_C_BOOL,
+	       i,
+	       TAG_PROGRAM_DONE,
+	       MPI_COMM_WORLD
+	       );
+    }
+  }
+}
+

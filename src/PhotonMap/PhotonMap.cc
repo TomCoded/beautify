@@ -82,11 +82,16 @@ void PhotonMap::setMaxDist(const double maxDist) {
 void PhotonMap::buildTree() {
   kdSize = unsortedPhotons.size()+1;
 
-  std::cout << "Allocating " << kdSize*2*sizeof(Photon*) << " bytes for kdTree rebuild..." ;
+#ifdef DEBUG_BUILD
+  std::cout << "Allocating " << kdSize*2*sizeof(Photon*) << " bytes for kdTree rebuild "
+	    << " of map " << this
+	    << std::endl;
+#endif
+  
   kdTree = (Photon **) malloc(kdSize * 2 * sizeof(Photon *));
 
-  ASSERT(kdSize,"Cannot build tree from zero photons.")
-    ASSERT(kdTree,"Unable to allocate sufficient memory for tree build.")
+  ASSERT(kdSize>1,"Cannot build tree from zero photons.")
+  ASSERT(kdTree,"Unable to allocate sufficient memory for tree build.")
   
   //save ourself from embarassment later
   kdTree[0] = 0;
@@ -138,12 +143,13 @@ Point3Dd PhotonMap::getFluxAt(Point3Dd &loc, Point3Dd& normal){
     Point3Dd lDir;
     double myMult;
 
-    while(Q.getSize()>numNeighbors)
-      Q.pop();
-
+    Q.keepThisManyPhotons(numNeighbors);
+    
+    ASSERT(Q.getSize(), "Unable to find enough photons near the point I am trying to render.")
+    
     maxDistSqr = distance(Q.top(),loc);
 
-#if DEBUG_BUILD
+#ifdef DEBUG_BUILD
     static int totalQueued = 0;
     static int passes = 0;
     passes++;
@@ -455,6 +461,13 @@ void PhotonMap::gatherPhotons(int maxPhotons) {
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
   MPI_Comm_size(MPI_COMM_WORLD,&nodes);
 
+#ifdef DEBUG_BUILD
+  std::cout << "Process " << rank
+	    << " started with " << unsortedPhotons.size() << " photons from map "
+	    << this
+	    << std::endl;
+#endif
+  
   //FIXME: Dynamic buffer resizing?
   
   MPI_Barrier(MPI_COMM_WORLD);
@@ -463,6 +476,7 @@ void PhotonMap::gatherPhotons(int maxPhotons) {
     int sendsize = getSize();
     Photon *tmp = (Photon *)malloc(maxPhotons * sizeof(Photon));
     getArrMembers(tmp);
+    ASSERT_WARN((sendsize<maxPhotons),"Warning: Buffer Size Exceeded for MPI Gather.");
     MPI_Send(tmp,sendsize,MPI_PHOTON,0,sendsize,MPI_COMM_WORLD);
   } else {
     //master process
@@ -477,12 +491,20 @@ void PhotonMap::gatherPhotons(int maxPhotons) {
       } while (stat.MPI_TAG == TAG_HANDSHAKE);
       MPI_Recv((tmp + totalsize),cnt,MPI_PHOTON,i,MPI_ANY_TAG,MPI_COMM_WORLD,&stat);
       totalsize += cnt;
+      //std::cout<<rank<<":received "<<cnt<<" from node " << i << std::endl;
     }
     for(int i=0; i < totalsize; i++) 
       addPhoton(*(tmp+i));
     delete tmp;
   }
 
+#ifdef DEBUG_BUILD  
+  std::cout << "Process " << rank
+	    << " gathered " << unsortedPhotons.size() << " photons from map "
+	    << this
+	    << std::endl;
+#endif
+  
 }
 
 //distribute tree to all processes
@@ -530,6 +552,10 @@ void PhotonMap::distributeTree() {
 
   //if not the root, dump it back into the PhotonMap's kdTree.
   if(rank) {
+    //first delete copy of own photons
+    while(unsortedPhotons.size()) {
+      unsortedPhotons.pop_back();
+    }
     for(int i=1; i<kdSize; i++) {
       //dump photons into unsortedPhotons
       unsortedPhotons.push_back(_kdTree[i]);

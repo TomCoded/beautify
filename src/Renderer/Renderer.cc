@@ -100,8 +100,9 @@ PhotonMap * Renderer::map(int nPhotons)
   photonsEmittedCount=nPhotons;
   static int light_pow_set=0;
 #ifdef PARALLEL
-  int rank;
+  int rank, nodes;
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  MPI_Comm_size(MPI_COMM_WORLD,&nodes);
 #endif
 
   newMap();
@@ -133,27 +134,23 @@ PhotonMap * Renderer::map(int nPhotons)
 
 #ifdef PARALLEL
       if(g_parallel) {
-
-	int nodes;
-	MPI_Comm_size(MPI_COMM_WORLD, &nodes);
-
 	if(!light_pow_set) {
-	  
 	  //We want each light to emit photons of power
-	  // (lightpower / numTotalPhotons)
-	  // so each process, since it only emits
-	  // (numTotalPhotons / nodes) photons,
-	  // Should actually use
-	  // (lightpower / nodes) / numTotalPhotons
+	  // nPhotonsForThisLight, but we don't want to divide the
+	  //total light power by the number of photons, we want to
+	  // divide it by the number of photons times the number of nodes.
+	  
+	  // Note nPhotons is ALREADY adjusted to
+	  // reflect just the number of photons this node
+	  // will emit.
 	  double pow = (*itLights)->getPower();
 	  pow /= nodes;
 	  (*itLights)->setPower(pow);
-
 	}
-	
-	nPhotonsForThisLight /= nodes;
       }
 #endif
+
+      //Have each light emit photons
       (*itLights)->addPhotonsToMap(nPhotonsForThisLight,
 				   pMap,
 				   this
@@ -166,16 +163,8 @@ PhotonMap * Renderer::map(int nPhotons)
   g_photonPowerLow.y /= 4.0;
   g_photonPowerLow.z /= 4.0;
 
-#ifdef PARALLEL
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif
-
   return pMap;
 }
-
-//run() ran the ray tracer
-int Renderer::run()
-{}
 
 Point3Dd Renderer::getColor(Ray * sampleRay)
 {

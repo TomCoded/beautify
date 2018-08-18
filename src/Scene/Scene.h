@@ -2,11 +2,12 @@
 
 // Scene.h
 
-// (C) 2002 Anonymous1
 // Modified 2002 Tom White
 
 #ifndef SCENE_H
 #define SCENE_H
+
+#define MAX_FILENAME_LEN 256
 
 #include "config.h"
 #include <parallel_pm.h>
@@ -47,11 +48,15 @@ public:
   // Read contents of a scene file, skipping over unimplemented features
   void ReadFile(std::string fileName);
 
-  //Outputs image to filename specified
-  void writeImage(const char * fileName);
+  //renders a single frame into logicalImage
+  void drawSingleFrame(double time);
 
-  //writes a pixel to a graphics window.  If x>width or y>height,
-  //resizes window to size x,y
+  //Outputs image to filename specified
+  void renderDrawnSceneToFile();
+  void renderDrawnSceneToWindow();
+  
+
+  //writes a pixel to a graphics window.
   void putPixel(int x, int y, Point3Dd color);
   void putPixel(int x, int y, double r, double g, double b);
 
@@ -59,28 +64,20 @@ public:
   void repaint();
   //smooths an image after it's been rendered.
   void smoothLogicalImage();
+  //normalizes each color channel.
+  void normalizeChannels();
 
   void setWindowSize(int x, int y);
 
-  //tells myRenderer to draw the scene
-  void draw();
-
-  //Scene Functions
   std::vector<Light *> * getLights();
   std::vector<Surface *> * getSurfaces();
   Camera * getCamera();
   int getWindowWidth();
   int getWindowHeight();
-  //normalizes each color channel.
-  void normalizeChannels();
 
   void generateFiles(const char * filename, 
 		     int startFrame,
-		     int numFrames, 
-		     int photons,
-		     int neighbors,
-		     double minDist,
-		     double maxDist
+		     int numFrames
 		     );
   
   //renderer keeps its own copy; be sure to update
@@ -95,18 +92,74 @@ public:
 
   double dtdf; //change in time per frame
 
+  //starts scene and glut loops
+  void startMainLoop(int rank);
+  
+  //call from glut's display() callback
+  void glutDisplayCallback();
+  
+  //update time for scene and everything it owns that has knowledge of time.
+  void setTime(double time);
+  
   //sets Number of neighbors to use for luminance information
   void setNumNeighbors();
   void setNumNeighbors(int numNeighbors);
+
+  void willWriteFilesWithBasename(const char *filename);
+  void willWriteThisManyFrames(int willWriteThisManyFrames);
+  void willStartOnFrame(int willStartOnFrame);
+  
+  
+  void willHaveThisManyPhotonsThrownAtIt(int nPhotons);
+  void willNotUseMoreThanThisManyPhotonsPerPixel(int neighbors);
+  void willNeverDiscardPhotonsThisClose(int minDist);
+  void willAlwaysDiscardPhotonsThisFar(int maxDist);
+  
+  void closeChildren();
   
 protected:
 
   int numNeighbors;
+  int nPhotons;
+  int minDist, maxDist;
+
+  //start at 0
+  double currentTime;
+  int frame;
+  int startsOnFrame;
+  int writesThisManyFrames;
+
+  //for program metrics
+  double mapCreationTime;
+  double treeCreationTime;
+  
+  //filename information for current frame
+  char szFile[MAX_FILENAME_LEN];
+  char szTail[16];
+  int nBaseLen;
+  void setFilename();
+
+  //runs the Scene.
+  void mainLoop();
+  
+  //generates a logicalImage from the Scene and returns a pointer to it.
+  // note this is the same as this->logicalImage, and caller should NOT delete.
+  double * toLogicalImage();
+  
+  //tells myRenderer to throw photons into the scene
+  //void throwPhotonsIn();
+
+  //sets photon map parameters to those we have saved
+  void tuneMapParams();
+  
+  //process rank
+  int rank; 
   
 #ifdef PARALLEL
   //parallel stuff
-  //procedures
-  void drawParallel();
+
+  //called by regular toLogicalImage
+  void toLogicalImageInParallel();
 
   //variables
   double * localLogical;
@@ -125,17 +178,18 @@ protected:
 			   );
   
 #endif
+
   bool map_too_small; 
 
-  Material * lastMaterial; //for readscene recursion
+  //for readscene recursion
+  Material * lastMaterial; 
+
   //true if we're repainting a scene;
   //false if we're not.
   bool paintingFromLogical;
 
   //Our scene should have information about the graphics window being
   //used.
-
-  bool logicalRender; //true if we're not acutally rendering to a window.
 
   //This is a logical image of the picture we're rendering, in RGB
   //format
@@ -152,9 +206,12 @@ protected:
   //And a std::list of all the materials
   std::vector<Material *> * materials;
 
-  //And finally, a std::list of all the camera available
+  //And a std::list of all the camera available
   std::vector<Camera *> * cameras;
   int currentCamera;
+
+  //And a list of all of the photon maps in use
+  std::vector<PhotonMap *> * photonMaps;
 
   //helper functions.  We keep these around to provide an abstraction
   //layer in case we want to change implementation later.  Also, they
@@ -163,9 +220,6 @@ protected:
   inline void addSurface(Surface *);
   inline void addCamera(Camera *);
   inline void addMaterial(Material *);
-
-  //updates all objects in the scene to reflect current time
-  void setTime(double t);
 
   //Creates a shader of type shaderType
   Shader * createShader(int shaderType, 
@@ -176,7 +230,9 @@ protected:
 			double matReflection,
 			double matTransparent
 			);
-  
+
+  bool frames_are_being_rendered_to_files;
+
 private:
 
 

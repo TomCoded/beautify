@@ -16,9 +16,12 @@ class PhotonPriorityQueue
   void setLocation(Point3Dd location);
   Photon * top();
   void add(Photon *);
+  //higher priority, the top of the heap/queue, is further away.
   Photon * pop();
   int getSize();
 
+  void keepThisManyPhotons(int);
+  
  protected:
 
   double distance(PPQueueNode*);
@@ -26,6 +29,8 @@ class PhotonPriorityQueue
   void siftdown(int);
   void percolate(int);
 
+  PPQueueNode * popAsPPQNode();
+  
   Point3Dd location;
   std::vector<PPQueueNode *> PHeap;
 };
