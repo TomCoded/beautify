@@ -1054,6 +1054,8 @@ void Scene::toLogicalImageInParallel() {
   if(!map_too_small) {
     start = MPI_Wtime();
 
+    int mapSize=(*(photonMaps->begin()))->getSize();
+    
     for(auto &pMap: *photonMaps) { pMap->distributeTree(); }
 #ifdef SAVE_VOLMAP
     if(!rank) {
@@ -1064,7 +1066,7 @@ void Scene::toLogicalImageInParallel() {
     stop = MPI_Wtime();
     //    printf("%s",outbuffer);
     sprintf(outbuffer,"%5d  %4d  %5d %9d  %9f ",
-            g_nFrame, rank, nodes, (*(photonMaps->begin()))->getSize(),
+            g_nFrame, rank, nodes, mapSize,
             stop - start
             );
 
@@ -1607,9 +1609,7 @@ void Scene::setFilename() {
 
 //was Scene::writeImage()
 void Scene::renderDrawnSceneToFile() {
-  std::cout << "rDSTF";
   setFilename();
-  std::cout << "sFN done";
   const char * filename=szFile;
   std::cout << "Writing to " << filename << std::endl;
   

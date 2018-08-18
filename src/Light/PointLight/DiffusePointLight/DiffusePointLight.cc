@@ -35,10 +35,10 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
   //TODO: for parallel implementation, make seed rank-specific
   long seed=SEED;
 
-#ifdef PARALLEL
   int rank=0;
+#ifdef PARALLEL
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-  seed+=rank;
+  seed+=(rank*100);
 #endif
   
   g_photonPower.x = xPow;
@@ -87,7 +87,8 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
 	}
     }
 
-  //std::cout << "Light " << &(*this) << " adds " <<
+  //std::cout << rank
+  //<< ":Light " << &(*this) << " adds " <<
   //map->getSize() - priorPhotons << " photons to map\n";
   
 }

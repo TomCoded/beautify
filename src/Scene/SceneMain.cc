@@ -92,6 +92,7 @@ int main(int argc, char ** argv) {
   //Initialize GLUT
   if(!g_suppressGraphics) {
     if(!(rank)) {
+      //fixme: glut chokes if there is not an output here.
       std::cout<<"glutInit()"<<std::endl;
       glutInit(&argc,argv);
       //  glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);

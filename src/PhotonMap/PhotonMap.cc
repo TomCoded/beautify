@@ -491,6 +491,7 @@ void PhotonMap::gatherPhotons(int maxPhotons) {
       } while (stat.MPI_TAG == TAG_HANDSHAKE);
       MPI_Recv((tmp + totalsize),cnt,MPI_PHOTON,i,MPI_ANY_TAG,MPI_COMM_WORLD,&stat);
       totalsize += cnt;
+      //std::cout<<rank<<":received "<<cnt<<" from node " << i << std::endl;
     }
     for(int i=0; i < totalsize; i++) 
       addPhoton(*(tmp+i));
@@ -551,6 +552,10 @@ void PhotonMap::distributeTree() {
 
   //if not the root, dump it back into the PhotonMap's kdTree.
   if(rank) {
+    //first delete copy of own photons
+    while(unsortedPhotons.size()) {
+      unsortedPhotons.pop_back();
+    }
     for(int i=1; i<kdSize; i++) {
       //dump photons into unsortedPhotons
       unsortedPhotons.push_back(_kdTree[i]);
