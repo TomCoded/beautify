@@ -127,10 +127,11 @@ void Scene::mainLoop() {
   bool done=false;
   //quit program at end
   bool quit=false;
-  MPI_Request doneRequest;
 
+#ifdef PARALLEL
   //listen for shutdown flags
-  if(rank) { 
+  MPI_Request doneRequest;
+  if(rank) {
     MPI_Irecv(&done,1,MPI_C_BOOL,
 	       MASTER_PROCESS,
 	      TAG_PROGRAM_DONE,
@@ -138,6 +139,7 @@ void Scene::mainLoop() {
 	       ,&doneRequest
 	       );
   }
+#endif
   
   while(!done) {
     if(!rank) frameCount();
@@ -1485,7 +1487,9 @@ void Scene::willWriteThisManyFrames(int willWriteThisManyFrames) {
 void Scene::willStartOnFrame(int willStartOnFrame) {
   this->startsOnFrame=willStartOnFrame;
   this->frame=willStartOnFrame;
+  #ifdef PARALLEL
   g_nFrame=frame;
+  #endif
 }
 
 void Scene::willHaveThisManyPhotonsThrownAtIt(int nPhotons) {
@@ -1551,12 +1555,16 @@ void Scene::drawSingleFrame(double time) {
       setNumNeighbors();
 
       //build (or re-build) the kd-tree
+      #ifdef PARALLEL
       double start=MPI_Wtime();
+      #endif
       for(auto &pMap: *photonMaps) {
 	pMap->buildTree();
       }
+      #ifdef PARALLEL
       double stop=MPI_Wtime();
       treeCreationTime=stop-start;
+      #endif
     }
     //draw scene to our logical image.
     toLogicalImage();
@@ -1646,19 +1654,23 @@ void Scene::renderDrawnSceneToFile() {
 }
 
 void Scene::closeChildren() {
-  bool done=true; int nodes=0;
-  if(!rank) {
-    //MPI_Abort(MPI_COMM_WORLD,0);
-    //exit(0);
-
-    int nodes=MPI_Comm_size(MPI_COMM_WORLD, &nodes);
-    for(int i=1; i<nodes; i++) {
-      MPI_Send(&done,1,MPI_C_BOOL,
-	       i,
-	       TAG_PROGRAM_DONE,
-	       MPI_COMM_WORLD
-	       );
+#ifdef PARALLEL
+  if(g_parallel) {
+    bool done=true; int nodes=0;
+    if(!rank) {
+      //MPI_Abort(MPI_COMM_WORLD,0);
+      //exit(0);
+      
+      int nodes=MPI_Comm_size(MPI_COMM_WORLD, &nodes);
+      for(int i=1; i<nodes; i++) {
+	MPI_Send(&done,1,MPI_C_BOOL,
+		 i,
+		 TAG_PROGRAM_DONE,
+		 MPI_COMM_WORLD
+		 );
+      }
     }
   }
+  #endif
 }
 

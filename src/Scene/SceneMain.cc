@@ -154,9 +154,9 @@ int main(int argc, char ** argv) {
 }
 
 int initMPI() {
+  int nodes=1;
 #ifdef PARALLEL
 
-  int nodes;
   {
     MPI_Comm_size(MPI_COMM_WORLD,&nodes);
 
