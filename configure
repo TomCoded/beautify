@@ -118,7 +118,8 @@ else
 fi
 fi
 
-CFLAGS="$CFLAGS -I$source_path/include/Functions -I$source_path/include/linAlgLib -Wno-endif-labels `pkg-config --cflags ImageMagick`"
+CFLAGS="$CFLAGS -I$source_path/include/Functions -I$source_path/include/linAlgLib -Wno-endif-labels `pkg-config --cflags ImageMagick++`"
+LDFLAGS="$LDFLAGS `pkg-config --libs-only-l ImageMagick++`"
 
 #test to see if win32 was set; if so, cross-compile
 if test "$win32" = "yes" ; then
@@ -153,7 +154,7 @@ int main(int argc, char ** argv) {
 EOF
 #echo "$cc $CFLAGS -o $TMPO $TMPC -llinAlg "
 $cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg 2>/dev/null || { 
-  echo "NOT FOUND. Linear Algebra Library must be installed."; 
+  echo "NOT FOUND using $cc. Linear Algebra Library must be installed."; 
   anonymous1="yes";
 }
 if test "$anonymous1"="no"; then
@@ -172,7 +173,7 @@ int main(int argc, char ** argv) {
 EOF
 #echo $cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg -lTomFun 
 $cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg -lTomFun 2>/dev/null || { 
-  echo "NOT FOUND. Function Library Must Be Installed."; 
+  echo "NOT FOUND using $cc. Function Library Must Be Installed."; 
   targets="tom $targets";
   tom="yes"
 }
