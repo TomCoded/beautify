@@ -7,7 +7,7 @@ OBJDIR = obj
 BINDIR = bin
 TARGET = bin/beautify
 INCDIR = inc
-LDFLAGS=-lTomFun -llinAlg -lglut -lGLU -lGL -lMagick++-6.Q16 -L/usr/lib/x86_64-linux-gnu/ -lMagick++
+#LDFLAGS=$(LDFLAGS) -lTomFun -llinAlg -lglut -lGLU -lGL -L/usr/lib/x86_64-linux-gnu/ #-lMagick++-6.Q16 -lMagick++
 GTESTFLAGS=-lgtest_main -lgtest -lpthread -lg
 
 CCFILES1 = $(wildcard $(SRCDIR)/*/*.cc) $(wildcard $(SRCDIR)/*/*/*.cc) $(wildcard $(SRCDIR)/*/*/*/*.cc)
