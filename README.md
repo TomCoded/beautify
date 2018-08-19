@@ -1,6 +1,23 @@
 Beautify
 =====================================================
 
+### Photon Mapper
+
+This is a photon mapper built without modern graphics libraries. 
+
+- Reads and parses complex scene files into a scene including lights, objects, shapes, materials, and fixed and dynamic transformations.
+- Distributes the scene to multple processes.
+- Throws thousand of photons into the scene from the lights.
+- Depending on the result of a photon roullete process, photons can bounce off objects (being adjusted for the BRDF) and possibly land on other objects, or they can be absorbed.
+- Gathers the resulting photons' bounce locations (if not absorbed).
+- Sorts the photons into a 3-dimensional kd-Tree.
+- Distributes the kd-Tree to all processes.
+- The first step of a ray tracing process is used: rays are shot from the camera into the scene and, if an object is hit, luminance information for that spot on the object is calculated from the photon map using the nearest N photons and assuming a 2-dimensional surface.
+
+- The Message Passing Interface (MPI) is used for interprocess communication.
+- GLUT is used to write rendered file to the screen, though a simple putPixel() from any library would work.
+- ImageMagick++ is used to write rendered files to .jpg files.
+
 ### Example
 
 <video controls>
@@ -19,13 +36,12 @@ Your browser does not support the video tag.
 </video> 
 
 
-This works by throwing photons into the scene. Depending on the result of a photon roullete process, they can bounce off objects (being adjusted for the BRDF) and possibly land on other objects, or they can be absorbed. The photons' bounce locations (if not absorbed) are stored in a KD-tree. Then rays are shot from the camera into the scene and, if an object is hit, luminance information for that spot on the object is calculated using the nearest N photons (up to 40 in this case). 
 
 ### Dependencies
 
 This depends on Anonymous1's Linear Algebra Library. (A minimal library for static linear algebra operations, 3D and 4D points, matrices, and transformations). (This can be found in the same set of repositories as this repository. For example, click "GitLab" in the upper left corner if it appears.)
 
-This depends on Tom's Function Library. (A library developed by tom to provide points, matrices, and transformations as a function of time do that movies can be rendered).
+This depends on Tom's Function Library. (A library developed by Tom to provide points, matrices, and transformations as a function of time do that movies can be rendered).
 
 This depends on ImageMagick++ (Used to output frames to .jpg images from which movies can be composited).
 
