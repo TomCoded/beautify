@@ -1,6 +1,6 @@
 # generic makefile for a set of classes for CS371
 
-# (C) Anonymous1 2002
+# (C) Anonymous1 
 
 # Makefile variables
 

@@ -1,6 +1,6 @@
 # makefile for TransformMaker
 
-# (C) Anonymous1 2002
+# (C) Anonymous1 
 
 CLASS = TransformMaker
 PROGS = $(CLASS)Test

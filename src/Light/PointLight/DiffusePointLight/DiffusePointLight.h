@@ -1,4 +1,4 @@
-/* (C) 2002 Tom White -*- C++ -*-
+/* (C)  Tom White -*- C++ -*-
    A Diffuse point light emits photons in uniformly distributed
    random directions from a point.
 */

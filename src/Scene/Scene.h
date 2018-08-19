@@ -2,7 +2,7 @@
 
 // Scene.h
 
-// Modified 2002 Tom White
+// Modified  Tom White
 
 #ifndef SCENE_H
 #define SCENE_H

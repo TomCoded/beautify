@@ -2,7 +2,7 @@
 
 // TaperedCyl.h
 
-// (C) 2002 Tom White
+// (C)  Tom White
 
 
 #ifndef TAPEREDCYL_H

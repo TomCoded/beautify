@@ -1,4 +1,4 @@
-//(C) 2002 Tom White
+//(C)  Tom White
 #ifndef LAMBERTSHADER_H_
 #define LAMBERTSHADER_H_
 

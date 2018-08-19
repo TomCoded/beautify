@@ -2,7 +2,7 @@
 
 // Ray.C
 
-// (C) 2002 Anonymous1
+// (C)  Anonymous1
 
 #include "Defs.h"
 #include "Ray/Ray.h"

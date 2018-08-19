@@ -2,7 +2,7 @@
 
 // TaperedCyl.cc
 
-// (C) 2002 Tom White
+// (C)  Tom White
 
 //#include "TaperedCyl/TaperedCyl.h"
 #include <allIncludes.h>

@@ -1,4 +1,4 @@
-//(C) 2002 Tom White
+//(C)  Tom White
 #ifndef SURFACE_H_
 #define SURFACE_H_
 

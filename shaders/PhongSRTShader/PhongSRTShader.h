@@ -1,5 +1,5 @@
 //PhongSRTShader.h
-//(C) 2002 Tom White
+//(C)  Tom White
 #ifndef PHONGSRTSHADER_H_
 #define PHONGSRTSHADER_H_
 

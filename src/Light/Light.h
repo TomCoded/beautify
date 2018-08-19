@@ -1,6 +1,6 @@
 // Light.h
 
-// (C) 2002 Tom White
+// (C)  Tom White
 
 #ifndef LIGHT_H_
 #define LIGHT_H_

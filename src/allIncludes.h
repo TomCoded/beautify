@@ -1,5 +1,5 @@
 //AllIncludes.h
-//(C) 2002 Tom White
+//(C)  Tom White
 #ifndef ALLINCLUDES_H_
 #define ALLINCLUDES_H_
 

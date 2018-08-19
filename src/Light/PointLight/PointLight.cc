@@ -2,7 +2,7 @@
 
 // test the graphics package
 
-// (C) 2002 Tom White
+// (C)  Tom White
 
 #include "allIncludes.h"
 

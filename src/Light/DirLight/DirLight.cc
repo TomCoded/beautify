@@ -2,8 +2,8 @@
 
 // test the graphics package
 
-// (C) 2002 Anonymous1
-// Modified 2002 Tom White
+// (C)  Anonymous1
+// Modified  Tom White
 
 //#include "DirLight/DirLight.h"
 #include "allIncludes.h"

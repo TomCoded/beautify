@@ -1,5 +1,5 @@
 //PhongSTShader.cc
-//(C) 2002 Tom White
+//(C)  Tom White
 #include <allIncludes.h>
 
 //default constructor

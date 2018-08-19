@@ -1,4 +1,4 @@
-//(C) 2002 Tom White
+//(C)  Tom White
 #ifndef PHONGSTSHADER_H_
 #define PHONGSTSHADER_H_
 

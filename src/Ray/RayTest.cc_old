@@ -2,7 +2,7 @@
 
 // RayTest.cc
 
-// (C) 2002 Anonymous1
+// (C)  Anonymous1
 
 #include "Ray/Ray.h"
 #include "Point3Dd.h"

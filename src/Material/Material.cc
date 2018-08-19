@@ -1,5 +1,5 @@
 /* -*- C++ -*-
-   Material.cc (C) 2002 Tom White
+   Material.cc (C)  Tom White
    Includes class declaration for the Material Class.
    This class holds material information about a surface,
    and contains the implementation of Russian Roulette.

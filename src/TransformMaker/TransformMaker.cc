@@ -4,7 +4,7 @@
 
 // Some useful matrix generators
 
-// (C) Anonymous1 2002
+// (C) Anonymous1 
 
 #include "TransformMaker/TransformMaker.h"
 

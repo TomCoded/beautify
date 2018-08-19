@@ -2,8 +2,8 @@
 
 // test the graphics package
 
-// (C) 2002 Anonymous1
-// Modified 10/8/2002 Tom White - change from Light to LightAtInfinity
+// (C)  Anonymous1
+// Modified 10/8/ Tom White - change from Light to LightAtInfinity
 
 #ifndef DIRLIGHT_H_
 #define DIRLIGHT_H_

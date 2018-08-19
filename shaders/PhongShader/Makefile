@@ -1,6 +1,6 @@
 # makefile for Shader
 
-# (C) Tom White 2002
+# (C) Tom White 
 
 # local variables override values from ../Makefile
 # Name of this class

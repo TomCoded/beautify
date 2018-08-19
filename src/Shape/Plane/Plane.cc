@@ -2,7 +2,7 @@
 
 // Plane.cc
 
-// (C) 2002 Anonymous1
+// (C)  Anonymous1
 
 #include <Shape/Plane/Plane.h>
 

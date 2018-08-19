@@ -1,5 +1,5 @@
 //Shader.h
-//(C) 2002 Tom White
+//(C)  Tom White
 
 #ifndef SHADER_H_
 #define SHADER_H_

@@ -2,7 +2,7 @@
 
 // Ray.h
 
-// (C) 2002 Anonymous1
+// (C)  Anonymous1
 
 
 #ifndef RAY_H

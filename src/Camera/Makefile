@@ -1,6 +1,6 @@
 # makefile for Camera
 
-# (C) Anonymous1 2002
+# (C) Anonymous1 
 
 CLASS = Camera
 PROGS = $(CLASS)Test

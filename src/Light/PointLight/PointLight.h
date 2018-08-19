@@ -2,9 +2,9 @@
 
 // test the graphics package
 
-// (C) 2002 Anonymous1
-// Modified 10/8/2002 Tom White - change from Light to LightAtInfinity
-// Modifies 10/27/2002 Tom White - change to PointLight
+// (C)  Anonymous1
+// Modified 10/8/ Tom White - change from Light to LightAtInfinity
+// Modifies 10/27/ Tom White - change to PointLight
 
 #ifndef POINTLIGHT_H_
 #define POINTLIGHT_H_

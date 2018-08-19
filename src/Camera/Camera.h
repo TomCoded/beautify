@@ -2,7 +2,7 @@
 
 // Camera.h a simple camera object
 
-// (C) Anonymous1 2002
+// (C) Anonymous1 
 
 // Modifications by Tom White for Moving Cameras
 

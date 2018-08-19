@@ -4,7 +4,7 @@
 
 // Some useful conversions between point classes
 
-// (C) Anonymous1 2002
+// (C) Anonymous1 
 
 #ifndef TRANSFORMMAKER_H
 #define TRANSFORMMAKER_H

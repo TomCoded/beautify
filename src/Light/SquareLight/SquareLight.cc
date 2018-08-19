@@ -1,5 +1,5 @@
 // SquareLight.cc
-// (C) 2002 Tom White
+// (C)  Tom White
 
 #include <Light/SquareLight/SquareLight.h>
 #include "allIncludes.h"

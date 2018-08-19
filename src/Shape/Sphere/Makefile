@@ -1,6 +1,6 @@
 # makefile for Shape
 
-# (C) Anonymous1 2002
+# (C) Anonymous1 
 
 # local variables override values from ../Makefile
 # Name of this class
