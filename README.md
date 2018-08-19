@@ -23,14 +23,13 @@ This works by throwing photons into the scene. Depending on the result of a phot
 
 ### Dependencies
 
+This depends on Anonymous1's Linear Algebra Library. (A minimal library for static linear algebra operations, 3D and 4D points, matrices, and transformations). (This can be found in the same set of repositories as this repository. For example, click "GitLab" in the upper left corner if it appears.)
 
-This depends on Anonymous1's Linear Algebra Library.
+This depends on Tom's Function Library. (A library developed by tom to provide points, matrices, and transformations as a function of time do that movies can be rendered).
 
-This depends on Tom's Function Library.
+This depends on ImageMagick++ (Used to output frames to .jpg images from which movies can be composited).
 
-This depends on ImageMagick++
-
-This depends on libglut
+This depends on libglut (Used to output frames to the screen).
 
 If you intend to run this on multiple cores (you should) it requires MPI.
 
