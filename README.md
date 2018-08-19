@@ -51,19 +51,24 @@ Examples should be run from the scenes directory.
 
 `cd scenes`
 
-*One process rendering to screen*
+*One process rendering to screen:*
 
 `beautify -s sample.dat -n 3000 -N 20 -d 0.1 -D 0.2`
 
-*Four processes rendering to screen*
+*Four processes rendering to screen:*
 
 `mpirun -n 4 beautify -s sample.dat -n 3000 -N 20 -d 0.1 -D 0.2`
 
-*Two processes rendering one hundred frames to files and the screen*
+If four display windows open, you may be running a process compiled with
+g++ instead of mpiCC. Run `make clean` and then configure and install
+again, being sure MPI is installed and that you passed --enable-mpi
+to configure.
+
+*Two processes rendering one hundred frames to files and the screen:*
 
 `mpirun -n 2 beautify -s sample.dat -n 3000 -N 20 -d 0.1 -D 0.2 -F outfilename -f 100`
 
-*Two processes rendering one hundred frames to files only*
+*Two processes rendering one hundred frames to files only:*
 
 `mpirun -n 2 beautify -s sample.dat -n 3000 -N 20 -d 0.1 -D 0.2 -F outfilename -f 100 -S`
 
