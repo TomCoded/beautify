@@ -152,8 +152,8 @@ int main(int argc, char ** argv) {
     return 0;
 }
 EOF
-#echo "$cc $CFLAGS -o $TMPO $TMPC -llinAlg "
-$cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg 2>/dev/null || { 
+#echo $cc $CFLAGS -o $TMPO $TMPC -llinAlg
+$cc $CFLAGS -o $TMPO $TMPC -llinAlg 2>/dev/null || { 
   echo "NOT FOUND using $cc. Linear Algebra Library must be installed."; 
   anonymous1="yes";
 }
@@ -171,8 +171,8 @@ int main(int argc, char ** argv) {
     return 0;
 }
 EOF
-#echo $cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg -lTomFun 
-$cc $CFLAGS $LDFLAGS -o $TMPO $TMPC -llinAlg -lTomFun 2>/dev/null || { 
+#echo $cc $CFLAGS -o $TMPO $TMPC -llinAlg -lTomFun 
+$cc $CFLAGS -o $TMPO $TMPC -llinAlg -lTomFun 2>/dev/null || { 
   echo "NOT FOUND using $cc. Function Library Must Be Installed."; 
   targets="tom $targets";
   tom="yes"
