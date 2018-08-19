@@ -118,7 +118,7 @@ else
 fi
 fi
 
-CFLAGS="$CFLAGS -I$source_path/include/Functions -I$source_path/include/linAlgLib -Wno-endif-labels `pkg-config --cflags ImageMagick++`"
+CFLAGS="$CFLAGS -I$source_path/include/Functions -I$source_path/include/linAlgLib -Wno-endif-labels -Wno-format-contains-nul `pkg-config --cflags ImageMagick++`"
 LDFLAGS="$LDFLAGS -lm -lTomFun -llinAlg -lglut -lGLU -lGL `pkg-config --libs-only-l ImageMagick++`"
 
 #test to see if win32 was set; if so, cross-compile
