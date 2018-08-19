@@ -8,30 +8,30 @@ camera ((0.0,0.0,12.0),(0,0,0),(0,1,0),.7,1.0,1.0,400.0)
 DiffusePointLight ((3,0,3),(1.0,1.0,1.0),(0,0,0),400.0)
 DiffusePointLight ((-3,0,3),(1.0,1.0,1.0),(0,0,0),400.0)
 
-include mat/Chrome.mat
+include scenes/mat/Chrome.mat
 scale (0.4,0.4,0.4)
 ellipsoid
 
 //sphere 2
-include mat/Bronze.mat
+include scenes/mat/Bronze.mat
 identity
 translate (1.0,1.0,1.0)
 ellipsoid
 
 //sphere
-include mat/Chrome.mat
+include scenes/mat/Chrome.mat
 identity
 translate (-1.0,1.0,1.0)
 ellipsoid
 
 //sphere
-include mat/BlackPlastic.mat
+include scenes/mat/BlackPlastic.mat
 identity
 translate (1,-1,1)
 ellipsoid
 
 //sphere
-include mat/Brass.mat
+include scenes/mat/Brass.mat
 identity
 translate (-1,-1,1)
 ellipsoid
@@ -47,14 +47,14 @@ ellipsoid
 
 //plane 1
 identity
-include mat/Brass.mat
+include scenes/mat/Brass.mat
 translate (0.0,0.0,-3.0)
 scale (7.0,7.0,1.0)
 plane
 
 //plane 2
 identity
-include mat/Chrome.mat
+include scenes/mat/Chrome.mat
 scale (6,6,1)
 yRotate 0.3
 translate (-4.0,0,0)
@@ -62,7 +62,7 @@ plane
 
 //plane 3
 identity
-include mat/Chrome.mat
+include scenes/mat/Chrome.mat
 scale (6,6,1)
 yRotate -0.3
 translate (4.0,0,0)
