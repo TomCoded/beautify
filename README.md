@@ -4,6 +4,11 @@ Beautify
 ### Example
 
 <video controls>
+  <source src="https://kingcountybusinesslaw.com/misc/largescene5-n56k-N42-d0.05-D0.2-mpi4.ogv" type="video/ogg">
+Your browser does not support the video tag.
+</video> 
+
+<video controls>
   <source src="https://kingcountybusinesslaw.com/misc/largescene4-n55k-N42-D0.15-mpi4.ogv" type="video/ogg">
 Your browser does not support the video tag.
 </video> 
@@ -14,7 +19,7 @@ Your browser does not support the video tag.
 </video> 
 
 
-This shows an image rendered by throwing 20,000 photons into the scene. Depending on the result of a photon roullete process, they can bounce off objects (being adjusted for the BRDF) and possibly land on other objects, or they can be absorbed. The photons bounce locations (if not absorbed) are stored in a KD-tree. Then rays are shot from the camera into the scene and, if an object is hit, luminance information for that spot on the object is calculated using the nearest N photons (up to 40 in this case). 
+This works by throwing photons into the scene. Depending on the result of a photon roullete process, they can bounce off objects (being adjusted for the BRDF) and possibly land on other objects, or they can be absorbed. The photons' bounce locations (if not absorbed) are stored in a KD-tree. Then rays are shot from the camera into the scene and, if an object is hit, luminance information for that spot on the object is calculated using the nearest N photons (up to 40 in this case). 
 
 ### Dependencies
 
