@@ -104,8 +104,9 @@ int main(int argc, char ** argv) {
   Scene * sc=0;
   sc = new Scene();
 
+  sc->ReadFile(sceneFile);
+
   if(nPhotons) {
-    sc->ReadFile(sceneFile);
     if(mapImport) {
       std::cout << "Inputting map from " << mapInName <<std::endl;
       g_map = loadMap(mapInName);

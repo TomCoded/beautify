@@ -43,8 +43,6 @@ public:
   // destructor
   ~Scene();
 
-  // Scene Procedures
-
   // Read contents of a scene file, skipping over unimplemented features
   void ReadFile(std::string fileName);
 
@@ -75,11 +73,6 @@ public:
   int getWindowWidth();
   int getWindowHeight();
 
-  void generateFiles(const char * filename, 
-		     int startFrame,
-		     int numFrames
-		     );
-  
   //renderer keeps its own copy; be sure to update
   //if one renderer is handling multiple scenes.  (Ha!)
   Point3Dd ambient;
@@ -108,7 +101,6 @@ public:
   void willWriteFilesWithBasename(const char *filename);
   void willWriteThisManyFrames(int willWriteThisManyFrames);
   void willStartOnFrame(int willStartOnFrame);
-  
   
   void willHaveThisManyPhotonsThrownAtIt(int nPhotons);
   void willNotUseMoreThanThisManyPhotonsPerPixel(int neighbors);

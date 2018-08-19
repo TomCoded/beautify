@@ -148,20 +148,23 @@ void Scene::mainLoop() {
     
     if(!rank) {
 
-      if(writesThisManyFrames) {
+      if(writesThisManyFrames&&nBaseLen) {
 	renderDrawnSceneToFile();
       }
 
       if(!g_suppressGraphics) {
+	std::cout << "rendering drawn scene to window...\n";
 	renderDrawnSceneToWindow();
       }
       
     }
     
     frame++;
+    std::cout << " frame " << frame << std::endl;
     if(writesThisManyFrames &&
        frame>=startsOnFrame+writesThisManyFrames) {
       done=true;
+      if(!rank) { quit=true; }
     }
     //In Master process, this whole function is within
     //and driven by the glutMainLoop.
@@ -195,6 +198,10 @@ void Scene::mainLoop() {
       std::cout << "Finalized process " << rank << std::endl;
       exit(0);
     }
+  }
+#else
+  if(quit) {
+    exit(0);
   }
 #endif
   
@@ -320,7 +327,8 @@ Scene::Scene():
   writesThisManyFrames(0),
   mapCreationTime(0.0),
   treeCreationTime(0.0),
-  frames_are_being_rendered_to_files(false)
+  frames_are_being_rendered_to_files(false),
+  nBaseLen(0)
 {
   lights = new std::vector<Light *>();
   surfaces = new std::vector<Surface *>();
@@ -1610,9 +1618,7 @@ void Scene::renderDrawnSceneToWindow() {
 void Scene::setFilename() {
   ASSERT((frame<10000000),"Cannot Process a frame count that high.");
   sprintf(szTail,"%d.jpg\x00",frame);
-  std::cout<<"np.";
   strncpy(&szFile[nBaseLen],szTail,strlen(szTail)+1);
-  std::cout<<"wtf.";
 }
 
 //was Scene::writeImage()

@@ -18,7 +18,7 @@ CCFILES = $(filter-out %Test.cc,$(CCFILES1))
 #OBJS = $(addprefix $(OBJDIR)/,$(notdir $(CCFILES:.cc=.o)))
 #use in place .o files on nested src tree to avoid complex Makefile rules.
 OBJS = $(CCFILES:.cc=.o)
-INCLDIRS = -I$(SRCDIR) -I$(INCDIR)
+INCLDIRS = -I$(SRCDIR) -I$(INCDIR) $(addprefix -I,$(dir $(CCFILES)))
 #CC = g++
 
 #build the library

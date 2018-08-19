@@ -37,9 +37,10 @@ namespace {
     }
 
     const char * workingDir="scenes";
-    std::string filename="largescene1.dat";
-    const char * tmpDir="/tmp";
-    const char * outFilename="SceneTest.jpg";
+    std::string sampleSceneFile="scenes/sample.dat";
+    //const char * tmpDir="/tmp";
+    const char * outFilenameBase="tmpSceneTest";
+    const char * outFilename="tmpSceneTest0.jpg";
     Scene * scene;
 
     void makeGradient() {
@@ -51,6 +52,10 @@ namespace {
 	}
       }
     }
+
+    void loadScene() {
+      scene->ReadFile(sampleSceneFile);
+    }
     
   };
 }
@@ -59,28 +64,44 @@ TEST_F(SceneTest,defaultConstructor) {
 }
 
 TEST_F(SceneTest,ReadFile) {
-  EXPECT_EQ(chdir(workingDir),0);
-  scene->ReadFile(filename);
-  EXPECT_EQ(chdir("../"),0);
+  loadScene();
 }
 
-TEST_F(SceneTest,WriteImage) {
-  EXPECT_EQ(chdir(workingDir),0);
-  scene->ReadFile(filename);
-  EXPECT_EQ(chdir(tmpDir),0);
+TEST_F(SceneTest,drawSingleFrame) {
+  loadScene();
+  scene->drawSingleFrame(0.0);
+}
+
+TEST_F(SceneTest,renderDrawnSceneToFile) {
+  loadScene();
+  scene->drawSingleFrame(0.0);
+  scene->willWriteFilesWithBasename(outFilenameBase);
   EXPECT_EQ(unlink(outFilename),-1);
-  scene->writeImage(outFilename);
+  scene->renderDrawnSceneToFile();
   EXPECT_EQ(unlink(outFilename),0);
 }
 
-TEST_F(SceneTest,putPixel) {
-  makeGradient();
+TEST_F(SceneTest,renderDrawnSceneToWindow) {
+  loadScene();
+  scene->willWriteThisManyFrames(1);
+  scene->drawSingleFrame(0.0);
+  scene->renderDrawnSceneToWindow();
+  sleep(1);
 }
 
-TEST_F(SceneTest,repaint) {
+TEST_F(SceneTest,putPixel) {
+  loadScene();
   makeGradient();
-  scene->repaint();
+  scene->willWriteThisManyFrames(1);
+  scene->drawSingleFrame(0.0);
+  scene->renderDrawnSceneToWindow();
+  sleep(1);
 }
+
+//TEST_F(SceneTest,repaint) {
+//  makeGradient();
+  //scene->repaint();
+//}
 
 TEST_F(SceneTest,smoothLogicalImage) {
   makeGradient();
@@ -94,10 +115,6 @@ TEST_F(SceneTest,setWindowSize) {
     EXPECT_EQ(scene->getWindowWidth(),x);
     EXPECT_EQ(scene->getWindowHeight(),x);
   }
-}
-
-TEST_F(SceneTest,draw) {
-  scene->draw();
 }
 
 TEST_F(SceneTest,getLights) {
@@ -132,3 +149,20 @@ TEST_F(SceneTest,normalizeChannels) {
 TEST_F(SceneTest,setNumNeighbors) {
   scene->setNumNeighbors(15);
 }
+
+#if 0
+//mmm... mainloop does not refresh GL window from the test environment...
+TEST_F(SceneTest,startMainLoop) {
+  loadScene();
+
+  //scene->willWriteThisManyFrames(20);
+  scene->willHaveThisManyPhotonsThrownAtIt(8000);
+  scene->willNotUseMoreThanThisManyPhotonsPerPixel(40);
+  scene->willNeverDiscardPhotonsThisClose(0.5);
+  scene->willAlwaysDiscardPhotonsThisFar(2.0);
+  scene->startMainLoop(0);
+  //scene->drawSingleFrame(0.0);
+  //scene->renderDrawnSceneToWindow();
+  //sleep(1);
+}
+#endif
