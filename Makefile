@@ -23,6 +23,7 @@ INCLDIRS = -I$(SRCDIR) -I$(INCDIR) $(addprefix -I,$(dir $(CCFILES)))
 
 #build the library
 $(TARGET): $(OBJS)
+	mkdir -p $(BINDIR)
 	$(CC) $(CCFLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS)
 	chmod 755 $@
 	#Remember to run make install with permissions on $(prefix)
