@@ -44,7 +44,7 @@ mrproper: clean
 	rm -f config.h config.mak
 
 clean:	
-	rm bin/beautify
+	rm -f bin/beautify
 	rm -rf $(OBJS) $(TESTOBJS)
 
 test: $(TESTOBJS) 
