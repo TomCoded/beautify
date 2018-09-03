@@ -6,7 +6,7 @@ Hit::Hit():
   sampleRay(ORIGIN,ORIGIN), tClose(0)
 {}
 
-Hit::Hit(Point3Dd point, Surface * surface, Ray normal, Ray sampleRay,
+Hit::Hit(Point3Dd point, std::shared_ptr<Surface> surface, Ray normal, Ray sampleRay,
 	 double tClose):
   tClose(tClose)
 {

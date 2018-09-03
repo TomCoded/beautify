@@ -1,3 +1,4 @@
+/* --- C++ --- */
 #ifndef HIT_H_
 #define HIT_H_
 
@@ -10,14 +11,14 @@ class Hit
  public:
   //constructors
   Hit(); 
-  Hit(Point3Dd point, Surface * surface, Ray normal, Ray sampleRay,
+  Hit(Point3Dd point, std::shared_ptr<Surface> surface, Ray normal, Ray sampleRay,
   double tClose);
 
   //destructors
   ~Hit();
 
   Point3Dd point; //the hitpoint of the intersection
-  Surface * surface; //the surface that is intersected.  This includes
+  std::shared_ptr<Surface> surface; //the surface that is intersected.  This includes
   //both a shape and a shader.
   Ray normal;
   Ray sampleRay;

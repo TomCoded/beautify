@@ -54,7 +54,7 @@ class Renderer
   std::shared_ptr<std::vector<std::shared_ptr<Light>>> getVisibleLights(Point3Dd);
 
   //returns remaining surfaces behind the last intersected surface
-  std::vector<Surface *> * getOtherSurfaces();
+  std::shared_ptr<std::vector<std::shared_ptr<Surface>>> getOtherSurfaces();
   
   //deallocates all the lights in a std::vector, then destroys it
   void deAllocate(std::shared_ptr<std::vector<std::shared_ptr<Light>>>);
@@ -68,7 +68,7 @@ class Renderer
 
   Point3Dd getColor(Ray * sampleRay);
   Point3Dd getColor(Ray * sampleRay, 
-		    std::vector<Surface *> * surfaces
+		    std::shared_ptr<std::vector<std::shared_ptr<Surface>>> surfaces
 		    );
 
   //Traces the course of a photon and returns its final location
@@ -90,7 +90,7 @@ class Renderer
   int photonsEmittedCount;
   
   void participantMarch(Photon &p, 
-			Surface * medium,
+			std::shared_ptr<Surface> medium,
 			int single_scatter=0
 			);
 
@@ -109,7 +109,7 @@ class Renderer
   //distance in the medium that the light has already travelled.
   Point3Dd getIlluminationAtPointInMedium(const Point3Dd &point,
 					  const Point3Dd &dir,
-					  const Surface * surface,
+					  const std::shared_ptr<Surface> surface,
 					  const int marchsize) const;
 
   //Returns the sum of the illuination at a point in a participating
@@ -118,10 +118,10 @@ class Renderer
   //ray-marching out the back of the segment.
   Point3Dd getIlluminationInMedium(const Point3Dd& point,
 				   const Point3Dd& dir,
-				   const Surface * surface,
+				   const std::shared_ptr<Surface> surface,
 				   const int marchsize) const;
 
-  Surface * closestSurfaceAlongRay(Ray * sampleRay,
+  std::shared_ptr<Surface> closestSurfaceAlongRay(Ray * sampleRay,
                                    double &tClose);
 
   static const int maxdepth=10;
@@ -132,7 +132,7 @@ class Renderer
 
   void newMap();
   
-  std::vector<Surface *> otherSurfaces;
+  std::vector<std::shared_ptr<Surface>> otherSurfaces;
 };
 
 #endif

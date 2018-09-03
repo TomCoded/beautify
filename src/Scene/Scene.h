@@ -69,7 +69,7 @@ public:
   void setWindowSize(int x, int y);
 
   std::shared_ptr<std::vector<std::shared_ptr<Light>>> getLights();
-  std::vector<Surface *> * getSurfaces();
+  std::shared_ptr<std::vector<std::shared_ptr<Surface>>> getSurfaces();
   std::shared_ptr<Camera> getCamera();
   int getWindowWidth();
   int getWindowHeight();
@@ -194,7 +194,7 @@ protected:
   std::shared_ptr<std::vector<std::shared_ptr<Light>>> lights;
 
   //And a std::list of all the surfaces
-  std::vector<Surface *> * surfaces;
+  std::shared_ptr<std::vector<std::shared_ptr<Surface>>> surfaces;
 
   //And a std::list of all the materials
   std::vector<Material *> * materials;
@@ -210,7 +210,7 @@ protected:
   //layer in case we want to change implementation later.  Also, they
   //make code prettier.
   inline void addLight(std::shared_ptr<Light>);
-  inline void addSurface(Surface *);
+  inline void addSurface(std::shared_ptr<Surface>);
   inline void addCamera(std::shared_ptr<Camera>);
   inline void addMaterial(Material *);
 

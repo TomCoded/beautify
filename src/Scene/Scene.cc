@@ -328,7 +328,7 @@ Scene::Scene():
   nBaseLen(0)
 {
   lights = std::make_shared<std::vector<std::shared_ptr<Light>>>();
-  surfaces = new std::vector<Surface *>();
+  surfaces = std::make_shared<std::vector<std::shared_ptr<Surface>>>();
   cameras = std::make_shared<std::vector<std::shared_ptr<Camera>>>();
   materials = new std::vector<Material *>();
   photonMaps = new std::vector<PhotonMap *>();
@@ -367,14 +367,6 @@ Scene::~Scene()
   //    delete g_map;
   if(hasImage)
     delete[] logicalImage;
-
-  std::vector<Surface *>::iterator itSDestroyer = surfaces->begin();
-  while( itSDestroyer != surfaces->end() )
-    { //destroy all surfaces in the std::vector
-      delete (*itSDestroyer);
-      itSDestroyer++;
-    }
-  delete surfaces;
 
   std::vector<Material *>::iterator itMatDestroyer = materials->begin();
   while( itMatDestroyer != materials->end() )
@@ -811,25 +803,25 @@ void Scene::ReadFile(std::string fileName) {
     }
     else if(keyword == "ellipsoid") {
       if(usingFunTransform)
-        addSurface(new Surface(new Sphere(),
-                               lastMaterial,
-                               ftCurrentLTWTransform,
-                               ftCurrentWTLTransform,
-                               ftCurrentLTWNTransform
-                               )
+        addSurface(std::make_shared<Surface>(new Sphere(),
+					     lastMaterial,
+					     ftCurrentLTWTransform,
+					     ftCurrentWTLTransform,
+					     ftCurrentLTWNTransform
+					     )
                    );
       else
-        addSurface(new Surface(new Sphere(),
-                               lastMaterial,
-                               currentLTWTransform,
-                               currentWTLTransform,
-                               currentLTWNTransform
-                               )
+        addSurface(std::make_shared<Surface>(new Sphere(),
+					     lastMaterial,
+					     currentLTWTransform,
+					     currentWTLTransform,
+					     currentLTWNTransform
+					     )
                    );
     }
     else if(keyword == "plane") {
       if(usingFunTransform)
-        addSurface(new Surface(new Plane(),
+        addSurface(std::make_shared<Surface>(new Plane(),
                                lastMaterial,
                                ftCurrentLTWTransform,
                                ftCurrentWTLTransform,
@@ -837,7 +829,7 @@ void Scene::ReadFile(std::string fileName) {
                                )
                    );
       else
-        addSurface(new Surface(new Plane(),
+        addSurface(std::make_shared<Surface>(new Plane(),
                                lastMaterial,
                                currentLTWTransform,
                                currentWTLTransform,
@@ -849,7 +841,7 @@ void Scene::ReadFile(std::string fileName) {
       double s;
       inFile >> s;
       if(usingFunTransform)
-        addSurface(new Surface(new TaperedCyl(s),
+        addSurface(std::make_shared<Surface>(new TaperedCyl(s),
                                lastMaterial,
                                ftCurrentLTWTransform,
                                ftCurrentWTLTransform,
@@ -857,7 +849,7 @@ void Scene::ReadFile(std::string fileName) {
                                )
                    );
       else
-        addSurface(new Surface(new TaperedCyl(s),
+        addSurface(std::make_shared<Surface>(new TaperedCyl(s),
                                lastMaterial,
                                currentWTLTransform,
                                currentLTWTransform,
@@ -1235,7 +1227,7 @@ std::shared_ptr<std::vector<std::shared_ptr<Light>>> Scene::getLights()
 }
 
 //returns a pointer to a std::vector of pointers to all surfaces in the scene
-std::vector<Surface *> * Scene::getSurfaces()
+std::shared_ptr<std::vector<std::shared_ptr<Surface>>> Scene::getSurfaces()
 {
   return surfaces;
 }
@@ -1256,7 +1248,7 @@ inline void Scene::addLight(std::shared_ptr<Light> light)
 }
 
 //adds a surface to the scene
-inline void Scene::addSurface(Surface * surface)
+inline void Scene::addSurface(std::shared_ptr<Surface> surface)
 {
   surfaces->push_back(surface);
 }

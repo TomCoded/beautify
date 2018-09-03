@@ -174,15 +174,13 @@ Point3Dd Renderer::getColor(Ray * sampleRay)
 
 Point3Dd Renderer::getColor(
 			    Ray * sampleRay,
-			    std::vector<Surface *> * surfaces
+			    std::shared_ptr<std::vector<std::shared_ptr<Surface>>> surfaces
 			    )
 {
-  std::vector<Surface *>::iterator itSurf;
-  std::vector<Surface *> intersectedSurfaces;
-  std::vector<Surface *>::iterator itIntSurf;
+  std::vector<std::shared_ptr<Surface>> intersectedSurfaces;
   Point3Dd color(0,0,0);
-  Surface * closestSurface = 0;
-  Surface * farthestSurface = 0;
+  std::shared_ptr<Surface> closestSurface = 0;
+  std::shared_ptr<Surface> farthestSurface = 0;
   double tClose = 100000000; double tLast = tClose; double tFar=0;
 
   std::cout << "Renderer::getColor()" <<std::endl;
@@ -190,7 +188,7 @@ Point3Dd Renderer::getColor(
   if(recursionDepth>1) return Point3Dd(0,0,0);
   else recursionDepth++;
 
-  for(itSurf = surfaces->begin(); itSurf != surfaces->end(); itSurf++)
+  for(auto itSurf = surfaces->begin(); itSurf != surfaces->end(); itSurf++)
     { //iterate through itSurf, to find the closest intersected
       //      surface.
       Point4Dd raySrc =
@@ -260,8 +258,8 @@ Point3Dd Renderer::getColor(
 	//against
 	std::cout << "huh2\n";
 
-	itIntSurf=intersectedSurfaces.begin();
-	otherSurfaces = std::vector<Surface *>();
+	auto itIntSurf=intersectedSurfaces.begin();
+	otherSurfaces = std::vector<std::shared_ptr<Surface>>();
 	for(++itIntSurf;
 	    itIntSurf!=intersectedSurfaces.end();
 	    itIntSurf++)
@@ -305,10 +303,10 @@ std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getAllLights()
   return myScene->getLights();
 }
 
-std::vector<Surface *> * Renderer::getOtherSurfaces()
+std::shared_ptr<std::vector<std::shared_ptr<Surface>>> Renderer::getOtherSurfaces()
 {
   if(otherSurfaces.size())
-    return &otherSurfaces;
+    return std::make_shared<std::vector<std::shared_ptr<Surface>>>(otherSurfaces);
   else return 0;
 }
 
@@ -330,7 +328,7 @@ std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getApparentLights
   auto itLights = myScene->getLights()->begin();
   auto itSurfaces = myScene->getSurfaces()->begin();
   auto itLastLight = myScene->getLights()->end();
-  Surface * lastSurface = *(myScene->getSurfaces()->end());
+  auto lastSurface = *(myScene->getSurfaces()->end());
 
   for(;itLights != itLastLight; itLights++)
     { //for each light in the scene
@@ -374,7 +372,7 @@ std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getVisibleLights(
   auto itLights = myScene->getLights()->begin();
   auto itSurfaces = myScene->getSurfaces()->begin();
   auto itLastLight = myScene->getLights()->end();
-  Surface * lastSurface = *(myScene->getSurfaces()->end());
+  std::shared_ptr<Surface> lastSurface = *(myScene->getSurfaces()->end());
   Point4Dd raySrc, rayDir; 
   double tLast, tClose, tPoint;
   Ray localSampleRay; Ray sampleRay;
@@ -435,10 +433,9 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
   //First scan through all surfaces for the closest one.
   double tClose, tCurrent;
   tClose = 1000000;
-  std::vector<Surface *>::iterator itSurfaces;
-  itSurfaces = myScene->getSurfaces()->begin();  
-  Surface * lastSurface = *(myScene->getSurfaces()->end());
-  Surface * closestSurface = NULL;
+  auto itSurfaces = myScene->getSurfaces()->begin();  
+  auto lastSurface = *(myScene->getSurfaces()->end());
+  std::shared_ptr<Surface> closestSurface = NULL;
   Ray * sampleRay = new Ray(p.x,
 			    p.y,
 			    p.z,
@@ -578,7 +575,7 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
 #undef NULL_PHOTON
 
 void Renderer::participantMarch(Photon &p, 
-				Surface * medium,
+				std::shared_ptr<Surface> medium,
                                 int single_scatter/*=0*/
 				)
 {
@@ -808,10 +805,9 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
   Point3Dd specPower(0,0,0);
   double tClose, tCurrent;
   tClose = 50000;
-  std::vector<Surface *>::iterator itSurfaces;
-  itSurfaces = myScene->getSurfaces()->begin();  
-  Surface * lastSurface = *(myScene->getSurfaces()->end());
-  Surface * closestSurface = NULL;
+  auto itSurfaces = myScene->getSurfaces()->begin();  
+  auto lastSurface = *(myScene->getSurfaces()->end());
+  std::shared_ptr<Surface> closestSurface = NULL;
   while((*itSurfaces)!=lastSurface)
     { //for all surfaces in scene
       //determine the t-Value of the closest intersect
@@ -953,14 +949,13 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
   return specPower;
 }
 
-Surface * Renderer::closestSurfaceAlongRay(Ray * sampleRay, double &tClose) {
+std::shared_ptr<Surface> Renderer::closestSurfaceAlongRay(Ray * sampleRay, double &tClose) {
   double tCurrent;
   tClose = 50000;
   
-  std::vector<Surface *>::iterator itSurfaces;
-  itSurfaces = myScene->getSurfaces()->begin();  
-  Surface * lastSurface = *(myScene->getSurfaces()->end());
-  Surface * closestSurface = NULL;
+  auto itSurfaces = myScene->getSurfaces()->begin();  
+  auto lastSurface = *(myScene->getSurfaces()->end());
+  std::shared_ptr<Surface> closestSurface = NULL;
 
 #ifdef DEBUG_BUILD
   static int total=0; static int intersected=0;
@@ -1015,7 +1010,7 @@ Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
 
   //First scan through all surfaces for the closest one.
   double tClose; //tClose is outparam
-  Surface * closestSurface = closestSurfaceAlongRay(sampleRay, tClose);
+  std::shared_ptr<Surface> closestSurface = closestSurfaceAlongRay(sampleRay, tClose);
   
   if(closestSurface)
     { //we hit something
@@ -1067,7 +1062,7 @@ Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
 
 Point3Dd Renderer::getIlluminationInMedium(const Point3Dd &point, 
 					   const Point3Dd &dir, 
-					   const Surface * surface,
+					   const std::shared_ptr<Surface> surface,
 					   const int marchsize) const {
   //calculate distance for which ray is in medium
   Ray sampleRay(point,dir);
@@ -1156,7 +1151,7 @@ Point3Dd Renderer::getIlluminationInMedium(const Point3Dd &point,
 //light source in the scene for single scattering
 Point3Dd Renderer::getIlluminationAtPointInMedium(const Point3Dd &point,
 						  const Point3Dd &dir, 
-						  const Surface * surface,
+						  const std::shared_ptr<Surface> surface,
 						  const int marchsize) const {
 
   //common code
