@@ -12,6 +12,7 @@
 #include "config.h"
 #include <parallel_pm.h>
 #include <fstream>
+#include <memory>
 
 class Scene;
 class Light;
@@ -69,7 +70,7 @@ public:
 
   std::vector<Light *> * getLights();
   std::vector<Surface *> * getSurfaces();
-  Camera * getCamera();
+  std::shared_ptr<Camera> getCamera();
   int getWindowWidth();
   int getWindowHeight();
 
@@ -199,7 +200,7 @@ protected:
   std::vector<Material *> * materials;
 
   //And a std::list of all the camera available
-  std::vector<Camera *> * cameras;
+  std::shared_ptr<std::vector<std::shared_ptr<Camera>>> cameras;
   int currentCamera;
 
   //And a list of all of the photon maps in use
@@ -210,7 +211,7 @@ protected:
   //make code prettier.
   inline void addLight(Light *);
   inline void addSurface(Surface *);
-  inline void addCamera(Camera *);
+  inline void addCamera(std::shared_ptr<Camera>);
   inline void addMaterial(Material *);
 
   //Creates a shader of type shaderType

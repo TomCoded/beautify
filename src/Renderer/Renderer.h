@@ -128,7 +128,7 @@ class Renderer
   int recursionDepth;
   Scene * myScene;
 
-  Camera * currentCamera;
+  std::shared_ptr<Camera> currentCamera;
 
   void newMap();
   

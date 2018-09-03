@@ -291,17 +291,14 @@ void reshape(GLsizei scr_w, GLsizei scr_h)
 //Updates all transformations in the scene to 
 //be generated based on the current time
 void Scene::setTime(double t) {
-  std::vector<Surface *>::iterator itSurf;
-  std::vector<Camera *>::iterator itCam;
-
   curTime=t;
   hasLastTime=true;
 
-  for(itSurf=surfaces->begin();
+  for(auto itSurf=surfaces->begin();
       itSurf!=surfaces->end();
       itSurf++)
     (*itSurf)->setTime(t);
-  for(itCam=cameras->begin();
+  for(auto itCam=cameras->begin();
       itCam!=cameras->end();
       itCam++)
     (*itCam)->setTime(t);
@@ -332,7 +329,7 @@ Scene::Scene():
 {
   lights = new std::vector<Light *>();
   surfaces = new std::vector<Surface *>();
-  cameras = new std::vector<Camera *>();
+  cameras = std::make_shared<std::vector<std::shared_ptr<Camera>>>();
   materials = new std::vector<Material *>();
   photonMaps = new std::vector<PhotonMap *>();
   g_specModel=HALFWAY;
@@ -395,12 +392,6 @@ Scene::~Scene()
     }
   delete materials;
 
-  std::vector<Camera *>::iterator itCDestroyer = cameras->begin();
-  while(itCDestroyer != cameras->end() )
-    {
-      delete (*itCDestroyer);
-      itCDestroyer++;
-    }
   if(myRenderer) delete myRenderer;
 }
 
@@ -521,12 +512,12 @@ void Scene::ReadFile(std::string fileName) {
       }
     */
     else if(keyword == "camera") {
-      Camera * cam = new Camera();
+      std::shared_ptr<Camera> cam = std::make_shared<Camera>();
       cam->in(inFile);
       addCamera(cam);
     }
     else if(keyword == "funcam") {
-      Camera * cam = new Camera();
+      std::shared_ptr<Camera> cam = std::make_shared<Camera>();
       cam->funIn(inFile);
       addCamera(cam);
     }
@@ -1259,7 +1250,7 @@ std::vector<Surface *> * Scene::getSurfaces()
 }
 
 //returns a pointer to the current camera
-Camera * Scene::getCamera()
+std::shared_ptr<Camera> Scene::getCamera()
 {
   //  if(cameras->size()) return (*cameras)[currentCamera];
   if(cameras->size()) return (*(cameras->begin()));
@@ -1280,7 +1271,7 @@ inline void Scene::addSurface(Surface * surface)
 }
 
 //adds a camera to the scene
-inline void Scene::addCamera(Camera * camera)
+inline void Scene::addCamera(std::shared_ptr<Camera> camera)
 {
   cameras->push_back(camera);
   currentCamera = cameras->size();
