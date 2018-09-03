@@ -38,7 +38,8 @@ glutlibs="-lglut -lGLU -lGL"
 mpi="no"
 mpi_path=""
 magick="yes"
-magicklibs="-lMagick++ -lMagick"
+magicklibs=""
+#magicklibs="-lMagick++ -lMagick"
 #the libraries that the linker will be called with
 libs=""
 
@@ -209,12 +210,13 @@ int main(int argc, char ** argv) {
     return 0;
 }
 EOF
-$cc $CFLAGS $LDFLAGS -o $TMPO $TMPC $magicklibs 2>/dev/null || {
+$cc $CFLAGS `pkg-config ImageMagick++ --cflags` $LDFLAGS -o $TMPO $TMPC $magicklibs 2>/dev/null || {
     magick="no";
     echo "nope";
 }
 if test "$magick"="yes"; then
     echo "yes";
+    CFLAGS="$CFLAGS `pkg-config ImageMagick++ --cflags`";
     libs="$libs $magicklibs";
 fi;
 
