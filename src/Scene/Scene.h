@@ -68,7 +68,7 @@ public:
 
   void setWindowSize(int x, int y);
 
-  std::vector<Light *> * getLights();
+  std::shared_ptr<std::vector<std::shared_ptr<Light>>> getLights();
   std::vector<Surface *> * getSurfaces();
   std::shared_ptr<Camera> getCamera();
   int getWindowWidth();
@@ -191,7 +191,7 @@ protected:
   //  Renderer * myRenderer;
 
   //We also want information about the lights in a scene
-  std::vector<Light *> * lights;
+  std::shared_ptr<std::vector<std::shared_ptr<Light>>> lights;
 
   //And a std::list of all the surfaces
   std::vector<Surface *> * surfaces;
@@ -209,7 +209,7 @@ protected:
   //helper functions.  We keep these around to provide an abstraction
   //layer in case we want to change implementation later.  Also, they
   //make code prettier.
-  inline void addLight(Light *);
+  inline void addLight(std::shared_ptr<Light>);
   inline void addSurface(Surface *);
   inline void addCamera(std::shared_ptr<Camera>);
   inline void addMaterial(Material *);

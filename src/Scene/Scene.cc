@@ -327,7 +327,7 @@ Scene::Scene():
   frames_are_being_rendered_to_files(false),
   nBaseLen(0)
 {
-  lights = new std::vector<Light *>();
+  lights = std::make_shared<std::vector<std::shared_ptr<Light>>>();
   surfaces = new std::vector<Surface *>();
   cameras = std::make_shared<std::vector<std::shared_ptr<Camera>>>();
   materials = new std::vector<Material *>();
@@ -367,14 +367,6 @@ Scene::~Scene()
   //    delete g_map;
   if(hasImage)
     delete[] logicalImage;
-
-  std::vector<Light *>::iterator itDestroyer = lights->begin();
-  while( itDestroyer != lights->end() )
-    { //destroy all light sources in the std::vector
-      if(*itDestroyer) delete (*itDestroyer);
-      itDestroyer++;
-    }
-  delete lights;
 
   std::vector<Surface *>::iterator itSDestroyer = surfaces->begin();
   while( itSDestroyer != surfaces->end() )
@@ -451,7 +443,7 @@ void Scene::ReadFile(std::string fileName) {
   int shaderID = LAMBERT;
 
   //  DirLight * tempDirLight;
-  PointLight * tempPointLight;
+  std::shared_ptr<PointLight> tempPointLight;
   Shader * tempShader;
 
   int numSurfaces = -1;
@@ -523,7 +515,7 @@ void Scene::ReadFile(std::string fileName) {
     }
 #if 0
     else if(keyword == "pointLight") {
-      tempPointLight = new PointLight();
+      tempPointLight = make_shared<PointLight>();
       inFile >> (*tempPointLight);
       addLight(tempPointLight);
     }
@@ -535,19 +527,18 @@ void Scene::ReadFile(std::string fileName) {
 #endif
     else if(keyword == "DiffusePointLight")
       {
-        DiffusePointLight * dpLight
-          = new DiffusePointLight();
+	std::shared_ptr<DiffusePointLight> dpLight = std::make_shared<DiffusePointLight>();
         inFile >> (*dpLight);
         addLight(dpLight);
       }
     else if(keyword == "DirLight") {
-      DirLight * tempDirLight = new DirLight();
+      std::shared_ptr<DirLight> tempDirLight = std::make_shared<DirLight>();
       inFile >> (*tempDirLight);
       addLight(tempDirLight);
     }
     else if(keyword == "SquareLight") {
-      SquareLight * mySquareLight 
-        = new SquareLight();
+      std::shared_ptr<SquareLight> mySquareLight 
+        = std::make_shared<SquareLight>();
       inFile >> (*mySquareLight);
       addLight(mySquareLight);
     }
@@ -1238,7 +1229,7 @@ void Scene::toLogicalImageInParallel() {
 #endif
 
 //returns a pointer to a std::vector of pointers to all lights in the scene
-std::vector<Light *> * Scene::getLights()
+std::shared_ptr<std::vector<std::shared_ptr<Light>>> Scene::getLights()
 {
   return lights;
 }
@@ -1259,7 +1250,7 @@ std::shared_ptr<Camera> Scene::getCamera()
 }
 
 //adds a light to the Scene
-inline void Scene::addLight(Light * light)
+inline void Scene::addLight(std::shared_ptr<Light> light)
 { //push_bash takes the parameter to add, by reference.
   lights->push_back(light);
 }

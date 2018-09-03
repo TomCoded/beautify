@@ -107,8 +107,9 @@ PhotonMap * Renderer::map(int nPhotons)
 
   newMap();
   
-  std::vector<Light *> * lights = myScene->getLights();
-  std::vector<Light *>::iterator itLights = lights->begin();
+  std::shared_ptr<std::vector<std::shared_ptr<Light>>> lights
+    = myScene->getLights();
+  auto itLights = lights->begin();
   int nLights = lights->size();
   int nPhotonsForThisLight=0;
   double totalPower=0.0;
@@ -299,7 +300,7 @@ std::ostream& Renderer::out(std::ostream& out)
   UNIMPLEMENTED("Renderer.out")
 }
 
-std::vector<Light *> * Renderer::getAllLights()
+std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getAllLights()
 {
   return myScene->getLights();
 }
@@ -316,20 +317,19 @@ std::vector<Surface *> * Renderer::getOtherSurfaces()
 //the intensity of the light source decreases linearly 
 //with the transparency of the surfaces through which
 //the light ray passes.
-std::vector<Light *> * Renderer::getApparentLights(Point3Dd point)
+//FIXME: Has an issue with transparency. Currently disabled with migration to smart pointers for lights.
+std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getApparentLights(Point3Dd point)
 {
-  std::vector<Light *>::iterator itLights;
-  std::vector<Light *>::iterator itLastLight;
-  std::vector<Surface *>::iterator itSurfaces;
-  std::vector<Light *> * lightsToReturn = new std::vector<Light *>();
+  std::shared_ptr<std::vector<std::shared_ptr<Light>>> lightsToReturn
+    = std::make_shared<std::vector<std::shared_ptr<Light>>>();
   double tLast, tClose, tPoint;
   double transparency=1;
   Point4Dd raySrc, rayDir; 
   Ray localSampleRay; Ray sampleRay;
 
-  itLights = myScene->getLights()->begin();
-  itSurfaces = myScene->getSurfaces()->begin();
-  itLastLight = myScene->getLights()->end();
+  auto itLights = myScene->getLights()->begin();
+  auto itSurfaces = myScene->getSurfaces()->begin();
+  auto itLastLight = myScene->getLights()->end();
   Surface * lastSurface = *(myScene->getSurfaces()->end());
 
   for(;itLights != itLastLight; itLights++)
@@ -360,32 +360,20 @@ std::vector<Light *> * Renderer::getApparentLights(Point3Dd point)
 		}
 	    }
 	}
-      if((tClose==-1)&&(transparency!=0)) //the light is visible
-	lightsToReturn->push_back((**itLights).transparent(transparency));
+      //      if((tClose==-1)&&(transparency!=0)) //the light is visible
+      //	lightsToReturn->push_back(((**itLights).transparent(transparency)));
+      // transparency function does not work with shared pointers.
     }
   return lightsToReturn;
 }
 
-void Renderer::deAllocate(std::vector <Light *> * lights)
+std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getVisibleLights(Point3Dd point)
 {
-  std::vector<Light *>::iterator itDestroyer = lights->begin();
-  while( itDestroyer != lights->end() )
-    { //destroy all light sources in the std::vector
-      if(*itDestroyer) delete (*itDestroyer);
-      itDestroyer++;
-    }
-  delete lights;
-}
-
-std::vector<Light *> * Renderer::getVisibleLights(Point3Dd point)
-{
-  std::vector<Light *>::iterator itLights;
-  std::vector<Light *>::iterator itLastLight;
-  std::vector<Surface *>::iterator itSurfaces;
-  std::vector<Light *> * lightsToReturn = new std::vector<Light *>();
-  itLights = myScene->getLights()->begin();
-  itSurfaces = myScene->getSurfaces()->begin();
-  itLastLight = myScene->getLights()->end();
+  std::shared_ptr<std::vector<std::shared_ptr<Light>>> lightsToReturn
+    = std::make_shared<std::vector<std::shared_ptr<Light>>>();
+  auto itLights = myScene->getLights()->begin();
+  auto itSurfaces = myScene->getSurfaces()->begin();
+  auto itLastLight = myScene->getLights()->end();
   Surface * lastSurface = *(myScene->getSurfaces()->end());
   Point4Dd raySrc, rayDir; 
   double tLast, tClose, tPoint;
@@ -860,8 +848,8 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
       Point4Dd hp4 = sampleRay->GetPointAt(tClose-BUMPDISTANCE); 
       Point3Dd hitPoint(hp4.x,hp4.y,hp4.z);
       Point3Dd normal = closestSurface->getNormalAt(*sampleRay);
-      std::vector<Light *> * lights = myScene->getLights();
-      std::vector<Light *>::iterator itLights = lights->begin();
+      auto lights = myScene->getLights();
+      auto itLights = lights->begin();
       bool shadowed=false;
       for(;itLights!=lights->end();itLights++)
 	{ //for each light in the scene
@@ -1172,8 +1160,8 @@ Point3Dd Renderer::getIlluminationAtPointInMedium(const Point3Dd &point,
 						  const int marchsize) const {
 
   //common code
-  std::vector<Light *> * lights = myScene->getLights();
-  std::vector<Light *>::iterator itLights;
+  auto lights = myScene->getLights();
+  auto itLights = lights->begin();
 
   //find the participating medium
   Participating * medium = (Participating*)surface->surMat;
@@ -1196,7 +1184,7 @@ Point3Dd Renderer::getIlluminationAtPointInMedium(const Point3Dd &point,
   //Integrate contribution from each light source
   //
 
-  for(itLights=lights->begin();itLights!=lights->end();itLights++) {
+  for(;itLights!=lights->end();itLights++) {
     //get a ray from the point to the light
     sampleRay = (*itLights)->getRayTo(point);
     

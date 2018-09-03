@@ -44,6 +44,7 @@ class Light {
   virtual Ray getRayTo(const Point3Dd&) const = 0;
 
   //returns a light that has been reduced by transparency
+  //needs to be a real pointer to support polymorphism
   virtual Light * transparent(double transparency) = 0;
 
   virtual std::istream& in(std::istream&) = 0;

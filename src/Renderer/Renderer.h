@@ -45,19 +45,19 @@ class Renderer
   //Lighting functions
   //returns a std::vector of all apparent light sources in the scene.
   //these are new light sources! remember to delete!
-  std::vector<Light *> * getApparentLights(Point3Dd);
+  std::shared_ptr<std::vector<std::shared_ptr<Light>>> getApparentLights(Point3Dd);
 
   //returns a std::vector of light sources in the scene
-  std::vector<Light *> * getAllLights();
+  std::shared_ptr<std::vector<std::shared_ptr<Light>>> getAllLights();
 
   //returns all the lights that are fully visible
-  std::vector<Light *> * getVisibleLights(Point3Dd);
+  std::shared_ptr<std::vector<std::shared_ptr<Light>>> getVisibleLights(Point3Dd);
 
   //returns remaining surfaces behind the last intersected surface
   std::vector<Surface *> * getOtherSurfaces();
   
   //deallocates all the lights in a std::vector, then destroys it
-  void deAllocate(std::vector <Light *> *);
+  void deAllocate(std::shared_ptr<std::vector<std::shared_ptr<Light>>>);
 
   //I/O functions
   std::istream& in(std::istream&);
