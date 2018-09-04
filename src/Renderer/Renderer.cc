@@ -328,7 +328,7 @@ std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getApparentLights
   auto itLights = myScene->getLights()->begin();
   auto itSurfaces = myScene->getSurfaces()->begin();
   auto itLastLight = myScene->getLights()->end();
-  auto lastSurface = *(myScene->getSurfaces()->end());
+  auto lastSurface = myScene->getSurfaces()->end();
 
   for(;itLights != itLastLight; itLights++)
     { //for each light in the scene
@@ -336,7 +336,7 @@ std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getApparentLights
       sampleRay = Ray((*itLights)->getRayTo(point));
       tPoint = sampleRay.TofClosestPoint(Point4Dd(point,0));
       tClose = -1;
-      for(int done=false;(!done)&&((*itSurfaces) != lastSurface); itSurfaces++)
+      for(int done=false;(!done)&&(itSurfaces != lastSurface); itSurfaces++)
 	{ //we find out if any surfaces intersect the ray
 	  raySrc=
 	    (*itSurfaces)->transWorldToLocal*
@@ -372,7 +372,7 @@ std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getVisibleLights(
   auto itLights = myScene->getLights()->begin();
   auto itSurfaces = myScene->getSurfaces()->begin();
   auto itLastLight = myScene->getLights()->end();
-  std::shared_ptr<Surface> lastSurface = *(myScene->getSurfaces()->end());
+  auto lastSurface = myScene->getSurfaces()->end();
   Point4Dd raySrc, rayDir; 
   double tLast, tClose, tPoint;
   Ray localSampleRay; Ray sampleRay;
@@ -382,7 +382,7 @@ std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getVisibleLights(
       sampleRay = Ray((*itLights)->getRayTo(point));
       tPoint = sampleRay.TofClosestPoint(Point4Dd(point,0));
       tClose = -1;
-      for(int done=false;(!done)&&(*itSurfaces)!=lastSurface; itSurfaces++)
+      for(int done=false;(!done)&&itSurfaces!=lastSurface; itSurfaces++)
 	{ //we find out if any surfaces intersect the ray
 	  raySrc=
 	    (*itSurfaces)->transWorldToLocal*
@@ -434,7 +434,7 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
   double tClose, tCurrent;
   tClose = 1000000;
   auto itSurfaces = myScene->getSurfaces()->begin();  
-  auto lastSurface = *(myScene->getSurfaces()->end());
+  auto lastSurface = myScene->getSurfaces()->end();
   std::shared_ptr<Surface> closestSurface = NULL;
   Ray * sampleRay = new Ray(p.x,
 			    p.y,
@@ -444,7 +444,7 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
 			    p.dz
 			    );
   Point3Dd location(p.x,p.y,p.z);
-  while((*itSurfaces)!=lastSurface)
+  while(itSurfaces!=lastSurface)
     { //for all surfaces in scene
       //determine the t-Value of the closest intersect
       tCurrent = (*itSurfaces)->closestIntersect(*sampleRay);
@@ -806,9 +806,9 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
   double tClose, tCurrent;
   tClose = 50000;
   auto itSurfaces = myScene->getSurfaces()->begin();  
-  auto lastSurface = *(myScene->getSurfaces()->end());
+  auto lastSurface = myScene->getSurfaces()->end();
   std::shared_ptr<Surface> closestSurface = NULL;
-  while((*itSurfaces)!=lastSurface)
+  while(itSurfaces!=lastSurface)
     { //for all surfaces in scene
       //determine the t-Value of the closest intersect
       tCurrent = (*itSurfaces)->closestIntersect
@@ -954,7 +954,7 @@ std::shared_ptr<Surface> Renderer::closestSurfaceAlongRay(Ray * sampleRay, doubl
   tClose = 50000;
   
   auto itSurfaces = myScene->getSurfaces()->begin();  
-  auto lastSurface = *(myScene->getSurfaces()->end());
+  auto lastSurface = myScene->getSurfaces()->end();
   std::shared_ptr<Surface> closestSurface = NULL;
 
 #ifdef DEBUG_BUILD
@@ -962,7 +962,7 @@ std::shared_ptr<Surface> Renderer::closestSurfaceAlongRay(Ray * sampleRay, doubl
   total++;
 #endif
   
-  while((*itSurfaces)!=lastSurface)
+  while(itSurfaces!=lastSurface)
     { //for all surfaces in scene
       //determine the t-Value of the closest intersect
       tCurrent = (*itSurfaces)->closestIntersect
