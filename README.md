@@ -8,7 +8,7 @@ This is a photon mapper built without modern graphics libraries.
 - Reads and parses complex scene files into a scene including lights, objects, shapes, materials, and fixed and dynamic transformations.
 - Distributes the scene to multple processes.
 - Throws thousand of photons into the scene from the lights.
-- Depending on the result of a photon roullete process, photons can bounce off objects (being adjusted for the BRDF) and possibly land on other objects, or they can be absorbed.
+- Depending on the result of a photon roullete process, photons can bounce off objects (being adjusted for the BRDF) and possibly land on other objects, or they can be absorbed. (i.e. each time a photon hits a surface, it is stored within the photon map and Russian roulette is used to determine if the photon is reflected, with the power of the reflected photon being computed based on the BRDF of the adjusted surface)
 - Gathers the resulting photons' bounce locations (if not absorbed).
 - Sorts the photons into a 3-dimensional kd-Tree.
 - Distributes the kd-Tree to all processes.

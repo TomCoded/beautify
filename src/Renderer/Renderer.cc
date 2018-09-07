@@ -603,7 +603,6 @@ void Renderer::participantMarch(Photon &p,
   while((!done)&&USEFUL(p))
     {
       // determine step size
-      //FIXME: Is drand48() uniformly distributed?
 
       //use ray marching heuristic to guesstimate mean extinction
       //coefficient over non-homogenous media
@@ -717,21 +716,17 @@ Photon& Renderer::resetIncidentDir(Photon &p,
 				   Point3Dd& normal
 				   )
 {
-  //The phong model;  Calculate reflection ray, opposite incident ray
-  //about normal.
-  //  std::cout << "Before reseting incident direction: " << p <<std::endl;
-  //  std::cout << "Resetting incident direction about " << normal <<std::endl;
-  //reflected std::vector = incidentDir + 2 * (-incidentDir dot normal) /
-  //  (normal.norm squared) * normal
+  //The phong model's method of calculating a reflection ray for an incidet light source is used. This can be written as
+  // reflectedDir = 2(DirToLight^ dot Normal^)*Normal^ - DirToLight^
+
   Point3Dd incidentDir(p.dx, p.dy, p.dz);
-  //  normal=normal.normalize();
-  double LdN2 = 2*(normal.dot(incidentDir*-1));
-  Point3Dd rPlusLid = (normal*(LdN2/((normal.norm()*normal.norm()))));
-  Point3Dd newDir((incidentDir)+rPlusLid);
+  Point3Dd dirToLight=incidentDir*-1;
+  Point3Dd newDir = normal*2*(normal.dot(dirToLight)) - dirToLight;
+  
   p.dx = newDir.x;
   p.dy = newDir.y;
   p.dz = newDir.z;
-  //  std::cout << "After  reseting incident direction: " << p <<std::endl;
+
   return p;
 }
 
