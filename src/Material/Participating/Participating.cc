@@ -272,7 +272,15 @@ std::istream& Participating::in(std::istream &is)
 std::ostream& Participating::out(std::ostream &o)
 {
   o << '('
-    << scatCo << ')';
+    << *scatX 
+    << *scatY 
+    << *scatZ << ','
+    << *absX
+    << *absY
+    << *absZ
+    << ','
+    << greenK
+    << ')';
   return o;
 }
 

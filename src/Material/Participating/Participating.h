@@ -64,6 +64,8 @@ class Participating : public Material
   Point3Dd absorbCo; //sigma_a
 
  protected:
+  //note will actually be functions of x, y, and z, not of t, but will be written as evaluating t in scene file
+  //(i.e. the medium can be described as non-homogenous)
   FunNode * scatX, * scatY, * scatZ;
   FunNode * absX, * absY, *absZ;
   double greenK; //constant in Henyey-Greenstein phase function

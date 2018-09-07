@@ -529,11 +529,9 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
 		    p=p2;
 		    pMap->addPhoton(p2);
 
-		  
-		  resetIncidentDir(p,nPoint);
-
-		  
-		  return tracePhoton(p,++recurse);
+		    resetIncidentDir(p,nPoint);
+		    
+		    return tracePhoton(p,++recurse);
 		}
 
 	      //first, de-allocate sample ray.
@@ -663,6 +661,10 @@ void Renderer::participantMarch(Photon &p,
 	    case SCATTER:
 	      //photon is scattered here; store it in the volume
 	      //photon map.
+	      // NOTE in the current model, we do not store the first instance of scattering by default
+	      // since we can compute the direct light via more traditional ray tracing methods. Passing
+	      // a nonzero value of single_scatter to participantMarch can be used to create a volume photon map that
+	      // includes the first scattering event in the medium
 	      if(!single_scatter) {
 		pVolMap->addPhoton(p);
 		++single_scatter;
@@ -688,9 +690,16 @@ void Renderer::participantMarch(Photon &p,
     }
 
   if(USEFUL(p)) {
-  //If the photon was emitted from the medium, we should reset
-  // its outgoing position to be just outside the medium before
-  // continuing to trace it.
+    //If we get here, the photon was emitted from the medium,
+    //possibly after being scattered, and without being absorbed.
+    //It also still has enough power that we care about using it
+    //in our luminance estimates.
+    //
+    //We should reset its outgoing position to be just outside
+    //the medium before continuing to trace it so that it will not
+    //hit the medium again and so it will hit surfaces immediately
+    //outside the medium that may be closer than the sample step we
+    //were trying to take when we found ourselves outside the medium.
     Ray sampleRay(p.x-step.x,p.y-step.y,p.z-step.z,
 		  step.x,step.y,step.z);
 
