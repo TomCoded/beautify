@@ -516,7 +516,6 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
 		 ||(p.b>0.0)
 		 )
 		{
-		    
 		    Photon p2 = p;
 		    
 		    p2.x=iPoint.x;
@@ -572,6 +571,81 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
 }
 #undef NULL_PHOTON
 
+Point3Dd Renderer::estimateExtinctionCoefficient(std::shared_ptr<Surface> surface,
+					     Participating * material,
+					     Photon &p,
+					     Point3Dd &location,
+					     int extinctionSamplesPerStep
+					     ) {
+  //distance to next event is 
+  //  d(x_p) = - log (zdeta)/ (sigma bar sub t of x_p)
+  // for random zdeta from (0,1].
+  //  pdf(d) = e^(-sigma_t(x_p)d
+  // for homogenous media, could just set sigma bar sub t of x_p to the medium's extinction co.
+  // for heterogenous media, we guess. One option is set parameter to the extinction coefficient of the scattering event. Add check sigma bar sub t>0. (Other options would be compute average over whole heterogenous media and treat as homogenous, or take small steps to make estimate). We use a variety of the third option, using extinction coefficient at first point to guess about step size and getting mean of extinction coefficients at current location, final estimate step, and in the middle.
+      
+  //use ray marching heuristic to guesstimate mean extinction
+  //coefficient over non-homogenous media
+
+  //cache of the extinction coefficients of medium in current location
+  Point3Dd extinctCache(0.0,0.0,0.0);
+  //used to hold location where we're gathering extinction coefficient data
+  Point3Dd extinctLocCheck;
+  Point3Dd tempLoc;
+  double meanExtinct;
+  double divisor=0;
+  double stepSize=0.0;
+  double randVal = drand48();
+  Point3Dd step(p.dx,p.dy,p.dz);
+  
+  for(int i=0; i<extinctionSamplesPerStep; i++) {
+    step.normalize();
+    if(i)
+      step*=stepSize*(((double)i)/(double)(extinctionSamplesPerStep));
+    tempLoc = i ? location+step : location;
+    
+    if(surface->contains(tempLoc)) {
+      material->copyExtinctCo(extinctLocCheck,tempLoc);
+      extinctCache+=extinctLocCheck;
+      ++divisor;
+    } else break;
+
+    if(!i) {
+      meanExtinct = extinctCache.x*extinctCache.y*extinctCache.z / 3;
+      stepSize = - ( log(randVal) ) / meanExtinct;
+    }
+  }
+      
+  //take mean of our sample points
+  extinctCache.x = extinctCache.x / divisor;
+  extinctCache.y = extinctCache.y / divisor;
+  extinctCache.z = extinctCache.z / divisor;
+  meanExtinct = (extinctCache.x+extinctCache.y+extinctCache.z)/3;
+
+  //force clipping in case of highly heterogenous media
+  if(meanExtinct<0.0) {
+    meanExtinct=0.01;
+  }
+  
+
+  //could use for homogenous media
+  //      stepSize = - ( log(drand48()) / ((static_cast<Participating *>(medium->surMat))->meanExtinct) );
+  
+  //using mean scatterring coefficient, reevaluate step size.
+  stepSize = - ( log ( randVal) ) / (meanExtinct);
+  step.normalize();
+  step*=stepSize;
+
+  //return out params
+  location.x+=step.x;
+  location.y+=step.y;
+  location.z+=step.z;
+  p.x = location.x;
+  p.y = location.y;
+  p.z = location.z;
+  return step;
+}
+
 void Renderer::participantMarch(Photon &p, 
 				std::shared_ptr<Surface> medium,
                                 int single_scatter/*=0*/
@@ -580,79 +654,19 @@ void Renderer::participantMarch(Photon &p,
   //march participant through medium until reach boundary or scatter
   Point3Dd location(p.x, p.y, p.z);
   bool done=false;
-  double stepSize=0.0;
-  double randVal;
-  Point3Dd step(0.0,0.0,0.0);
-
-  //cache of the extinction coefficients of medium in current location
-  Point3Dd extinctCache;
-  //used to hold location where we're gathering extinction coefficient data
-  Point3Dd extinctLocCheck;
-  Point3Dd tempLoc;
-  double meanExtinct;
-  double divisor=1;
-
-  step.x = p.dx;
-  step.y = p.dy;
-  step.z = p.dz;
+  Point3Dd step;
 
   int cycle=0;
 
   while((!done)&&USEFUL(p))
     {
       // determine step size
-
-      //use ray marching heuristic to guesstimate mean extinction
-      //coefficient over non-homogenous media
-
-      //get first estimate
-      randVal = drand48();
-      static_cast<Participating*>(medium->surMat)->copyExtinctCo(extinctCache,p.x,p.y,p.z);
-      meanExtinct = extinctCache.x*extinctCache.y*extinctCache.z / 3;
-      stepSize = - ( log(randVal) ) / meanExtinct;
-      divisor=1;
-
-      //sample extinction coefficient halfway to other end
-      step.normalize();
-      step*=stepSize*0.5;
-      tempLoc = location+step;
-
-      if(medium->contains(tempLoc)) {
-	static_cast<Participating*>(medium->surMat)->copyExtinctCo(extinctLocCheck,tempLoc);
-	extinctCache+=extinctLocCheck;
-        ++divisor;
-      }
+      step=estimateExtinctionCoefficient(medium,
+					 static_cast<Participating*>(medium->surMat),
+					 p,
+					 location
+					 );
       
-      //sample at other end
-      step.norm();
-      step*=stepSize;
-      tempLoc = location+step;
-      if(medium->contains(tempLoc)) {
-	static_cast<Participating*>(medium->surMat)->copyExtinctCo(extinctLocCheck,tempLoc);
-	extinctCache+=extinctLocCheck;
-	++divisor;
-      }
-
-      //take mean of our three sample points; rough approximation
-      extinctCache.x = extinctCache.x / divisor;
-      extinctCache.y = extinctCache.y / divisor;
-      extinctCache.z = extinctCache.z / divisor;
-      meanExtinct = (extinctCache.x+extinctCache.y+extinctCache.z)/3;
-
-      //using mean scatterring coefficient, reevaluate.
-      stepSize - ( log ( randVal) ) / (meanExtinct);
-
-      //LEGACY: homogenous media
-      //      stepSize = - ( log(drand48()) / ((static_cast<Participating *>(medium->surMat))->meanExtinct) );
-      step.norm();
-      step*=stepSize;
-
-      location.x+=step.x;
-      location.y+=step.y;
-      location.z+=step.z;
-      p.x = location.x;
-      p.y = location.y;
-      p.z = location.z;
       if(!medium->contains(location)) done=true;
       else
 	{ //still in medium check for scattering event
@@ -669,11 +683,11 @@ void Renderer::participantMarch(Photon &p,
 		pVolMap->addPhoton(p);
 		++single_scatter;
 	      }
-	      //	      std::cerr << "P " << p;
-	      medium->DoVolBRDF(p);
-	      //	      std::cerr << " ==> " << p <<std::endl;
 
+	      //adjusts photon travel direction by phase function
+	      medium->DoVolBRDF(p);
 	      break;
+
 	    case ABSORPTION:
 	      if(!single_scatter) {
 		pVolMap->addPhoton(p);

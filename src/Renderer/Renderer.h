@@ -93,7 +93,13 @@ class Renderer
 			std::shared_ptr<Surface> medium,
 			int single_scatter=0
 			);
-
+  Point3Dd estimateExtinctionCoefficient(std::shared_ptr<Surface> surface,
+				     Participating *material,
+				     Photon &p,
+				     Point3Dd &location,
+				     int extinctionSamplesPerStep=3
+				     );
+  
   //returns the specular component of the light
   //halfway method
   Point3Dd getSpecularColor(Ray * sampleRay);

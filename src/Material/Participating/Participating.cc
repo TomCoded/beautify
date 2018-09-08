@@ -74,6 +74,7 @@ int Participating::nRoulette(Photon &p)
   double dRand = drand48();
   //don't do anything fancy
 
+  //evalute scattering and extinction coefficients at this x,y,z location
   copyScatCo(scatCo, p.x, p.y, p.z);
   copyExtinctCo(extinctCo, p.x, p.y, p.z);
 
@@ -133,6 +134,7 @@ void Participating::DoBRDF(Photon &p)
   Point3Dd xhat(1.0,0.0,0.0);
 
   //rotate by theta about a std::vector perpendicular to the incoming photon
+  //create vector perpendicular to x^ and incident dir. Rotate incident direction around that and then around the original incident direfction.
   Point3Dd cross = nDir.cross(xhat);
   
   Transform4Dd thetaTrans = MakeRotation(theta,cross);
