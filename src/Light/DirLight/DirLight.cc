@@ -119,6 +119,8 @@ void DirLight::addPhotonsToMap(int numPhotons,
       p.x = point.x+x;
       p.y = point.y+y;
       p.z = point.z+z;
+
+      p.bounced=false;
       //generate random seed for next loop.
       //we do this here because drand48() will
       //be used an inconsistent number of times

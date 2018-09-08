@@ -491,15 +491,6 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
 						    p.dy,
 						    p.dz
 						    );
-#ifdef DEBUG_BUILD
-      std::cout << "Normal from surface " << closestSurface << 
-	" is " << nPoint 
-	   << " for photon at "
-	   << p.x << ',' << p.y << ',' << p.z 
-	   << " w/ incident dir " 
-	   << p.dx << ',' << p.dy << ',' << p.dz
-	   <<std::endl;
-#endif
 
       //nDoRoulette runs Russian roulette on the photon.
       //If it is reflected, it adjusts the power of the photon in 
@@ -529,6 +520,7 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
 		    pMap->addPhoton(p2);
 
 		    resetIncidentDir(p,nPoint);
+		    p.bounced=true;
 		    
 		    return tracePhoton(p,++recurse);
 		}
@@ -647,16 +639,13 @@ Point3Dd Renderer::estimateExtinctionCoefficient(std::shared_ptr<Surface> surfac
 }
 
 void Renderer::participantMarch(Photon &p, 
-				std::shared_ptr<Surface> medium,
-                                int single_scatter/*=0*/
+				std::shared_ptr<Surface> medium
 				)
 {
   //march participant through medium until reach boundary or scatter
   Point3Dd location(p.x, p.y, p.z);
   bool done=false;
   Point3Dd step;
-
-  int cycle=0;
 
   while((!done)&&USEFUL(p))
     {
@@ -668,41 +657,29 @@ void Renderer::participantMarch(Photon &p,
 					 );
       
       if(!medium->contains(location)) done=true;
-      else
-	{ //still in medium check for scattering event
-	  switch(medium->nDoPartRoulette(p))
-	    {
-	    case SCATTER:
-	      //photon is scattered here; store it in the volume
-	      //photon map.
-	      // NOTE in the current model, we do not store the first instance of scattering by default
-	      // since we can compute the direct light via more traditional ray tracing methods. Passing
-	      // a nonzero value of single_scatter to participantMarch can be used to create a volume photon map that
-	      // includes the first scattering event in the medium
-	      if(!single_scatter) {
-		pVolMap->addPhoton(p);
-		++single_scatter;
-	      }
-
-	      //adjusts photon travel direction by phase function
-	      medium->DoVolBRDF(p);
-	      break;
-
-	    case ABSORPTION:
-	      if(!single_scatter) {
-		pVolMap->addPhoton(p);
-	      }
-
-	      done=true;
-	      return;
-	      break;
-	    default:
-	      std::cerr << "Error: unknown volumetric Russian Roulette result in Renderer.cc\n";
-	      exit(1);
-	    }
+      else {
+	//still in medium. Check for scattering event
+	if(medium->nDoPartRoulette(p)==SCATTER) {
+	  //photon is scattered here; store it in the volume
+	  //photon map.
+	  // NOTE Have several options. Can estimate direct light by traditional ray tracing and just store bounced photons, for example.
+	  if(!p.bounced)
+	    p.bounced=true;
+	  if(p.bounced)
+	    pVolMap->addPhoton(p);
+	  
+	  //adjusts photon travel direction by phase function
+	  medium->DoVolBRDF(p);
+	} else {
+	  //ABSORPTION:
+	  pVolMap->addPhoton(p);
+	  
+	  done=true;
+	  return;
 	}
+      }
     }
-
+  
   if(USEFUL(p)) {
     //If we get here, the photon was emitted from the medium,
     //possibly after being scattered, and without being absorbed.
@@ -716,17 +693,12 @@ void Renderer::participantMarch(Photon &p,
     //were trying to take when we found ourselves outside the medium.
     Ray sampleRay(p.x-step.x,p.y-step.y,p.z-step.z,
 		  step.x,step.y,step.z);
-
     sampleRay.dir.normalize();
-    
     double tVal = medium->closestIntersect(sampleRay);
-    
     Point4Dd leaving = sampleRay.GetPointAt(tVal+BUMPDISTANCE);
     
     leaving.dehomogenize();
-    
     p.x = leaving.x; p.y=leaving.y; p.z=leaving.z;
-    
     //we've passed through the medium.  Now trace the photon in the
     //				regular way.
     tracePhoton(p);

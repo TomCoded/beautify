@@ -15,6 +15,7 @@ std::ostream& operator<<(std::ostream& o, Photon& p)
     << p.dz << ' '
 
     << p.flag << ' '
+    << p.bounced << ' '
     << p.offset;
   return o;
 }
@@ -36,6 +37,7 @@ std::istream& operator>>(std::istream& is, Photon& p)
      >> p.dz
 
      >> p.flag
+     >> p.bounced
      >> p.offset;
 
   return is;

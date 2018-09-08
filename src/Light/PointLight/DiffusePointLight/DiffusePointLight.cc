@@ -73,6 +73,7 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
       p.dx = dx;
       p.dy = dy;
       p.dz = dz;
+      p.bounced = false;
 
       // generate random seed for next loop
       seed = (long)(drand48() * 1000000000);

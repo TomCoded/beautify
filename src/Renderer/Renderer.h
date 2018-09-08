@@ -90,8 +90,7 @@ class Renderer
   int photonsEmittedCount;
   
   void participantMarch(Photon &p, 
-			std::shared_ptr<Surface> medium,
-			int single_scatter=0
+			std::shared_ptr<Surface> medium
 			);
   Point3Dd estimateExtinctionCoefficient(std::shared_ptr<Surface> surface,
 				     Participating *material,

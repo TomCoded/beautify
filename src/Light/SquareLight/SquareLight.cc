@@ -135,6 +135,8 @@ void SquareLight::addPhotonsToMap(int numPhotons,
       p.y = position.y+y;
       p.z = position.z+z;
 
+      p.bounced=false;
+
       static int counter=0;
       if(!counter++%50)
 	std::cout << p <<std::endl;
