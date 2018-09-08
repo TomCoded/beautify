@@ -246,25 +246,15 @@ std::istream& Participating::in(std::istream &is)
   is >> c;
 
   SumFunNode parser;
-  FORMATTEST(c,'(',formatErr)
-
   scatX = parser.in(is);
   scatY = parser.in(is);
   scatZ = parser.in(is);
-
-  is >> c;
-  FORMATTEST(c,',',formatErr)
-
+		
   absX = parser.in(is);
   absY = parser.in(is);
   absZ = parser.in(is);
 
-  is >> c;
-  FORMATTEST(c,',',formatErr)
-
   is >> greenK;
-  is >> c;
-  FORMATTEST(c,')',formatErr)
 
   left = (1 - greenK*greenK) / (4 * PI);
 
@@ -273,16 +263,17 @@ std::istream& Participating::in(std::istream &is)
 
 std::ostream& Participating::out(std::ostream &o)
 {
-  o << '('
+  o //<< '('
     << *scatX 
     << *scatY 
-    << *scatZ << ','
+    << *scatZ //<< ','
     << *absX
     << *absY
     << *absZ
-    << ','
+    //<< ','
     << greenK
-    << ')';
+    //<< ')';
+    ;
   return o;
 }
 

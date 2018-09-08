@@ -673,7 +673,6 @@ void Renderer::participantMarch(Photon &p,
 	} else {
 	  //ABSORPTION:
 	  pVolMap->addPhoton(p);
-	  
 	  done=true;
 	  return;
 	}
