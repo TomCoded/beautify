@@ -47,7 +47,6 @@ public:
   DirLight& operator=(const DirLight& other);
 
   void addPhotonsToMap(int numPhotons,
-		       PhotonMap *,
 		       Renderer *
 		       );
 

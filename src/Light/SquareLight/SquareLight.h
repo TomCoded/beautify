@@ -46,7 +46,6 @@ public:
   SquareLight& operator=(const SquareLight& other);
 
   void addPhotonsToMap(int numPhotons,
-		       PhotonMap *,
 		       Renderer *
 		       );
 

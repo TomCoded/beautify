@@ -40,7 +40,6 @@ public:
   PointLight * transparent(double transparency);
 
   void addPhotonsToMap(int numPhotons,
-		       PhotonMap *,
 		       Renderer *
 			 ) {}
 

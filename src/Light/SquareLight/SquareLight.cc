@@ -81,7 +81,6 @@ Ray SquareLight::getRayTo(const Point3Dd& dest) const
 }
 
 void SquareLight::addPhotonsToMap(int numPhotons,
-		     PhotonMap * map,
 		     Renderer * renderer
 		     )
 {
@@ -145,10 +144,7 @@ void SquareLight::addPhotonsToMap(int numPhotons,
       seed = (long)(drand48() * (1<<30));
 
       //trace photon
-      p = renderer->tracePhoton(p);
-      if(!((p.r==p.g)&&(p.g==p.b)&&(p.g==0))) {
-	map->addPhoton(p);
-      }
+      renderer->tracePhoton(p);
     }
 }
 

@@ -27,7 +27,6 @@ class Light {
 
   //Adds photons to map, if the light supports it.
   virtual void addPhotonsToMap(int numPhotons,
-			       PhotonMap *,
 			       Renderer *
 			       )=0;
 

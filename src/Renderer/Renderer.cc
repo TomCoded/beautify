@@ -29,7 +29,7 @@ Point3Dd g_photonPowerLow;
 
 Renderer::Renderer():
   myScene(0), ambient(0.5,0.5,0.5), currentCamera(0), pMap(0), 
-  pVolMap(0)
+  pVolMap(0), storeDirectLight(false), storeVolumeDirectLight(false)
 {}
 
 Renderer::Renderer(Renderer& other)
@@ -39,11 +39,13 @@ Renderer::Renderer(Renderer& other)
   ambient = other.ambient;
   pMap = other.pMap;
   pVolMap=other.pVolMap;
+  storeDirectLight=other.storeDirectLight;
+  storeVolumeDirectLight=other.storeVolumeDirectLight;
 } 
 
 Renderer::Renderer(Scene * myScene):
   ambient(0.5,0.5,0.5), currentCamera(0), pMap(0),
-  pVolMap(0)
+  pVolMap(0), storeDirectLight(false), storeVolumeDirectLight(false)
 {
   setScene(myScene);
 }
@@ -60,6 +62,16 @@ Renderer::~Renderer()
 {
   delete pMap;
   delete pVolMap;
+}
+
+bool Renderer::storesDirectLight(const bool storeDirectLight) {
+  this->storeDirectLight=storeDirectLight;
+  return this->storeDirectLight;
+}
+
+bool Renderer::storesVolumeDirectLight(const bool storeVolumeDirectLight) {
+  this->storeVolumeDirectLight=storeVolumeDirectLight;
+  return this->storeVolumeDirectLight;
 }
 
 //Management functions
@@ -149,7 +161,6 @@ PhotonMap * Renderer::map(int nPhotons)
 
       //Have each light emit photons
       (*itLights)->addPhotonsToMap(nPhotonsForThisLight,
-				   pMap,
 				   this
 				   );
     }
@@ -250,7 +261,7 @@ Point3Dd Renderer::directLightingLookingAlong(
 		Ray(*sampleRay),
 		tClose
 		);
-
+	//segfaulting here
 	color=
 	  (closestSurface->surShader->getColor(hit));
       } else {
@@ -385,7 +396,7 @@ std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getVisibleLights(
  */
 //for when photons should not be added to the global photon map
 #define NULL_PHOTON p.r = p.g = p.b = 0
-Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
+void Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
 {
 #ifdef DEBUG_BUILD
   static int total=0; static int intersected=0;
@@ -394,7 +405,7 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
   //If we're beyond maxdepth, back out
   if(recurse > maxdepth) {
     NULL_PHOTON;
-    return p;
+    return;
   }
 
   //First scan through all surfaces for the closest one.
@@ -484,8 +495,8 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
 		    //		  closestSurface->DoBRDF(p2);
 		    //		  std::cout << "post-BRDF p2 is " << p2 <<std::endl;
 		    p=p2;
-		    //if(p.bounced)
-		    pMap->addPhoton(p2);
+		    if(storeDirectLight||p.bounced)
+		      pMap->addPhoton(p2);
 
 		    resetIncidentDir(p,nPoint);
 		    p.bounced=true;
@@ -500,12 +511,12 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
 	case SPECULAR_REFLECTION:
 	      NULL_PHOTON;
 	      delete sampleRay;
-	      return p;
+	      return;
 	      break;
 	    case ABSORPTION:
 	      NULL_PHOTON;
 	      delete sampleRay;
-	      return p;
+	      return;
 	      break;
 	    default: 
 	      std::cerr << "Error: unknown Russian Roulette result in Renderer.cc\n";
@@ -522,12 +533,12 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
 	  p.z = ip4.z;
 
 	  //send photon inside medium
-	  participantMarch(p,closestSurface);
+	  tracePhotonInParticipatingMedium(p,closestSurface);
 	}
     }
   delete sampleRay;
   NULL_PHOTON;
-  return p;
+  return;
 }
 #undef NULL_PHOTON
 
@@ -606,9 +617,9 @@ Point3Dd Renderer::estimateExtinctionCoefficient(std::shared_ptr<Surface> surfac
   return step;
 }
 
-void Renderer::participantMarch(Photon &p, 
-				std::shared_ptr<Surface> medium
-				)
+void Renderer::tracePhotonInParticipatingMedium(Photon &p, 
+						std::shared_ptr<Surface> medium
+						)
 {
   //march participant through medium until reach boundary or scatter
   Point3Dd location(p.x, p.y, p.z);
@@ -627,21 +638,15 @@ void Renderer::participantMarch(Photon &p,
       if(!medium->contains(location)) done=true;
       else {
 	//still in medium. Check for scattering event
+	if(storeVolumeDirectLight||p.bounced)
+	  pVolMap->addPhoton(p);
 	if(medium->nDoPartRoulette(p)==SCATTER) {
-	  //photon is scattered here; store it in the volume
-	  //photon map.
-	  // NOTE Have several options. Can estimate direct light by traditional ray tracing and just store bounced photons, for example.
-	  if(p.bounced)
-	    pVolMap->addPhoton(p);
 	  if(!p.bounced)
 	    p.bounced=true;
-	  
 	  //adjusts photon travel direction by phase function
 	  medium->DoVolBRDF(p);
 	} else {
 	  //ABSORPTION:
-	  if(p.bounced)
-	    pVolMap->addPhoton(p);
 	  done=true;
 	  return;
 	}
@@ -983,6 +988,9 @@ Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
 #ifndef VOLMAP_ONLY	
       if(!closestSurface->participates()) {
         flux = map->getFluxAt(hitPoint,normal);
+	if(!storeDirectLight) {
+	  flux += directLightingLookingAlong(sampleRay);
+	}
       } else 
 #else
 	if(closestSurface->participates())
@@ -992,16 +1000,11 @@ Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
 	  //direct illumination (single scattering) by ray-marching
 	  //through the medium, at each point ray-marching back toward
 	  //each light source in the scene.
-	  // After, do multiple scattering with the photon map.  Not
-	  //yet implemented
-	
 	  {
 	    hp4 = sampleRay->GetPointAt(tClose+BUMPDISTANCE);
 	    hitPoint.x = hp4.x;
 	    hitPoint.y = hp4.y;
 	    hitPoint.z = hp4.z;
-	    //FIXME: march depth?
-	    //FIXME: multiple scattering
 	    Point3Dd dir = Point3Dd(sampleRay->dir.x,sampleRay->dir.y,sampleRay->dir.z);
 	    
 	    flux=getIlluminationInMedium(hitPoint,dir,closestSurface,50);
@@ -1072,13 +1075,12 @@ Point3Dd Renderer::getIlluminationInMedium(const Point3Dd &point,
     //multiplier, if left over as non-1 from previous loops, accounts
     //for the sum of direct illumination that enters this segment
     //through its back
+    Point3Dd directIllumination = storeVolumeDirectLight ? Point3Dd(0.0,0.0,0.0) : (getIlluminationAtPointInMedium(point, dir, surface, 1) * scatCo) ;
     scat = 
       ((
 	//component from single scattering - direct computation via
 	//ray marching
-
-	//DIRECT ILLUMINATION
-	getIlluminationAtPointInMedium(point, dir, surface, 1) * scatCo 
+	directIllumination
 	        +
        //component from multiple scattering - from volume photon map
 	pVolMap->getLuminanceAt(point,dir,medium)

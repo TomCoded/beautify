@@ -18,7 +18,6 @@ class DiffusePointLight : public PointLight
   ~DiffusePointLight();
 
   void addPhotonsToMap(int numPhotons,
-		       PhotonMap *,
 		       Renderer * Renderer
 		       );
 

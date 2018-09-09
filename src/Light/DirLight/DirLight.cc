@@ -79,7 +79,6 @@ Ray DirLight::getRayTo(const Point3Dd& dest) const
 }
 
 void DirLight::addPhotonsToMap(int numPhotons,
-		     PhotonMap * map,
 		     Renderer * renderer
 		     )
 {
@@ -129,9 +128,7 @@ void DirLight::addPhotonsToMap(int numPhotons,
       //photon tracing.
       seed = (long)(drand48() * (1<<30));
       //trace photon
-      p = renderer->tracePhoton(p);
-      if(!((p.r==p.g)&&(p.g==p.b)&&(p.g==0)))
-	map->addPhoton(p);
+      renderer->tracePhoton(p);
     }
 }
 

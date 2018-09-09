@@ -71,8 +71,8 @@ class Renderer
 				      std::shared_ptr<std::vector<std::shared_ptr<Surface>>> surfaces
 				      );
 
-  //Traces the course of a photon and returns its final location
-  Photon& tracePhoton(Photon &p, int recurse=0);
+  //Traces the course of a photon. Adds photons to map(s) while tracing.
+  void tracePhoton(Photon &p, int recurse=0);
 
   //resets the incident direction of a photon after collision.
   //keeping this in a seperate function let's us preserve ability
@@ -83,15 +83,22 @@ class Renderer
   
   PhotonMap * getVolMap();
 
+  bool storesDirectLight(bool storeDirectLight=true);
+  bool storesVolumeDirectLight(bool storeVolumeDirectLight=true);
+  
  protected:
-
+  //flags for whether we store direct light in the photon map versus only light that has bounced/scattered.
+  //more efficient to use conventional ray tracing for direct lighting and photon maps for indirect lighting.
+  bool storeDirectLight;
+  bool storeVolumeDirectLight;
+  
   PhotonMap * pMap;
   PhotonMap * pVolMap;
   int photonsEmittedCount;
   
-  void participantMarch(Photon &p, 
-			std::shared_ptr<Surface> medium
-			);
+  void tracePhotonInParticipatingMedium(Photon &p, 
+					std::shared_ptr<Surface> medium
+					);
   Point3Dd estimateExtinctionCoefficient(std::shared_ptr<Surface> surface,
 				     Participating *material,
 				     Photon &p,

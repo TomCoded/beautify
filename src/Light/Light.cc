@@ -24,7 +24,6 @@ double Light::getDistance(const Point3Dd& point) const {
 }
 
 void Light::addPhotonsToMap(int numPhotons,
-			     PhotonMap *,
 			     Renderer *
 			     )
 {

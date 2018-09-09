@@ -22,7 +22,7 @@ DiffusePointLight::~DiffusePointLight()
 
 //#include <sys/time.h>
 
-void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
+void DiffusePointLight::addPhotonsToMap(int numPhotons,
 					Renderer * renderer)
 {
   //power per photon is power / number photons emitted
@@ -45,8 +45,6 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
   g_photonPower.y = yPow;
   g_photonPower.z = zPow;
 
-  int priorPhotons=map->getSize();
-  
   for(int nEmitted=0;
       nEmitted < numPhotons;
       nEmitted++)
@@ -79,19 +77,10 @@ void DiffusePointLight::addPhotonsToMap(int numPhotons,PhotonMap * map,
       seed = (long)(drand48() * 1000000000);
       
       //      std::cout << "__BEGIN_PHOTON_CHECK__\n";
-      p = renderer->tracePhoton(p);
+      renderer->tracePhoton(p);
       //      std::cout << "__END_PHOTON_CHECK__\n";
-      //add returned photon to map.
-      if(!((p.r==p.g)&&(p.g==p.b)&&(p.g==0))) //if the photon has any power
-	{
-	  map->addPhoton(p);
-	}
     }
 
-  //std::cout << rank
-  //<< ":Light " << &(*this) << " adds " <<
-  //map->getSize() - priorPhotons << " photons to map\n";
-  
 }
 
 std::istream& DiffusePointLight::in(std::istream& is)
