@@ -517,6 +517,7 @@ Photon& Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
 		    //		  closestSurface->DoBRDF(p2);
 		    //		  std::cout << "post-BRDF p2 is " << p2 <<std::endl;
 		    p=p2;
+		    //if(p.bounced)
 		    pMap->addPhoton(p2);
 
 		    resetIncidentDir(p,nPoint);
@@ -1013,9 +1014,9 @@ Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
       Point3Dd flux;
 
 #ifndef VOLMAP_ONLY	
-      if(!closestSurface->participates())
+      if(!closestSurface->participates()) {
         flux = map->getFluxAt(hitPoint,normal);
-      else 
+      } else 
 #else
 	if(closestSurface->participates())
 #endif
@@ -1027,7 +1028,7 @@ Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
 	  // After, do multiple scattering with the photon map.  Not
 	  //yet implemented
 	
-	  { 
+	  {
 	    hp4 = sampleRay->GetPointAt(tClose+BUMPDISTANCE);
 	    hitPoint.x = hp4.x;
 	    hitPoint.y = hp4.y;
@@ -1135,7 +1136,7 @@ Point3Dd Renderer::getIlluminationInMedium(const Point3Dd &point,
      lastVal+= increment;
   }
   
-  std::cerr << "totalScar " << totalScat <<std::endl;
+  //std::cerr << "totalScar " << totalScat <<std::endl;
   return totalScat;
 }
 
@@ -1205,12 +1206,22 @@ Point3Dd Renderer::getIlluminationAtPointInMedium(const Point3Dd &point,
       temp4d = sampleRay.GetPointAt(tVal+increment*step);
       temp4d.dehomogenize();
       medium->copyExtinctCo(extinctCo,temp4d.x,temp4d.y,temp4d.z);
-      incomingLight -= ( extinctCo * length );
+      Point3Dd extinctionAmounts = extinctCo*length;
+      double extinctionSum = extinctionAmounts.x+extinctionAmounts.y+extinctionAmounts.z;
+      extinctionSum = extinctionSum > 1.0 ? 1.0 : extinctionSum;
+      /*
+      std::cout << " eliminating " << extinctionSum << " of incident light at point " << point
+		<< " and dir " << dir
+		<< std::endl;
+      */
+      incomingLight *= (1.0-extinctionSum);
+	//incomingLight -= ( extinctCo * length );
     }
 
     //Then multiply result by phase function for direction shift
     //    std::cerr << "pre-phase: " << incomingLight;
-    temp = incomingLight * medium->phaseFunction(sourceDir,dir);
+    //want phase function from the direction FROM the light (in) to the direction TOWARD the eye (out). soureDir is the direction from the light. dir*-1 is the direction back toward the eye.
+    temp = incomingLight * medium->phaseFunction3D(sourceDir,dir*-1);
     //    std::cerr << " post-phase: " << temp <<std::endl;
 
     if(temp.x < 0) temp.x=0;

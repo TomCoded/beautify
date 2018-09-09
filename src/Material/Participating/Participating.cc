@@ -35,24 +35,34 @@ Participating::Participating(Participating &other)
     }
 }
 
-Point3Dd Participating::phaseFunction(const Point3Dd &in,
+Point3Dd Participating::phaseFunction3D(const Point3Dd &in,
+				      const Point3Dd &out
+				      ) const {
+  double result = phaseFunction(in,out);
+  return Point3Dd(result,result,result);
+}
+
+//medium's g parameter determines amount of forward and backward scattering. g lies in [-1,1] and represents the average cosine of the scattered directions, and g=0 is isotropic.
+double Participating::phaseFunction(const Point3Dd &in,
 				      const Point3Dd &out
 				      ) const {
   //for all homogenous media
-  // ( 1 - k^2) / (4pi((1+kcos(theta))^2))
+  
+  // ( 1 - k^2) / (4pi((1+kcos(theta))^2)) (Schlick Phase Function approximates Henyey-Greenstein but is easier to compute)
   // left * ( 1 / (1 + k * cos (theta) )^2)
   double cost = in.dot(out) / (in.norm() * out.norm());
-  double denom = 1 - cost * greenK;
+  double denom = 1 + cost * greenK;
   denom *= denom;
   double result = left*denom;
   //dampen effect
+  /*
   if(result < 1) {
     result += (1.0-result)/2.0;
   } else {
     result -= (result-1.0)/(2.0);
   }
-  //for visual reasons
-  return Point3Dd(result,result,result);
+  */
+  return result;
 }
 
 CLONEMETHOD(Participating);
@@ -79,7 +89,7 @@ int Participating::nRoulette(Photon &p)
   copyExtinctCo(extinctCo, p.x, p.y, p.z);
 
   //use average scattering albedo (mean ratio of scattering to
-  //extinction coefficient) across color channels
+  //extinction coefficient) across dimensions
 
   double probScatter = (
     scatCo.x / extinctCo.x + 
@@ -87,10 +97,13 @@ int Participating::nRoulette(Photon &p)
     scatCo.z / extinctCo.z
     ) / 3;
 
+  //reduce all color channels by the probability of a scatter in the given direction
   if(dRand <= probScatter) {
+    //std::cout << "photon " << p;
     p.r = (p.r * scatCo.x) / probScatter;
     p.g = (p.g * scatCo.y) / probScatter;
     p.b = (p.b * scatCo.z) / probScatter;
+    //std::cout << " reduced to " << p << std::endl;
     return SCATTER;
   }
   return ABSORPTION;
@@ -243,12 +256,19 @@ std::istream& Participating::in(std::istream &is)
 {
   char c;
   std::string formatErr("Bad format for Participating");
-  is >> c;
+  //is >> c;
 
   SumFunNode parser;
   scatX = parser.in(is);
   scatY = parser.in(is);
   scatZ = parser.in(is);
+  std::cerr << "Read scattering coefficients: "
+	    << *scatX
+	    << ";"
+	    << *scatY
+	    << ";"
+	    << *scatZ
+	    << std::endl;
 		
   absX = parser.in(is);
   absY = parser.in(is);

@@ -24,8 +24,9 @@ class Participating : public Material
 
   virtual bool participates() const;
 
-  Point3Dd phaseFunction(const Point3Dd &in, const Point3Dd &out) const;
-
+  Point3Dd phaseFunction3D(const Point3Dd &in, const Point3Dd &out) const;
+  double phaseFunction(const Point3Dd &in, const Point3Dd &out) const;
+  
   std::istream& in(std::istream&);
   std::ostream& out(std::ostream&);
 
@@ -72,7 +73,7 @@ class Participating : public Material
   //for importance sampling:
   // cos theta = (2e+k-1)/(2ke-k+1)
   // e random
-  //scratch variable for DoBRDF
+  //this is the left-hand side of the Schlick phase function (i.e. (1-k^2)/4pi).
   double left;
 };
 

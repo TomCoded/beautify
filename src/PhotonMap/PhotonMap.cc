@@ -328,6 +328,17 @@ Point3Dd PhotonMap::getLuminanceAt(const Point3Dd &loc,
 
       topPhoton = Q.top();
 
+      std::cout << " photon is "
+		<< topPhoton->r << ','
+		<< topPhoton->g << ','
+		<< topPhoton->b
+		<< " at ("
+		<< topPhoton->x
+		<< ','
+		<< topPhoton->y << ','
+		<< topPhoton->z << ')'
+		<< std::endl;
+      
       //power of photon
       pow.x = topPhoton->r;
       pow.y = topPhoton->g;
@@ -337,7 +348,7 @@ Point3Dd PhotonMap::getLuminanceAt(const Point3Dd &loc,
       Point3Dd pdir(topPhoton->dx, topPhoton->dy, topPhoton->dz);
 
       //adjust for phase function of medium
-      medium->phaseFunction(pdir,dir);
+      double phaseDiscount = medium->phaseFunction(pdir,dir*-1);
 
       //not an anti-photon!
       if(pow.x<0) pow.x=0;
@@ -345,9 +356,9 @@ Point3Dd PhotonMap::getLuminanceAt(const Point3Dd &loc,
       if(pow.z<0) pow.z=0;
 
       //Add contributions to total sum
-      powSum.x += pow.x;
-      powSum.y += pow.y;
-      powSum.z += pow.z;
+      powSum.x += pow.x*phaseDiscount;
+      powSum.y += pow.y*phaseDiscount;
+      powSum.z += pow.z*phaseDiscount;
 
       Q.pop();
     }
@@ -361,6 +372,7 @@ Point3Dd PhotonMap::getLuminanceAt(const Point3Dd &loc,
 
   delete close;
 
+  std::cout << "Luminance est " << rval << std::endl;
   return rval;
 }
 
