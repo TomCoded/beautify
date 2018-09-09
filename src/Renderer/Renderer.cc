@@ -39,7 +39,6 @@ Renderer::Renderer(Renderer& other)
   myScene = other.myScene;
   currentCamera = other.currentCamera;
   ambient = other.ambient;
-  otherSurfaces = other.otherSurfaces;
   pMap = other.pMap;
   pVolMap=other.pVolMap;
 } 
@@ -240,9 +239,6 @@ Point3Dd Renderer::getColor(
 	Ray normal = //get normal in local coordinate system
 	  closestSurface->surShape->getNormal(localSampleRay);
 	//only use transLocalToWorldNormal for directional changes, when
-
-	std::cout << "huh1\n";
-
 	//and if they are necessary.
 	//normal source has to be translated differently
 	Point4Dd tempPoint(normal.src);
@@ -252,18 +248,6 @@ Point3Dd Renderer::getColor(
 	tempPoint = closestSurface->transLocalToWorldNormal*tempPoint;
 	normal.dir = tempPoint;
 	//now we have the world normal
-	//we need to set up Surface * otherSurfaces in case
-	//the surface uses a reflective shader that needs to
-	//know the other surfaces to test the ray
-	//against
-	std::cout << "huh2\n";
-
-	auto itIntSurf=intersectedSurfaces.begin();
-	otherSurfaces = std::vector<std::shared_ptr<Surface>>();
-	for(++itIntSurf;
-	    itIntSurf!=intersectedSurfaces.end();
-	    itIntSurf++)
-	  otherSurfaces.push_back(*itIntSurf);
 	Point4Dd hp4 = sampleRay->GetPointAt(tClose);
 	Hit hit(Point3Dd(hp4.x,hp4.y,hp4.z),
 		closestSurface,
@@ -302,14 +286,6 @@ std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getAllLights()
 {
   return myScene->getLights();
 }
-
-std::shared_ptr<std::vector<std::shared_ptr<Surface>>> Renderer::getOtherSurfaces()
-{
-  if(otherSurfaces.size())
-    return std::make_shared<std::vector<std::shared_ptr<Surface>>>(otherSurfaces);
-  else return 0;
-}
-
 
 //gets lights in the scene, that are visible to a certain point.
 //the intensity of the light source decreases linearly 

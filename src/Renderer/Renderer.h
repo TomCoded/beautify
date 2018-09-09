@@ -136,8 +136,6 @@ class Renderer
   std::shared_ptr<Camera> currentCamera;
 
   void newMap();
-  
-  std::vector<std::shared_ptr<Surface>> otherSurfaces;
 };
 
 #endif
