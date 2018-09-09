@@ -27,13 +27,11 @@ Point3Dd g_photonPowerLow;
 
 #define USEFUL(p) ((p.r>g_photonPowerLow.x)||(p.g>g_photonPowerLow.y)||(p.b>g_photonPowerLow.z))
 
-//default constructor
 Renderer::Renderer():
   myScene(0), ambient(0.5,0.5,0.5), currentCamera(0), pMap(0), 
   pVolMap(0)
 {}
 
-//copy constructor
 Renderer::Renderer(Renderer& other)
 {
   myScene = other.myScene;
@@ -78,7 +76,6 @@ void Renderer::newMap() {
   g_map = pMap;
 }
 
-//map() calls the photon mapper with default nPhotons
 PhotonMap * Renderer::map()
 {
   int photons = photonsEmittedCount ?
@@ -166,12 +163,12 @@ PhotonMap * Renderer::map(int nPhotons)
   return pMap;
 }
 
-Point3Dd Renderer::getColor(Ray * sampleRay)
+Point3Dd Renderer::directLightingLookingAlong(Ray * sampleRay)
 {
-  return getColor(sampleRay,myScene->getSurfaces());
+  return directLightingLookingAlong(sampleRay,myScene->getSurfaces());
 }
 
-Point3Dd Renderer::getColor(
+Point3Dd Renderer::directLightingLookingAlong(
 			    Ray * sampleRay,
 			    std::shared_ptr<std::vector<std::shared_ptr<Surface>>> surfaces
 			    )
@@ -181,8 +178,6 @@ Point3Dd Renderer::getColor(
   std::shared_ptr<Surface> closestSurface = 0;
   std::shared_ptr<Surface> farthestSurface = 0;
   double tClose = 100000000; double tLast = tClose; double tFar=0;
-
-  std::cout << "Renderer::getColor()" <<std::endl;
 
   if(recursionDepth>1) return Point3Dd(0,0,0);
   else recursionDepth++;
@@ -256,15 +251,11 @@ Point3Dd Renderer::getColor(
 		tClose
 		);
 
-	//FIXME: Multiple Shaders not supported at this time
-	//this code is deprecated
-	std::cerr << "Assertion failed in Renderer.cc:267" <<std::endl;
-	exit(1);
-	
 	color=
 	  (closestSurface->surShader->getColor(hit));
       } else {
 	//participating medium.
+	//do not add direct lighting since will be computed elsewhere
       }
     }
   recursionDepth--;

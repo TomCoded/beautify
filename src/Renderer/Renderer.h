@@ -66,10 +66,10 @@ class Renderer
   //ambient light of the scene
   Point3Dd ambient;
 
-  Point3Dd getColor(Ray * sampleRay);
-  Point3Dd getColor(Ray * sampleRay, 
-		    std::shared_ptr<std::vector<std::shared_ptr<Surface>>> surfaces
-		    );
+  Point3Dd directLightingLookingAlong(Ray * sampleRay);
+  Point3Dd directLightingLookingAlong(Ray * sampleRay, 
+				      std::shared_ptr<std::vector<std::shared_ptr<Surface>>> surfaces
+				      );
 
   //Traces the course of a photon and returns its final location
   Photon& tracePhoton(Photon &p, int recurse=0);
