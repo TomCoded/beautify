@@ -41,7 +41,7 @@ int g_nFrame;
 #define REFLECTION 32
 
 #define LAMBERT AMBIENT | DIFFUSE
-#if 0
+#if 1
 #define PHONG AMBIENT | DIFFUSE | SPECULAR
 #define PHONGS PHONG | SHADOWS
 #define PHONGST PHONGS | NONREFTRANSPARENCY
@@ -552,7 +552,7 @@ void Scene::ReadFile(std::string fileName) {
         lastMaterial = myPart;
       }
     //temporarily remove shaders
-#if 0 
+#if 1
     else if(keyword == "ambient") {
       shaderID = AMBIENT;
     }

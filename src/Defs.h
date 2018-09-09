@@ -15,7 +15,7 @@
 
 //Model for computing specular reflection
 #define HALFWAY 1
-#define PHONG 2
+//#define PHONG 2
 
 //for Renderer::map()
 #define DEFAULT_PHOTONS 1500000
