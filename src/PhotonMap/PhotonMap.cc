@@ -290,8 +290,7 @@ Point3Dd PhotonMap::getLuminanceAt(const Point3Dd &loc,
     Point3Dd lDir;
     double myMult;
 
-    while(Q.getSize()>numNeighbors)
-      Q.pop();
+    Q.keepThisManyPhotons(numNeighbors);
 
     maxDistSqr = distance(Q.top(),loc);
 

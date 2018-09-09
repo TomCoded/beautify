@@ -663,16 +663,17 @@ void Renderer::participantMarch(Photon &p,
 	  //photon is scattered here; store it in the volume
 	  //photon map.
 	  // NOTE Have several options. Can estimate direct light by traditional ray tracing and just store bounced photons, for example.
-	  if(!p.bounced)
-	    p.bounced=true;
 	  if(p.bounced)
 	    pVolMap->addPhoton(p);
+	  if(!p.bounced)
+	    p.bounced=true;
 	  
 	  //adjusts photon travel direction by phase function
 	  medium->DoVolBRDF(p);
 	} else {
 	  //ABSORPTION:
-	  pVolMap->addPhoton(p);
+	  if(p.bounced)
+	    pVolMap->addPhoton(p);
 	  done=true;
 	  return;
 	}
@@ -1107,6 +1108,8 @@ Point3Dd Renderer::getIlluminationInMedium(const Point3Dd &point,
       ((
 	//component from single scattering - direct computation via
 	//ray marching
+
+	//DIRECT ILLUMINATION
 	getIlluminationAtPointInMedium(point, dir, surface, 1) * scatCo 
 	        +
        //component from multiple scattering - from volume photon map

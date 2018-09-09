@@ -1517,8 +1517,13 @@ void Scene::drawSingleFrame(double time) {
       setTime(curTime);
       //throw photons into the world
       PhotonMap * pm = myRenderer->map(nPhotons);
+      PhotonMap * vpm = myRenderer->getVolMap();
       while(photonMaps->size()) { photonMaps->pop_back(); }
       photonMaps->push_back(pm);
+      std::cout << "vpm size is " << vpm->getSize() << std::endl;
+      if(vpm->getSize()) {
+	photonMaps->push_back(vpm);
+      }
 
 #ifdef PARALLEL
       if(g_parallel) {
