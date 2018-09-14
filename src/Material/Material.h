@@ -30,6 +30,11 @@ class Material
   std::istream& in(std::istream &);
   std::ostream& out(std::ostream &);
 
+  Point3Dd getAmbient() const;
+  Point3Dd getDiffuse() const;
+  Point3Dd getSpecular() const;
+  double getSpecCo() const;
+  
  protected:
   Point3Dd ambient;
   Point3Dd specular;

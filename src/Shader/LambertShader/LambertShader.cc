@@ -59,7 +59,7 @@ Point3Dd LambertShader::getDiffuseColor(std::shared_ptr<Light> itVisibleLights,
   r=g=b=0;
   diffuseMult =
     ((itVisibleLights)->getRayFromLightToward(hitPoint.point).dir).dot(hitPoint.normal.dir);
-  
+
   //red
   temp=(itVisibleLights)->diffuse.x*diffuse.x*diffuseMult;
 #ifdef DIFFUSE //if there's a global diffuse modifier

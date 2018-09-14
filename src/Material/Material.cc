@@ -158,3 +158,17 @@ std::ostream& operator<<(std::ostream& o, Material &m)
 {
   return m.out(o);
 }
+
+Point3Dd Material::getAmbient() const {
+  return ambient;
+}
+Point3Dd Material::getDiffuse() const {
+  return diffuse;
+}
+Point3Dd Material::getSpecular() const {
+  return specular;
+}
+double Material::getSpecCo() const {
+  return specCo;
+}
+

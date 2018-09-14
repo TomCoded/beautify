@@ -49,10 +49,11 @@ int g_nFrame;
 #define PHONGSRT PHONGSR | NONREFTRANSPARENCY
 #endif
 
-#define ambientDefault Point3Dd(0,0,0)
-#define diffuseDefault Point3Dd(0,0,0)
-#define specularDefault Point3Dd(0,0,0)
+#define ambientDefault Point3Dd(0,0.223529,0.027451);
+#define diffuseDefault Point3Dd(0.780392,0.568627,0.113725);
+#define specularDefault Point3Dd(0,0,0);
 #define specularExponentDefault 0.0
+  
 #define reflectionDefault 0.0
 #define transparentDefault 0.0
 #define transDefault MakeTranslation(0,0,0);
@@ -803,6 +804,10 @@ void Scene::ReadFile(std::string fileName) {
         lUserTransform*currentLTWNTransform;
     }
     else if(keyword == "ellipsoid") {
+      matDiffuse=lastMaterial->getDiffuse();
+      matSpecular=lastMaterial->getSpecular();
+      matAmbient=lastMaterial->getAmbient();
+      matSpecExp=lastMaterial->getSpecCo();
       if(usingFunTransform)
         addSurface(std::make_shared<Surface>(new Sphere(),
 					     MACROcreateShader(shaderID),
@@ -823,6 +828,10 @@ void Scene::ReadFile(std::string fileName) {
                    );
     }
     else if(keyword == "plane") {
+      matDiffuse=lastMaterial->getDiffuse();
+      matSpecular=lastMaterial->getSpecular();
+      matAmbient=lastMaterial->getAmbient();
+      matSpecExp=lastMaterial->getSpecCo();
       if(usingFunTransform)
         addSurface(std::make_shared<Surface>(new Plane(),
 					     MACROcreateShader(shaderID),
@@ -845,6 +854,10 @@ void Scene::ReadFile(std::string fileName) {
     else if(keyword == "taperedCyl") {
       double s;
       inFile >> s;
+      matDiffuse=lastMaterial->getDiffuse();
+      matSpecular=lastMaterial->getSpecular();
+      matAmbient=lastMaterial->getAmbient();
+      matSpecExp=lastMaterial->getSpecCo();
       if(usingFunTransform)
         addSurface(std::make_shared<Surface>(new TaperedCyl(s),
 					     MACROcreateShader(shaderID),
@@ -1284,6 +1297,7 @@ std::shared_ptr<Shader> Scene::createShader(int shaderType,
                              )
 {
   std::shared_ptr<Shader> rv;
+
   switch(shaderType)
     {
     case AMBIENT: 
