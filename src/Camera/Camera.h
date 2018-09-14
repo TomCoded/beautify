@@ -10,6 +10,7 @@
 #define CAMERA_H
 
 #include <iostream>
+#include <memory>
 #include "Point4Dd.h"
 #include "Transform4Dd.h"
 #include "Ray/Ray.h"
@@ -60,7 +61,7 @@ public:
   void setSampleDims(int r, int c);
 
   // Get sample ray
-  Ray getRay(int r, int c);
+  std::shared_ptr<Ray> getRay(int r, int c);
 
   //  Slide camera using direction std::vector
   void slide(double du, double dv, double dn);

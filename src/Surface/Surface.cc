@@ -110,6 +110,14 @@ bool Surface::participates() const
   return surMat->participates();
 }
 
+bool Surface::contains(Point4Dd &loc) const
+{
+  Point3Dd tmp(loc.x/loc.w,
+	       loc.y/loc.w,
+	       loc.z/loc.w);
+  return contains(tmp);
+}
+
 bool Surface::contains(Point3Dd &loc) const
 {
   if(implicit(loc) < 0)

@@ -335,7 +335,7 @@ Scene::Scene():
   photonMaps = new std::vector<PhotonMap *>();
   g_specModel=HALFWAY;
   myRenderer = new Renderer(this);
-  //myRenderer->storesDirectLight();
+  myRenderer->storesDirectLight();
   g_Scene=this;
   Magick::InitializeMagick("/usr/lib");
   if(!g_suppressGraphics) {

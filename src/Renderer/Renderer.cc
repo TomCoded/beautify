@@ -174,13 +174,13 @@ PhotonMap * Renderer::map(int nPhotons)
   return pMap;
 }
 
-Point3Dd Renderer::directLightingLookingAlong(Ray * sampleRay)
+Point3Dd Renderer::directLightingLookingAlong(std::shared_ptr<Ray> sampleRay)
 {
   return directLightingLookingAlong(sampleRay,myScene->getSurfaces());
 }
 
 Point3Dd Renderer::directLightingLookingAlong(
-			    Ray * sampleRay,
+					      std::shared_ptr<Ray> sampleRay,
 			    std::shared_ptr<std::vector<std::shared_ptr<Surface>>> surfaces
 			    )
 {
@@ -402,39 +402,20 @@ void Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
   static int total=0; static int intersected=0;
   total++;
 #endif
-  //If we're beyond maxdepth, back out
-  if(recurse > maxdepth) {
-    NULL_PHOTON;
-    return;
-  }
-
-  //First scan through all surfaces for the closest one.
-  double tClose, tCurrent;
-  tClose = 1000000;
-  auto itSurfaces = myScene->getSurfaces()->begin();  
-  auto lastSurface = myScene->getSurfaces()->end();
-  std::shared_ptr<Surface> closestSurface = NULL;
-  Ray * sampleRay = new Ray(p.x,
-			    p.y,
-			    p.z,
-			    p.dx,
-			    p.dy,
-			    p.dz
-			    );
-  Point3Dd location(p.x,p.y,p.z);
-  while(itSurfaces!=lastSurface)
-    { //for all surfaces in scene
-      //determine the t-Value of the closest intersect
-      tCurrent = (*itSurfaces)->closestIntersect(*sampleRay);
-      //      std::cout << "Implicit value of " << location << " is " <<
-      //	(*itSurfaces)->implicit(location) <<std::endl;
-      if((tCurrent!=-1)&&(tCurrent < tClose)&&(0<((*itSurfaces)->implicit(location))))
-	{
-	  tClose=tCurrent;
-	  closestSurface = *itSurfaces;
-	}
-      itSurfaces++;
-    }
+  double tClose=0.0;
+  std::shared_ptr<Ray> sampleRay =
+    std::make_shared<Ray>(p.x,
+			  p.y,
+			  p.z,
+			  p.dx,
+			  p.dy,
+			  p.dz
+			  );
+  std::shared_ptr<Surface> closestSurface =
+    closestSurfaceAlongRay(sampleRay,
+			   tClose //out param
+			   );
+  
   //Now the closest surface, if it exists, is in closestSurface
   // we want to perform Russian roulette, and 
   //  call this recursively if the photon is not absorbed.
@@ -446,20 +427,6 @@ void Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
 
   if(closestSurface)
     { //we hit something
-#ifdef DEBUG_BUILD
-      intersected++;
-      std::cout << "tClose = " << tClose <<std::endl;
-      if (tClose < 0) 
-        std::cout << "NEGTCLOSE\n";
-      std::cout << "point at tClose = " << sampleRay->GetPointAt(tClose) <<
-        std::endl;
-      std::cout << "BUMPDISTANCE = " << BUMPDISTANCE <<std::endl;
-      std::cout << "point at tClose - BUMPDISTANCE = " <<
-	sampleRay->GetPointAt(tClose-BUMPDISTANCE) <<std::endl;
-      std::cout << "point at tClose + BUMPDISTANCE = " <<
-	sampleRay->GetPointAt(tClose+BUMPDISTANCE) <<std::endl;
-      std::cout << "SampleRay = " << *sampleRay <<std::endl;
-#endif
       Point4Dd ip4 = sampleRay->GetPointAt(tClose-BUMPDISTANCE);
       Point3Dd iPoint(ip4.x,ip4.y,ip4.z);
       Point3Dd nPoint = closestSurface->getNormalAt(p.x,
@@ -503,19 +470,14 @@ void Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
 		    
 		    return tracePhoton(p,++recurse);
 		}
-
-	      //first, de-allocate sample ray.
-	      delete sampleRay;
 	      break;
 
 	case SPECULAR_REFLECTION:
 	      NULL_PHOTON;
-	      delete sampleRay;
 	      return;
 	      break;
 	    case ABSORPTION:
 	      NULL_PHOTON;
-	      delete sampleRay;
 	      return;
 	      break;
 	    default: 
@@ -536,7 +498,6 @@ void Renderer::tracePhoton(Photon &p, int recurse /*=0*/)
 	  tracePhotonInParticipatingMedium(p,closestSurface);
 	}
     }
-  delete sampleRay;
   NULL_PHOTON;
   return;
 }
@@ -739,14 +700,14 @@ void Renderer::showMap(PhotonMap * map, int start, int pixels)
 	i = place / width;
 	j = place % width;
 
-	Ray sampleRay = currentCamera->getRay(i,j);
+	std::shared_ptr<Ray> sampleRay = currentCamera->getRay(i,j);
 	Point3Dd color(0,0,0);
 
 	if(mapSearchable)
-	  color=mapGetColor(&sampleRay,map);
+	  color=mapGetColor(sampleRay,map);
 
 #ifndef NOSPECULAR
-	color+=getSpecularColor(&sampleRay);
+	color+=getSpecularColor(sampleRay);
 #endif
 	myScene->putPixel(j,
 			  i,
@@ -757,7 +718,7 @@ void Renderer::showMap(PhotonMap * map, int start, int pixels)
 
 //gets specular light; currently does not extend to
 //reflective/refractive media
-Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
+Point3Dd Renderer::getSpecularColor(std::shared_ptr<Ray> sampleRay)
 {
   //First scan through all surfaces for the closest one
 #ifdef DEBUG_BUILD
@@ -912,9 +873,9 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
   return specPower;
 }
 
-std::shared_ptr<Surface> Renderer::closestSurfaceAlongRay(Ray * sampleRay, double &tClose) {
+std::shared_ptr<Surface> Renderer::closestSurfaceAlongRay(std::shared_ptr<Ray> sampleRay, double &tClose) {
   double tCurrent;
-  tClose = 50000;
+  tClose = 100000;
   
   auto itSurfaces = myScene->getSurfaces()->begin();  
   auto lastSurface = myScene->getSurfaces()->end();
@@ -944,6 +905,7 @@ std::shared_ptr<Surface> Renderer::closestSurfaceAlongRay(Ray * sampleRay, doubl
       if(
          (tCurrent!=-1)
          &&(tCurrent < tClose)
+	 &&(!(*itSurfaces)->contains(sampleRay->src))
          //	 &&(currentCamera->InViewVol(sampleRay->GetPointAt(tCurrent)))
          )
         {
@@ -964,7 +926,7 @@ std::shared_ptr<Surface> Renderer::closestSurfaceAlongRay(Ray * sampleRay, doubl
   return closestSurface;
 }
 
-Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
+Point3Dd Renderer::mapGetColor(std::shared_ptr<Ray> sampleRay, PhotonMap * map)
 {
   //If the photon map is too small, there is no illumination from it
   if(map->getSize() < MIN_MAP_SIZE) {
@@ -973,7 +935,8 @@ Point3Dd Renderer::mapGetColor(Ray * sampleRay, PhotonMap * map)
 
   //First scan through all surfaces for the closest one.
   double tClose; //tClose is outparam
-  std::shared_ptr<Surface> closestSurface = closestSurfaceAlongRay(sampleRay, tClose);
+  std::shared_ptr<Surface> closestSurface =
+    closestSurfaceAlongRay(sampleRay, tClose);
   
   if(closestSurface)
     { //we hit something

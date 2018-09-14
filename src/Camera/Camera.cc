@@ -123,7 +123,7 @@ void Camera::setSampleDims(int r, int c) {
 }
 
 // Get sample ray
-Ray Camera::getRay(int r, int c) {
+std::shared_ptr<Ray> Camera::getRay(int r, int c) {
   // Build ray by adding its u, v, and n components
   // Make the direction std::vector extend from eye to grid point
   // to give a ray with t=1 corresponding to grid point
@@ -131,8 +131,8 @@ Ray Camera::getRay(int r, int c) {
   //want 0 to be at left, and cols-1 to be at right for symmetry
   dir.x+=(left+(c)*(right-left)/(cols-1));
   dir.y+=(bottom+(r)*(top-bottom)/(rows-1));
-  Ray rv(Point4Dd(0,0,0,1),dir);
-  rv.applyToSelf(cameraToWorld);
+  std::shared_ptr<Ray> rv=std::make_shared<Ray>(Point4Dd(0,0,0,1),dir);
+  rv->applyToSelf(cameraToWorld);
   return rv;
 }
 

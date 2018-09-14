@@ -71,6 +71,7 @@ class Surface
   bool participates() const;
 
   //true if loc is inside the surface volume
+  bool contains(Point4Dd &loc) const;
   bool contains(Point3Dd &loc) const;
 
   //returns the value of the implicit function of the surface

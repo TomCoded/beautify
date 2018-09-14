@@ -66,8 +66,8 @@ class Renderer
   //ambient light of the scene
   Point3Dd ambient;
 
-  Point3Dd directLightingLookingAlong(Ray * sampleRay);
-  Point3Dd directLightingLookingAlong(Ray * sampleRay, 
+  Point3Dd directLightingLookingAlong(std::shared_ptr<Ray> sampleRay);
+  Point3Dd directLightingLookingAlong(std::shared_ptr<Ray> sampleRay, 
 				      std::shared_ptr<std::vector<std::shared_ptr<Surface>>> surfaces
 				      );
 
@@ -108,10 +108,10 @@ class Renderer
   
   //returns the specular component of the light
   //halfway method
-  Point3Dd getSpecularColor(Ray * sampleRay);
+  Point3Dd getSpecularColor(std::shared_ptr<Ray> sampleRay);
 
   //returns diffuse component of light
-  Point3Dd mapGetColor(Ray * sampleRay,
+  Point3Dd mapGetColor(std::shared_ptr<Ray> sampleRay,
 		       PhotonMap * map
 		       );
 
@@ -133,7 +133,7 @@ class Renderer
 				   const std::shared_ptr<Surface> surface,
 				   const int marchsize) const;
 
-  std::shared_ptr<Surface> closestSurfaceAlongRay(Ray * sampleRay,
+  std::shared_ptr<Surface> closestSurfaceAlongRay(std::shared_ptr<Ray> sampleRay,
                                    double &tClose);
 
   static const int maxdepth=10;
