@@ -335,6 +335,7 @@ Scene::Scene():
   photonMaps = new std::vector<PhotonMap *>();
   g_specModel=HALFWAY;
   myRenderer = new Renderer(this);
+  //comment this to use photon mapper ONLY for indirect illumination
   myRenderer->storesDirectLight();
   g_Scene=this;
   Magick::InitializeMagick("/usr/lib");

@@ -193,68 +193,14 @@ Point3Dd Renderer::directLightingLookingAlong(
   if(recursionDepth>1) return Point3Dd(0,0,0);
   else recursionDepth++;
 
-  for(auto itSurf = surfaces->begin(); itSurf != surfaces->end(); itSurf++)
-    { //iterate through itSurf, to find the closest intersected
-      //      surface.
-      Point4Dd raySrc =
-	(*itSurf)->transWorldToLocal*
-	(*itSurf)->translateWorldToLocal*sampleRay->src;
-      Point4Dd rayDir = 
-	(*itSurf)->transWorldToLocal*
-	(*itSurf)->translateWorldToLocal*sampleRay->dir;
-      Ray localSampleRay(raySrc.x, raySrc.y, raySrc.z, 
-			 rayDir.x, rayDir.y, rayDir.z);
-      tLast = (*itSurf)->tScratch
-	= (*itSurf)->surShape->closestIntersect(localSampleRay);
-      if(tLast!=-1) // intersected something
-	{ //add to std::list of intersected surfaces
-	  //scan to find proper place, by t-Value
-	  if(intersectedSurfaces.size()==0)
-	    {
-	      intersectedSurfaces.push_back(*itSurf);
-	    }
-	  else
-	    { //find the right insertion spot
-	      intersectedSurfaces.push_back(*itSurf);
-	      //update indexes for later values.
-	    }
-	  if(tLast < tClose)
-	    { 
-	      closestSurface = (*itSurf);
-	      tClose = tLast;
-	      if(tClose>tFar) 
-		{
-		  tFar=tClose;
-		  farthestSurface = (*itSurf);
-		}
-	    }
-	}
-    }  
+  closestSurface=closestSurfaceAlongRay(sampleRay,tClose);
+  
   if(closestSurface) //we hit something
     {
       if(!closestSurface->participates()) {
-	Point4Dd raySrc =
-	  closestSurface->transWorldToLocal*
-	  closestSurface->translateWorldToLocal*sampleRay->src;
-	Point4Dd rayDir = 
-	  closestSurface->transWorldToLocal *
-	  closestSurface->translateWorldToLocal*sampleRay->dir;
-	Ray localSampleRay(raySrc.x, raySrc.y, raySrc.z, 
-			   rayDir.x, rayDir.y, rayDir.z);
-	  
-	Ray normal = //get normal in local coordinate system
-	  closestSurface->surShape->getNormal(localSampleRay);
-	//only use transLocalToWorldNormal for directional changes, when
-	//and if they are necessary.
-	//normal source has to be translated differently
-	Point4Dd tempPoint(normal.src);
-	tempPoint = closestSurface->transLocalToWorld*tempPoint;
-	normal.src=tempPoint;
-	tempPoint = normal.dir;
-	tempPoint = closestSurface->transLocalToWorldNormal*tempPoint;
-	normal.dir = tempPoint;
-	//now we have the world normal
+	Point3Dd normalDir = closestSurface->getNormalAt(*sampleRay);
 	Point4Dd hp4 = sampleRay->GetPointAt(tClose);
+	Ray normal(Point3Dd(hp4.x,hp4.y,hp4.z),normalDir);
 	Hit hit(Point3Dd(hp4.x,hp4.y,hp4.z),
 		closestSurface,
 		normal,
@@ -263,7 +209,7 @@ Point3Dd Renderer::directLightingLookingAlong(
 		);
 	color=
 	  (closestSurface->surShader->getColor(hit));
-	std::cout << "Direct color: " << color << std::endl;
+	//std::cout << "Direct color: " << color << std::endl;
       } else {
 	//participating medium.
 	//do not add direct lighting since will be computed elsewhere
