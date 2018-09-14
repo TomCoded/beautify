@@ -311,7 +311,7 @@ std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getApparentLights
   for(;itLights != itLastLight; itLights++)
     { //for each light in the scene
       //calculate t-point of current point
-      sampleRay = Ray((*itLights)->getRayTo(point));
+      sampleRay = Ray((*itLights)->getRayFromLightToward(point));
       tPoint = sampleRay.TofClosestPoint(Point4Dd(point,0));
       tClose = -1;
       for(int done=false;(!done)&&(itSurfaces != lastSurface); itSurfaces++)
@@ -357,7 +357,7 @@ std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getVisibleLights(
   for(;itLights != itLastLight; itLights++)
     { //for each light in the scene
       //calculate t-point of current point
-      sampleRay = Ray((*itLights)->getRayTo(point));
+      sampleRay = Ray((*itLights)->getRayFromLightToward(point));
       tPoint = sampleRay.TofClosestPoint(Point4Dd(point,0));
       tClose = -1;
       for(int done=false;(!done)&&itSurfaces!=lastSurface; itSurfaces++)
@@ -815,7 +815,7 @@ Point3Dd Renderer::getSpecularColor(Ray * sampleRay)
 	  //get the ray back to the light
 	  //iterate through surfaces to see if it's blocked.
 	  double distToLight = (*itLights)->getDistance(hitPoint);
-	  Ray LightRay = (*itLights)->getRayTo(hitPoint);
+	  Ray LightRay = (*itLights)->getRayFromLightToward(hitPoint);
 	  LightRay.dir.normalize();
 	  Ray toLight = Ray(hp4.x,
 			    hp4.y,
@@ -1143,7 +1143,7 @@ Point3Dd Renderer::getIlluminationAtPointInMedium(const Point3Dd &point,
 
   for(;itLights!=lights->end();itLights++) {
     //get a ray from the point to the light
-    sampleRay = (*itLights)->getRayTo(point);
+    sampleRay = (*itLights)->getRayFromLightToward(point);
     
     //determine the distance inside the medium
     double tVal = surface->closestIntersect(sampleRay);

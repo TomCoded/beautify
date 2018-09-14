@@ -79,6 +79,7 @@ Surface::Surface(Shape *s, std::shared_ptr<Shader> shader,
   ftLocalToWorldNormal(ftLocalToWorldNormal),
   timedependent(true)
 {
+  surShader=shader;
   setTime(0);
 }
 

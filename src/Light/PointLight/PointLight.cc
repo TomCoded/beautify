@@ -56,7 +56,7 @@ PointLight& PointLight::operator=(const PointLight& other) {
 PointLight::~PointLight() {}
 
 //get Ray To light source from a given point
-Ray PointLight::getRayTo(const Point3Dd& dest) const
+Ray PointLight::getRayFromLightToward(const Point3Dd& dest) const
 {
   //  Point3Dd dir = location-dest;
   Point3Dd dir = dest-location;

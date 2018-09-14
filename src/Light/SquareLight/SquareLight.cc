@@ -75,7 +75,7 @@ SquareLight& SquareLight::operator=(const SquareLight& other) {
 SquareLight::~SquareLight() {}
 
 //get Ray To light source from a given point
-Ray SquareLight::getRayTo(const Point3Dd& dest) const
+Ray SquareLight::getRayFromLightToward(const Point3Dd& dest) const
 {
   return Ray(dest, direction);
 }

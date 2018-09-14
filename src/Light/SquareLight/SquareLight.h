@@ -50,7 +50,7 @@ public:
 		       );
 
   // get ray from dirlight to point
-  Ray getRayTo(const Point3Dd&) const;
+  Ray getRayFromLightToward(const Point3Dd&) const;
 
   // Destructor
   ~SquareLight();

@@ -334,7 +334,7 @@ Scene::Scene():
   photonMaps = new std::vector<PhotonMap *>();
   g_specModel=HALFWAY;
   myRenderer = new Renderer(this);
-  myRenderer->storesDirectLight();
+  //myRenderer->storesDirectLight();
   g_Scene=this;
   Magick::InitializeMagick("/usr/lib");
   if(!g_suppressGraphics) {
@@ -1527,6 +1527,7 @@ void Scene::drawSingleFrame(double time) {
       PhotonMap * vpm = myRenderer->getVolMap();
       while(photonMaps->size()) { photonMaps->pop_back(); }
       photonMaps->push_back(pm);
+      std::cout << " pm size is " << pm->getSize() << std::endl;
       std::cout << "vpm size is " << vpm->getSize() << std::endl;
       if(vpm->getSize()) {
 	photonMaps->push_back(vpm);

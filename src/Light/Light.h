@@ -40,7 +40,7 @@ class Light {
   virtual void setPower(const double);
 
   //returns the ray from the light to the point
-  virtual Ray getRayTo(const Point3Dd&) const = 0;
+  virtual Ray getRayFromLightToward(const Point3Dd&) const = 0;
 
   //returns a light that has been reduced by transparency
   //needs to be a real pointer to support polymorphism
