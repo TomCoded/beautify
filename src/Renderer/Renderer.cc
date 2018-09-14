@@ -261,9 +261,9 @@ Point3Dd Renderer::directLightingLookingAlong(
 		Ray(*sampleRay),
 		tClose
 		);
-	//segfaulting here
 	color=
 	  (closestSurface->surShader->getColor(hit));
+	std::cout << "Direct color: " << color << std::endl;
       } else {
 	//participating medium.
 	//do not add direct lighting since will be computed elsewhere

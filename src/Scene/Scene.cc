@@ -437,7 +437,7 @@ void Scene::ReadFile(std::string fileName) {
 
   //  DirLight * tempDirLight;
   std::shared_ptr<PointLight> tempPointLight;
-  Shader * tempShader;
+  std::shared_ptr<Shader> tempShader = MACROcreateShader(shaderID);
 
   int numSurfaces = -1;
   int numLights = -1;
@@ -805,6 +805,7 @@ void Scene::ReadFile(std::string fileName) {
     else if(keyword == "ellipsoid") {
       if(usingFunTransform)
         addSurface(std::make_shared<Surface>(new Sphere(),
+					     MACROcreateShader(shaderID),
 					     lastMaterial,
 					     ftCurrentLTWTransform,
 					     ftCurrentWTLTransform,
@@ -813,6 +814,7 @@ void Scene::ReadFile(std::string fileName) {
                    );
       else
         addSurface(std::make_shared<Surface>(new Sphere(),
+					     MACROcreateShader(shaderID),
 					     lastMaterial,
 					     currentLTWTransform,
 					     currentWTLTransform,
@@ -823,6 +825,7 @@ void Scene::ReadFile(std::string fileName) {
     else if(keyword == "plane") {
       if(usingFunTransform)
         addSurface(std::make_shared<Surface>(new Plane(),
+					     MACROcreateShader(shaderID),
                                lastMaterial,
                                ftCurrentLTWTransform,
                                ftCurrentWTLTransform,
@@ -831,6 +834,7 @@ void Scene::ReadFile(std::string fileName) {
                    );
       else
         addSurface(std::make_shared<Surface>(new Plane(),
+					     MACROcreateShader(shaderID),
                                lastMaterial,
                                currentLTWTransform,
                                currentWTLTransform,
@@ -843,6 +847,7 @@ void Scene::ReadFile(std::string fileName) {
       inFile >> s;
       if(usingFunTransform)
         addSurface(std::make_shared<Surface>(new TaperedCyl(s),
+					     MACROcreateShader(shaderID),
                                lastMaterial,
                                ftCurrentLTWTransform,
                                ftCurrentWTLTransform,
@@ -851,6 +856,7 @@ void Scene::ReadFile(std::string fileName) {
                    );
       else
         addSurface(std::make_shared<Surface>(new TaperedCyl(s),
+					     MACROcreateShader(shaderID),
                                lastMaterial,
                                currentWTLTransform,
                                currentLTWTransform,
@@ -1268,7 +1274,7 @@ inline void Scene::addMaterial(Material * mat)
 }
 
 //Creates a shader of type shaderType
-Shader * Scene::createShader(int shaderType, 
+std::shared_ptr<Shader> Scene::createShader(int shaderType, 
                              Point3Dd matAmbient,
                              Point3Dd matDiffuse,
                              Point3Dd matSpecular,
@@ -1277,18 +1283,18 @@ Shader * Scene::createShader(int shaderType,
                              double matTransparent
                              )
 {
-  Shader * rv;
+  std::shared_ptr<Shader> rv;
   switch(shaderType)
     {
     case AMBIENT: 
-      rv = new LambertShader(matAmbient,
+      rv = std::make_shared<LambertShader>(matAmbient,
                              Point3Dd(0,0,0),
                              matTransparent,
                              myRenderer
                              );
       break;
     case LAMBERT:
-      rv = new LambertShader(matAmbient,
+      rv = std::make_shared<LambertShader>(matAmbient,
                              matDiffuse,
                              matTransparent,
                              myRenderer

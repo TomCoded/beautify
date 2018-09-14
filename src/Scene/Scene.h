@@ -215,7 +215,7 @@ protected:
   inline void addMaterial(Material *);
 
   //Creates a shader of type shaderType
-  Shader * createShader(int shaderType, 
+  std::shared_ptr<Shader> createShader(int shaderType, 
 			Point3Dd matAmbient,
 			Point3Dd matDiffuse,
 			Point3Dd matSpecular,

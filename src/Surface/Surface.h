@@ -1,4 +1,4 @@
-//(C)  Tom White
+// -*- C++ -*-
 #ifndef SURFACE_H_
 #define SURFACE_H_
 
@@ -16,7 +16,7 @@ class Surface
   Surface(Surface&);
 
   //ray-tracing constructor
-  Surface(Shape *, Shader *,Transform4Dd tLtW,Transform4Dd tWtL,
+  Surface(Shape *,  std::shared_ptr<Shader> shader,Transform4Dd tLtW,Transform4Dd tWtL,
 	  Transform4Dd trLtW,
 	  Transform4Dd trWtL
 	  );
@@ -28,14 +28,14 @@ class Surface
   // FunTransform4Dd worldToLocal);
 
   //Major photon-mapping constructors
-  Surface(Shape *, 
+  Surface(Shape *, std::shared_ptr<Shader> shader,
 	  Material *,
 	  Transform4Dd localToWorld,
 	  Transform4Dd worldToLocal,
 	  Transform4Dd localToWorldNormal
 	  );
 
-  Surface(Shape *,
+  Surface(Shape *, std::shared_ptr<Shader> shader,
 	  Material *,
 	  FunTransform4Dd * ftLocalToWorld,
 	  FunTransform4Dd * ftWorldToLocal,
@@ -65,8 +65,7 @@ class Surface
   //afterwords.
   Shape * surShape;
 
-  //use is deprecated
-  Shader * surShader;
+  std::shared_ptr<Shader> surShader;
 
   //returns true if surface is a participating medium
   bool participates() const;

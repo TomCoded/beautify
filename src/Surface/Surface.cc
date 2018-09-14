@@ -20,7 +20,7 @@ Surface::Surface(Surface& other):
   translateWorldToLocal=other.translateWorldToLocal;
 }
 
-Surface::Surface(Shape *shape, Shader *shader,
+Surface::Surface(Shape *shape, std::shared_ptr<Shader> shader,
 		 Transform4Dd tLtW, 
 		 Transform4Dd tWtL,
 		 Transform4Dd trLtW,
@@ -28,12 +28,12 @@ Surface::Surface(Shape *shape, Shader *shader,
 		 ):
   created(0), 
   surShape(shape),
-  surShader(shader),
   transLocalToWorld(tLtW),
   transWorldToLocal(tWtL),
   translateLocalToWorld(trLtW),
   translateWorldToLocal(trWtL)
 {
+  this->surShader=shader;
   transLocalToWorldNormal=transWorldToLocal.transpose();
 }
 
@@ -48,7 +48,7 @@ Surface::Surface(Shape *s, Material *m):
   tWorldToLocal=MakeTranslation(0,0,0);
 }
 
-Surface::Surface(Shape *s, 
+Surface::Surface(Shape *s, std::shared_ptr<Shader> shader,
 		 Material *m,
 		 Transform4Dd localToWorld,
 		 Transform4Dd worldToLocal,
@@ -61,9 +61,11 @@ Surface::Surface(Shape *s,
   tWorldToLocal(worldToLocal),
   tLocalToWorld(localToWorld),
   timedependent(false)
-{}
+{
+  surShader=shader;
+}
 
-Surface::Surface(Shape *s,
+Surface::Surface(Shape *s, std::shared_ptr<Shader> shader,
 		 Material *m,
 		 FunTransform4Dd * ftLocalToWorld,
 		 FunTransform4Dd * ftWorldToLocal,
@@ -85,7 +87,6 @@ Surface::~Surface()
   if(created) 
     {
       delete surShape;
-      delete surShader;
     }
 }
 
