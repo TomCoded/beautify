@@ -1317,15 +1317,15 @@ std::shared_ptr<Shader> Scene::createShader(int shaderType,
                              myRenderer
                              );
       break;
-#if 0
     case PHONG:
-      rv = new PhongShader(matAmbient,
+      rv = std::make_shared<PhongShader>(matAmbient,
                            matDiffuse,
                            matSpecular,
                            matSpecExp,
                            matTransparent,
                            myRenderer);
       break;
+#if 0
     case PHONGS:
       rv = new PhongSShader(matAmbient,
                             matDiffuse,

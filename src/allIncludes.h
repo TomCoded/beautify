@@ -27,8 +27,8 @@
 #include <Shader/Shader.h>
 #ifndef COMPILINGSHADER
   #include <Shader/LambertShader/LambertShader.h>
-#if 0
   #include <Shader/LambertShader/PhongShader/PhongShader.h>
+#if 0
   #include <Shader/LambertShader/PhongSShader/PhongSShader.h>
   #include <Shader/LambertShader/PhongSTShader/PhongSTShader.h>
   #include <Shader/LambertShader/PhongSRShader/PhongSRShader.h>

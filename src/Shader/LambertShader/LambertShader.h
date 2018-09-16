@@ -32,6 +32,7 @@ class LambertShader: public Shader
   Point3Dd getDiffuseColor(Light &light, Hit&);
   //  Point3Dd getDiffuseColor(Light ** itVisibleLights, Hit&);
   Point3Dd getLambertColor(Hit&);
+  void deleteLightsInPointerVector(std::vector<Light*> &Lights);
 };
 
 #endif

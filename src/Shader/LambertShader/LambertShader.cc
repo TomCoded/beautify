@@ -108,12 +108,16 @@ Point3Dd LambertShader::getLambertColor(Hit &hitPoint)
     { 
       theLight+=getDiffuseColor(**(itLights++),hitPoint);
     }
-  while(Lights->size()) {
-    Light * l = Lights->back();
-    Lights->pop_back();
+  deleteLightsInPointerVector(*Lights);
+  return theLight;
+}
+
+void LambertShader::deleteLightsInPointerVector(std::vector<Light*> &Lights) {
+  while(Lights.size()) {
+    Light * l = Lights.back();
+    Lights.pop_back();
     delete l;
   }
-  return theLight;
 }
 
 std::istream& LambertShader::in(std::istream&)
