@@ -22,6 +22,7 @@ class DiffusePointLight : public PointLight
 		       );
 
   Point3Dd getPower();
+  DiffusePointLight * transparent(double transparency);
 
   std::istream& in(std::istream&);
   std::ostream& out(std::ostream&);

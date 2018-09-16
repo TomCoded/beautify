@@ -52,32 +52,36 @@ Point3Dd LambertShader::getAmbientColor()
 		  );
 }
 
-Point3Dd LambertShader::getDiffuseColor(std::shared_ptr<Light> itVisibleLights, 
+Point3Dd LambertShader::getDiffuseColor(Light &light, 
 					Hit &hitPoint) 
 {
   double diffuseMult, temp, r, g, b;
   r=g=b=0;
+  //lambertian model calls for dot of normal and ray toward the light source, so we reverse.
   diffuseMult =
-    ((itVisibleLights)->getRayFromLightToward(hitPoint.point).dir).dot(hitPoint.normal.dir);
+    -1.0 * light.getRayFromLightToward(hitPoint.point).dir.dot(hitPoint.normal.dir);
 
   //red
-  temp=(itVisibleLights)->diffuse.x*diffuse.x*diffuseMult;
+  temp=light.diffuse.x*diffuse.x*diffuseMult;
 #ifdef DIFFUSE //if there's a global diffuse modifier
   temp=temp*DIFFUSE;
 #endif
   if(temp>0) r+=temp;
+  
   //green
-  temp=(itVisibleLights)->diffuse.y*diffuse.y*diffuseMult;
+  temp=light.diffuse.y*diffuse.y*diffuseMult;
 #ifdef DIFFUSE
   temp=temp*DIFFUSE;
 #endif
   if(temp>0) g+=temp;
+  
   //blue
-  temp=(itVisibleLights)->diffuse.z*diffuse.z*diffuseMult;
+  temp=light.diffuse.z*diffuse.z*diffuseMult;
 #ifdef DIFFUSE
   temp=temp*DIFFUSE;
 #endif
   if(temp>0) b+=temp;
+  
   return Point3Dd(r,g,b);
 }
 
@@ -90,10 +94,10 @@ Point3Dd LambertShader::getLambertColor(Hit &hitPoint)
 {
   //Get a std::vector of all visible Lights in the Scene.
   //The renderer adjusted them for transparency
-  //Lights = sceneRenderer->getApparentLights(hitPoint.point); 
+  auto Lights = sceneRenderer->getApparentLights(hitPoint.point); 
   //Get a std::vector of all lights in the scene,
   //since that's the project description
-  auto Lights = sceneRenderer->getAllLights();
+  //auto Lights = sceneRenderer->getAllLights();
   auto itLights = Lights->begin();
 
   //set ambient lighting
@@ -102,8 +106,13 @@ Point3Dd LambertShader::getLambertColor(Hit &hitPoint)
   //for each Light, add the diffuse components
   while(itLights != Lights->end() )
     { 
-      theLight+=getDiffuseColor(*(itLights++),hitPoint);
+      theLight+=getDiffuseColor(**(itLights++),hitPoint);
     }
+  while(Lights->size()) {
+    Light * l = Lights->back();
+    Lights->pop_back();
+    delete l;
+  }
   return theLight;
 }
 

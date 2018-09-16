@@ -77,8 +77,9 @@ plane
 
 //plane 3
 identity
-include mat/Chrome.mat
+include mat/Bronze.mat
 scale (6,6,1)
 yRotate -0.3
 translate (4.0,0,0)
 plane
+//ellipsoid

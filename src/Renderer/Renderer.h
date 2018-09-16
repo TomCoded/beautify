@@ -45,7 +45,7 @@ class Renderer
   //Lighting functions
   //returns a std::vector of all apparent light sources in the scene.
   //these are new light sources! remember to delete!
-  std::shared_ptr<std::vector<std::shared_ptr<Light>>> getApparentLights(Point3Dd);
+  std::shared_ptr<std::vector<Light*>> getApparentLights(Point3Dd);
 
   //returns a std::vector of light sources in the scene
   std::shared_ptr<std::vector<std::shared_ptr<Light>>> getAllLights();
@@ -85,12 +85,14 @@ class Renderer
 
   bool storesDirectLight(bool storeDirectLight=true);
   bool storesVolumeDirectLight(bool storeVolumeDirectLight=true);
+  bool usesPhotonMap(bool usePhotonMap=true);
   
  protected:
   //flags for whether we store direct light in the photon map versus only light that has bounced/scattered.
   //more efficient to use conventional ray tracing for direct lighting and photon maps for indirect lighting.
   bool storeDirectLight;
   bool storeVolumeDirectLight;
+  bool usePhotonMap;
   
   PhotonMap * pMap;
   PhotonMap * pVolMap;

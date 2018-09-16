@@ -102,7 +102,9 @@ double Plane::implicit(Point3Dd &loc) const {
 	//outside
 	t=1;
       //inside
-      else t=-1;
+      else {
+	t=-1;
+      }
       return t;
 }
 

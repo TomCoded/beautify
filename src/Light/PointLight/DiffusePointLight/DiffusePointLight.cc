@@ -6,6 +6,16 @@ DiffusePointLight::DiffusePointLight()
   location=Point3Dd(0.0,0.0,0.0);
 }
 
+DiffusePointLight * DiffusePointLight::transparent(double transparency)
+{
+  DiffusePointLight * other = new DiffusePointLight(*this);
+  other->diffuse=diffuse*transparency;
+  other->specular=specular*transparency;
+  return other;
+  //(location, diffuse*transparency, specular*transparency);
+}
+
+
 DiffusePointLight::DiffusePointLight(DiffusePointLight &other)
 {
   if(this!=&other)

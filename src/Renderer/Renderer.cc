@@ -29,7 +29,8 @@ Point3Dd g_photonPowerLow;
 
 Renderer::Renderer():
   myScene(0), ambient(0.5,0.5,0.5), currentCamera(0), pMap(0), 
-  pVolMap(0), storeDirectLight(false), storeVolumeDirectLight(false)
+  pVolMap(0), storeDirectLight(false), storeVolumeDirectLight(false),
+  usePhotonMap(true)
 {}
 
 Renderer::Renderer(Renderer& other)
@@ -41,11 +42,13 @@ Renderer::Renderer(Renderer& other)
   pVolMap=other.pVolMap;
   storeDirectLight=other.storeDirectLight;
   storeVolumeDirectLight=other.storeVolumeDirectLight;
+  usePhotonMap=other.usePhotonMap;
 } 
 
 Renderer::Renderer(Scene * myScene):
   ambient(0.5,0.5,0.5), currentCamera(0), pMap(0),
-  pVolMap(0), storeDirectLight(false), storeVolumeDirectLight(false)
+  pVolMap(0), storeDirectLight(false), storeVolumeDirectLight(false),
+  usePhotonMap(true)
 {
   setScene(myScene);
 }
@@ -71,7 +74,12 @@ bool Renderer::storesDirectLight(const bool storeDirectLight) {
 
 bool Renderer::storesVolumeDirectLight(const bool storeVolumeDirectLight) {
   this->storeVolumeDirectLight=storeVolumeDirectLight;
-  return this->storeVolumeDirectLight;
+  return storeVolumeDirectLight;
+}
+
+bool Renderer::usesPhotonMap(const bool usePhotonMap) {
+  this->usePhotonMap=usePhotonMap;
+  return usePhotonMap;
 }
 
 //Management functions
@@ -209,7 +217,6 @@ Point3Dd Renderer::directLightingLookingAlong(
 		);
 	color=
 	  (closestSurface->surShader->getColor(hit));
-	//std::cout << "Direct color: " << color << std::endl;
       } else {
 	//participating medium.
 	//do not add direct lighting since will be computed elsewhere
@@ -240,10 +247,10 @@ std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getAllLights()
 //with the transparency of the surfaces through which
 //the light ray passes.
 //FIXME: Has an issue with transparency. Currently disabled with migration to smart pointers for lights.
-std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getApparentLights(Point3Dd point)
+std::shared_ptr<std::vector<Light *>> Renderer::getApparentLights(Point3Dd point)
 {
-  std::shared_ptr<std::vector<std::shared_ptr<Light>>> lightsToReturn
-    = std::make_shared<std::vector<std::shared_ptr<Light>>>();
+  std::shared_ptr<std::vector<Light *>> lightsToReturn
+    = std::make_shared<std::vector<Light*>>();
   double tLast, tClose, tPoint;
   double transparency=1;
   Point4Dd raySrc, rayDir; 
@@ -262,19 +269,11 @@ std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getApparentLights
       tClose = -1;
       for(int done=false;(!done)&&(itSurfaces != lastSurface); itSurfaces++)
 	{ //we find out if any surfaces intersect the ray
-	  raySrc=
-	    (*itSurfaces)->transWorldToLocal*
-	    (*itSurfaces)->translateWorldToLocal*sampleRay.src;
-	  rayDir=
-	    (*itSurfaces)->transWorldToLocal*
-	    (*itSurfaces)->translateWorldToLocal*sampleRay.dir;
-	  localSampleRay= Ray(raySrc.x, raySrc.y, raySrc.z, 
-			      rayDir.x, rayDir.y, rayDir.z);
-	  tLast=(*itSurfaces)->surShape->closestIntersect(localSampleRay);
+	  tLast = (*itSurfaces)->closestIntersect(sampleRay);
 	  if(tLast>0)
 	    { //we intersected a shape.
 	      if(tLast < tPoint)
-		{ //it shades the light
+		{ //it shades the light, i.e. the surface lies between the point and the light
 		  tClose = tLast;
 		  transparency+=(*itSurfaces)->surShader->transparency;
 		  if(transparency==0)
@@ -282,9 +281,11 @@ std::shared_ptr<std::vector<std::shared_ptr<Light>>> Renderer::getApparentLights
 		}
 	    }
 	}
-      //      if((tClose==-1)&&(transparency!=0)) //the light is visible
-      //	lightsToReturn->push_back(((**itLights).transparent(transparency)));
-      // transparency function does not work with shared pointers.
+      if((tClose==-1)&&(transparency!=0)) {
+	//the light is visible
+      	lightsToReturn->push_back(((**itLights).transparent(transparency)));
+	// transparency function does not work with shared pointers.
+      }
     }
   return lightsToReturn;
 }
@@ -892,11 +893,13 @@ Point3Dd Renderer::mapGetColor(std::shared_ptr<Ray> sampleRay, PhotonMap * map)
       Point4Dd hp4 = sampleRay->GetPointAt(tClose-BUMPDISTANCE); 
       Point3Dd hitPoint(hp4.x,hp4.y,hp4.z);
       Point3Dd normal = closestSurface->getNormalAt(*sampleRay);
-      Point3Dd flux;
+      Point3Dd flux(0.0,0.0,0.0);
 
 #ifndef VOLMAP_ONLY	
       if(!closestSurface->participates()) {
-        flux = map->getFluxAt(hitPoint,normal);
+	if(usePhotonMap) {
+	  flux = map->getFluxAt(hitPoint,normal);
+	}
 	if(!storeDirectLight) {
 	  flux += directLightingLookingAlong(sampleRay);
 	}

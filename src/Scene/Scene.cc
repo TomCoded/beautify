@@ -337,6 +337,8 @@ Scene::Scene():
   myRenderer = new Renderer(this);
   //comment this to use photon mapper ONLY for indirect illumination
   myRenderer->storesDirectLight();
+  //uncomment this to use only ray tracing/direct lighting
+  //myRenderer->usesPhotonMap(false);
   g_Scene=this;
   Magick::InitializeMagick("/usr/lib");
   if(!g_suppressGraphics) {
