@@ -20,19 +20,21 @@ This is a photon mapper built without modern graphics libraries.
 
 ### Example
 
+*note: If your browser or the markdown viewing engine for this repository viewer does not support the HTML5 video tag, a lower-quality gif image will be used instead.
+
 <video controls>
   <source src="https://kingcountybusinesslaw.com/misc/largescene5-n56k-N42-d0.05-D0.2-mpi4.ogv" type="video/ogg">
-Your browser does not support the video tag.
+<img src="https://kingcountybusinesslaw.com/misc/largescene5-n56k-N42-d0.05-D0.2-mpi4.ogv" type="image/gif"/>
 </video> 
 
 <video controls>
   <source src="https://kingcountybusinesslaw.com/misc/largescene4-n55k-N42-D0.15-mpi4.ogv" type="video/ogg">
-Your browser does not support the video tag.
+  <img src="https://kingcountybusinesslaw.com/misc/largescene4-n55k-N42-D0.15-mpi4.gif"/>
 </video> 
 
 <video controls>
   <source src="https://kingcountybusinesslaw.com/misc/largescene3-n20k-N30-d.05-D.1.ogv" type="video/ogg">
-Your browser does not support the video tag.
+  <img src="https://kingcountybusinesslaw.com/misc/largescene3-n20k-N30-d.05-D.1.gif"/>
 </video> 
 
 ### Dependencies
@@ -41,11 +43,15 @@ This depends on Anonymous1's Linear Algebra Library. (A minimal library for stat
 
 This depends on Tom's Function Library. (A library developed by Tom to provide points, matrices, and transformations as a function of time do that movies can be rendered).
 
-This depends on ImageMagick++ (Used to output frames to .jpg images from which movies can be composited).
+This depends on several other packages. On Ubuntu, these are the following:
 
-This depends on libglut (Used to output frames to the screen).
+`sudo apt install libmpich-dev freeglut3-dev libmagick++-dev`
 
-If you intend to run this on multiple cores (you should) it requires MPI.
+ImageMagick++ is Used to output frames to .jpg images from which movies can be composited. On Ubuntu, this is currently libmagick++-dev
+
+libglut is used to output frames to the screen. On Ubuntu, the package is freeglut3-dev
+
+If you intend to run this on multiple cores (you should) it requires MPI. On Ubuntu, the package is libmpich-dev
 
 ### Install
 
@@ -95,7 +101,7 @@ will hit an object (unless the light is fully enclosed by surfaces).
 
 <video controls>
   <source src="https://kingcountybusinesslaw.com/misc/largescene-ns-40N-mpi4-0.ogv" type="video/ogg">
-Your browser does not support the video tag.
+  <img src="https://kingcountybusinesslaw.com/misc/largescene-ns-40N-mpi4-0.gif"/>
 </video> 
 
 This is a video showing an image generated with from 1000 to 79000 photons (1,000 extra in each frame, starting at 1000). It was generated in a for loop with `mpirun -n 4 -s largescene1.dat -n NUMPHOTONS -N 40`
@@ -106,7 +112,7 @@ As this video shows, an image created with only a few photons reveals many artif
 
 <video controls>
   <source src="https://kingcountybusinesslaw.com/misc/largescene-n55k-Ns-mpi4-0.ogv" type="video/ogg">
-Your browser does not support the video tag.
+  <img src="https://kingcountybusinesslaw.com/misc/largescene-n55k-Ns-mpi4-0.gif"/>
 </video> 
 
 This is an assembly of frames generated with `mpirun -n 4 -s largescene1.dat -n 55000 -N NUMNEIGHBORS`
@@ -131,13 +137,4 @@ window (using glut) and/or the next file (using ImageMagick++).
 
 ### A Note
 
-I simultaneously find this awesome and am embarassed by it. You can
-make amazing images today with simple code, good art, and a modern
-graphics library behind you. The 500MB g3d library, for example, has a
-nice photon mapper sample. Still, this was a great project to work on
-and to parallelize. I developed this for my graphics class, worked on it
-as part of a graphics independent study, did some work on it when out
-of college for fun, and one other student helped with it for a few
-weeks as part of a joint project for our parallel processing
-class. And then he became a hadoop expert, so it seems to have worked
-for learning stuff. :)
+Like most code we try to grow beyond, I simultaneously find this awesome and am embarassed by it. You can make amazing images today with simple code, good art, and a modern graphics library behind you. The 500MB g3d library, for example, has a nice photon mapper sample. Still, this was a great project to work on and to parallelize. I developed this for my graphics class, parallellized it with one other student as the final project for our parallel processing class, and worked on it a bit as part of a graphics independent study. After college I continued to pick it up occasionally and do some work on it for fun.
