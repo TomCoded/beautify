@@ -20,21 +20,21 @@ This is a photon mapper built without modern graphics libraries.
 
 ### Example
 
-*note: If your browser or the markdown viewing engine for this repository viewer does not support the HTML5 video tag, a lower-quality gif image will be used instead.
+*note: If your browser or the markdown viewing engine for this repository viewer does not support the HTML5 video tag, a link to the video will be provided instead. Github has difficulty showing video.
 
 <video controls>
   <source src="https://kingcountybusinesslaw.com/misc/largescene5-n56k-N42-d0.05-D0.2-mpi4.ogv" type="video/ogg">
-<img src="https://kingcountybusinesslaw.com/misc/largescene5-n56k-N42-d0.05-D0.2-mpi4.gif" type="image/gif"/>
+<a href="https://kingcountybusinesslaw.com/misc/largescene5-n56k-N42-d0.05-D0.2-mpi4.ogv">[Link to Video]</a>
 </video> 
 
 <video controls>
   <source src="https://kingcountybusinesslaw.com/misc/largescene4-n55k-N42-D0.15-mpi4.ogv" type="video/ogg">
-  <img src="https://kingcountybusinesslaw.com/misc/largescene4-n55k-N42-D0.15-mpi4.gif"/>
+<a href="https://kingcountybusinesslaw.com/misc/largescene4-n55k-N42-D0.15-mpi4.ogv">[Link to Video</a>
 </video> 
 
 <video controls>
   <source src="https://kingcountybusinesslaw.com/misc/largescene3-n20k-N30-d.05-D.1.ogv" type="video/ogg">
-  <img src="https://kingcountybusinesslaw.com/misc/largescene3-n20k-N30-d.05-D.1.gif"/>
+  <a href="https://kingcountybusinesslaw.com/misc/largescene3-n20k-N30-d.05-D.1.gif">[Link to Video]</a>
 </video> 
 
 ### Dependencies
@@ -101,7 +101,7 @@ will hit an object (unless the light is fully enclosed by surfaces).
 
 <video controls>
   <source src="https://kingcountybusinesslaw.com/misc/largescene-ns-40N-mpi4-0.ogv" type="video/ogg">
-  <img src="https://kingcountybusinesslaw.com/misc/largescene-ns-40N-mpi4-0.gif"/>
+  <a href="https://kingcountybusinesslaw.com/misc/largescene-ns-40N-mpi4-0.ogv">[Link to Video]</a>
 </video> 
 
 This is a video showing an image generated with from 1000 to 79000 photons (1,000 extra in each frame, starting at 1000). It was generated in a for loop with `mpirun -n 4 -s largescene1.dat -n NUMPHOTONS -N 40`
@@ -112,7 +112,7 @@ As this video shows, an image created with only a few photons reveals many artif
 
 <video controls>
   <source src="https://kingcountybusinesslaw.com/misc/largescene-n55k-Ns-mpi4-0.ogv" type="video/ogg">
-  <img src="https://kingcountybusinesslaw.com/misc/largescene-n55k-Ns-mpi4-0.gif"/>
+  <a href="https://kingcountybusinesslaw.com/misc/largescene-n55k-Ns-mpi4-0.gif">[Link to Video]</a>
 </video> 
 
 This is an assembly of frames generated with `mpirun -n 4 -s largescene1.dat -n 55000 -N NUMNEIGHBORS`
