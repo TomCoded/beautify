@@ -24,7 +24,7 @@ This is a photon mapper built without modern graphics libraries.
 
 <video controls>
   <source src="https://kingcountybusinesslaw.com/misc/largescene5-n56k-N42-d0.05-D0.2-mpi4.ogv" type="video/ogg">
-<img src="https://kingcountybusinesslaw.com/misc/largescene5-n56k-N42-d0.05-D0.2-mpi4.ogv" type="image/gif"/>
+<img src="https://kingcountybusinesslaw.com/misc/largescene5-n56k-N42-d0.05-D0.2-mpi4.gif" type="image/gif"/>
 </video> 
 
 <video controls>
