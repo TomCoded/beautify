@@ -13,10 +13,6 @@
 
 void display();
 
-#ifdef PARALLEL
-MPI_Datatype MPI_PHOTON;
-#endif
-
 extern Scene * g_Scene;
 extern PhotonMap * g_map;
 extern bool g_parallel;

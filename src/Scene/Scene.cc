@@ -24,6 +24,7 @@
 void saveMap(PhotonMap * pmap, std::string fileName);
 
 #ifdef PARALLEL
+MPI_Datatype MPI_PHOTON;
 int g_nFrame;
 #endif
 
