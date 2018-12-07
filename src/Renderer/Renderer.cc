@@ -678,7 +678,7 @@ Point3Dd Renderer::getSpecularColor(std::shared_ptr<Ray> sampleRay)
   tClose = 50000;
   auto itSurfaces = myScene->getSurfaces()->begin();  
   auto lastSurface = myScene->getSurfaces()->end();
-  std::shared_ptr<Surface> closestSurface = NULL;
+  std::shared_ptr<Surface> closestSurface = nullptr;
   while(itSurfaces!=lastSurface)
     { //for all surfaces in scene
       //determine the t-Value of the closest intersect
@@ -826,7 +826,7 @@ std::shared_ptr<Surface> Renderer::closestSurfaceAlongRay(std::shared_ptr<Ray> s
   
   auto itSurfaces = myScene->getSurfaces()->begin();  
   auto lastSurface = myScene->getSurfaces()->end();
-  std::shared_ptr<Surface> closestSurface = NULL;
+  std::shared_ptr<Surface> closestSurface = nullptr;
 
 #ifdef DEBUG_BUILD
   static int total=0; static int intersected=0;
