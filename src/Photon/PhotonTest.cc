@@ -44,8 +44,11 @@ TEST_F(photonTest,photonInWorks) {
       std::string(" ");
   }
   int offset = (int)round((drand48() * 1000000));
-  short flag = (int)round((drand48() * 20000));
+  short flag = (short int)round((drand48() * 20000));
+  short bounced = (short int)round((drand48() * 20000));
   testString += std::to_string(flag);
+  testString += std::string(" ");
+  testString += std::to_string(bounced);
   testString += std::string(" ");
   testString += std::to_string(offset);
   
@@ -59,8 +62,9 @@ TEST_F(photonTest,photonInWorks) {
   for(int i=0; i<9; i++) {
     EXPECT_EQ( ((float*)(p1))[i], nineFloats[i] );
   }
-  EXPECT_EQ( p1->offset, offset );
   EXPECT_EQ( p1->flag, flag );
+  EXPECT_EQ( p1->bounced, bounced );
+  EXPECT_EQ( p1->offset, offset );
 }
 
 
