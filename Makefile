@@ -48,7 +48,7 @@ clean:
 	rm -rf $(OBJS) $(TESTOBJS)
 
 test: $(TESTOBJS) 
-	$(CC) $(CCFLAGS) $(TESTOBJS) -o bin/test $(LDFLAGS) $(GTESTFLAGS)
+	$(CC) $(CCFLAGS) $(TESTOBJS) -o bin/test $(LDFLAGS) $(GTESTFLAGS) $(GTESTLIBDIRS)
 	bin/test
 
 

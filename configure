@@ -320,5 +320,7 @@ if test "$gprof" = "yes" ; then
   echo "TARGET_GPROF=yes" >> config.mak
 fi
 
+echo GTESTLIBDIRS=`pkg-config --lflags google-test` >> config.mak
+
 rm -f $TMPO $TMPC $TMPS $TMPH
 rm -f beautify-conf*.o
