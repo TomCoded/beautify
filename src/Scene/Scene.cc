@@ -9,6 +9,7 @@
 #include <string>
 #include <sys/time.h>
 #include <string.h>
+#include <unistd.h>
 #include <GL/glut.h>
 #include <Magick++.h>
 #include <PhotonMap/PhotonMap.h>
@@ -380,6 +381,36 @@ Scene::~Scene()
   delete materials;
 
   if(myRenderer) delete myRenderer;
+}
+
+// Initialized MPI and returns the number of nodes
+int Scene::initMPI() {
+  int nodes=1;
+#ifdef PARALLEL
+
+  {
+    MPI_Comm_size(MPI_COMM_WORLD,&nodes);
+
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+    char hostname[63];
+    gethostname(hostname,63);
+    std::cout << "Process " << rank << " running on " 
+	      << hostname <<std::endl;
+  }
+  int blocklen[3] = { 9, 1, 1 };
+  MPI_Aint disp[3] = { 0, (9 * sizeof(float)), (9*sizeof(float)+sizeof(int)) };
+  MPI_Datatype types[3] = { MPI_FLOAT, MPI_INT, MPI_SHORT };
+  if (MPI_Type_struct(3,blocklen,disp,types,&MPI_PHOTON) != MPI_SUCCESS) {
+    std::cerr << "Could not initialize MPI_PHOTON.\n";
+    exit(1);
+  }
+  if (MPI_Type_commit(&MPI_PHOTON) != MPI_SUCCESS) {
+    std::cerr << "Could not commit MPI_PHOTON.\n";
+    exit(1);
+  }
+#endif
+  return nodes;
 }
 
 // Scene features

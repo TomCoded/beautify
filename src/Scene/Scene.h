@@ -44,9 +44,12 @@ public:
   // destructor
   ~Scene();
 
+  //initializes MPI
+  static int initMPI();
+  
   // Read contents of a scene file, skipping over unimplemented features
   void ReadFile(std::string fileName);
-
+  
   //renders a single frame into logicalImage
   void drawSingleFrame(double time);
 
@@ -112,6 +115,7 @@ public:
   
 protected:
 
+  
   int numNeighbors;
   int nPhotons;
   int minDist, maxDist;
