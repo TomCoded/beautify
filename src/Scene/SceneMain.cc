@@ -18,9 +18,6 @@ extern PhotonMap * g_map;
 extern bool g_parallel;
 extern bool g_suppressGraphics;
 
-PhotonMap * loadMap(std::string fileName);
-void saveMap(PhotonMap *, std::string fileName);
-
 int initMPI();
 void printHelp(char ** argv);
 
@@ -105,7 +102,7 @@ int main(int argc, char ** argv) {
   if(nPhotons) {
     if(mapImport) {
       std::cout << "Inputting map from " << mapInName <<std::endl;
-      g_map = loadMap(mapInName);
+      g_map = PhotonMap.loadMap(mapInName);
       std::cout << "Map Loaded\n";
     }
 #ifdef PARALLEL
@@ -136,7 +133,7 @@ int main(int argc, char ** argv) {
     ASSERT(false,"Map Export Not Supported.");
     if(g_map) {
       std::cout << "Outputting map to " << mapOutName <<std::endl;
-      saveMap(g_map,mapOutName);
+      PhotonMap.saveMap(g_map,mapOutName);
     }
   }
   
@@ -206,35 +203,3 @@ void printHelp(char ** argv) {
     std::cout << "  NOTE: Parallel execution should be started with mpirun";
 }
 
-PhotonMap * loadMap(std::string fileName)
-{
-  std::ifstream inFile(fileName.c_str());
-  if(!inFile)
-    {
-      std::cerr << "Could not open file to load.\n";
-      exit(1);
-    }
-  else
-    {
-      PhotonMap * myMap = new PhotonMap();
-      myMap->in(inFile);
-      inFile.close();
-      return myMap;
-    }
-  return 0;
-}
-
-void saveMap(PhotonMap * pmap, std::string fileName)
-{
-  std::ofstream outFile(fileName.c_str());
-  if(!outFile)
-    {
-      std::cerr << "Could not open file to save.\n";
-    }
-  else
-    {
-      pmap->out(outFile);
-      std::cout << "Photon Map saved to " << fileName <<std::endl;
-      outFile.close();
-    }
-}

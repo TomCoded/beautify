@@ -1,4 +1,5 @@
 #include "Defs.h"
+#include <fstream>
 #include "PhotonMap.h"
 
 
@@ -37,6 +38,39 @@ bool PhotonMap::isSearchable() const {
       )
     return false;
   return true;
+}
+
+PhotonMap * PhotonMap::loadMap(std::string fileName)
+{
+  std::ifstream inFile(fileName.c_str());
+  if(!inFile)
+    {
+      std::cerr << "Could not open file to load.\n";
+      exit(1);
+    }
+  else
+    {
+      PhotonMap * myMap = new PhotonMap();
+      myMap->in(inFile);
+      inFile.close();
+      return myMap;
+    }
+  return 0;
+}
+
+void PhotonMap::saveMap(PhotonMap * pmap, std::string fileName)
+{
+  std::ofstream outFile(fileName.c_str());
+  if(!outFile)
+    {
+      std::cerr << "Could not open file to save.\n";
+    }
+  else
+    {
+      pmap->out(outFile);
+      std::cout << "Photon Map saved to " << fileName <<std::endl;
+      outFile.close();
+    }
 }
 
 void PhotonMap::addPhoton(Photon &p){

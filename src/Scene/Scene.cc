@@ -20,9 +20,6 @@
 //saves volume map to volmap.map
 // #define SAVE_VOLMAP
 
-//in SceneTest.cc
-void saveMap(PhotonMap * pmap, std::string fileName);
-
 #ifdef PARALLEL
 MPI_Datatype MPI_PHOTON;
 int g_nFrame;
@@ -1067,7 +1064,7 @@ void Scene::toLogicalImageInParallel() {
     for(auto &pMap: *photonMaps) { pMap->distributeTree(); }
 #ifdef SAVE_VOLMAP
     if(!rank) {
-      saveMap(myRenderer->getVolMap(),"volmap.map");
+      PhotonMap.saveMap(myRenderer->getVolMap(),"volmap.map");
     }
 #endif
 

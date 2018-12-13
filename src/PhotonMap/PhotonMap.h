@@ -40,6 +40,9 @@ class PhotonMap {
   PhotonMap(PhotonMap&);
   ~PhotonMap();
 
+  static void saveMap(PhotonMap * pmap, std::string fileName);
+  static PhotonMap * loadMap(std::string fileName);
+  
   void addPhoton(Photon&);
 
   void buildTree();
