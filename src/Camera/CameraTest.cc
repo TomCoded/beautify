@@ -19,7 +19,9 @@ namespace {
 
 TEST_F(CameraTest,defaultConstructor) {
   EXPECT_EQ(cam.eye.x,0.0);
+  EXPECT_EQ(cam.eye.y,0.0);
   EXPECT_EQ(cam.eye.z,2.0);
+  EXPECT_EQ(cam.eye.data[3],1.0);
   EXPECT_EQ(cam.aspectRatio,1.0);
 }
 
@@ -39,11 +41,11 @@ TEST_F(CameraTest,assignment) {
 TEST_F(CameraTest,getRay) {
   for(int r=0; r<20; r++) {
     for(int c=0; c<15; c++) {
-      Ray r1 = cam.getRay(r,c);
-      EXPECT_TRUE( r1 == cam2.getRay(r,c) );
-      EXPECT_TRUE( r1.dir.z == -1 );
+      std::shared_ptr<Ray> r1 = cam.getRay(r,c);
+      EXPECT_TRUE( *r1 == *cam2.getRay(r,c) );
+      EXPECT_TRUE( r1->dir.z == -1 );
       if(c<7) {
-	EXPECT_LT( r1.dir.x, 0.0 );
+	EXPECT_LT( r1->dir.x, 0.0 );
       }
     }
   }
@@ -96,7 +98,9 @@ TEST_F(CameraTest,setTime) {
 TEST_F(CameraTest,getRayConsistent) {
   for(int r=0; r<20; r++) {
     for(int c=0; c<15; c++) {
-      EXPECT_TRUE( cam.getRay(r,c) == cam2.getRay(r,c) );
+      std::shared_ptr<Ray> r1 = cam.getRay(r,c);
+      std::shared_ptr<Ray> r2 = cam2.getRay(r,c);
+      EXPECT_EQ( *r1, *r2 );
     }
   }
 }
