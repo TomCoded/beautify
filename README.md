@@ -3,7 +3,7 @@ Beautify
 
 ### Photon Mapper
 
-This is a photon mapper built without modern graphics libraries.
+This is a photon mapper built without substantial use of graphics libraries.
 
 - Reads and parses complex scene files into a scene including lights, objects, shapes, materials, and fixed and dynamic transformations.
 - Distributes the scene to multple processes.
@@ -137,4 +137,4 @@ window (using glut) and/or the next file (using ImageMagick++).
 
 ### A Note
 
-Like most code we try to grow beyond, I simultaneously find this awesome and am embarassed by it. You can make amazing images today with simple code, good art, and a modern graphics library behind you. The 500MB g3d library, for example, has a nice photon mapper sample. Still, this was a great project to work on and to parallelize. I developed this for my graphics class, parallellized it with one other student as the final project for our parallel processing class, and worked on it a bit as part of a graphics independent study. After college I continued to pick it up occasionally and do some work on it for fun.
+Like most code we try to grow beyond, I simultaneously find this awesome and am embarassed by it. I've learned much more about how to write good code since I first put this together. You can also make amazing images today with simple code, good art, and a modern graphics library behind you. The 500MB g3d library, for example, has a nice photon mapper sample. Still, this was a great project to work on and to parallelize. I developed this for my graphics class, parallellized it with one other student as the final project for our parallel processing class, and worked on it a bit as part of a graphics independent study. After college I continued to pick it up occasionally and do some work on it for fun.
