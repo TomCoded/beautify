@@ -1,3 +1,4 @@
+#include <parallel_pm.h>
 #include "Scene.h"
 #include <GL/glut.h>
 #include <gtest/gtest.h>
@@ -13,6 +14,7 @@ extern bool g_suppressGraphics;
 extern bool g_parallel;
 
 bool glutInitialized=false;
+bool MPIInitialized=false;
 
 namespace {
   class SceneTest : public ::testing::Test {
@@ -20,13 +22,21 @@ namespace {
     SceneTest() {
       g_suppressGraphics=false;
       g_parallel=false;
-
-      if(!glutInitialized) {
+      
+      if(!glutInitialized || !MPIInitialized) {
 	char *myargv [1];
 	int myargc=1;
 	myargv [0]=strdup ("beautify");
-	glutInit(&myargc, myargv);
-	glutInitialized=true;
+	if(!glutInitialized) {
+	  glutInit(&myargc, myargv);
+	  glutInitialized=true;
+	}
+	if(!MPIInitialized) {
+	  std::cerr << "Note: testing environment assumes compilation with MPI enabled." << std::endl;
+	  MPI_Init(&myargc, (char ***)&myargv);
+	  nodes = Scene::initMPI();
+	  MPIInitialized = true;
+	}
       }
       
       scene = new Scene();
@@ -41,6 +51,7 @@ namespace {
     //const char * tmpDir="/tmp";
     const char * outFilenameBase="tmpSceneTest";
     const char * outFilename="tmpSceneTest0.jpg";
+    int nodes=1;
     Scene * scene;
 
     void makeGradient() {
